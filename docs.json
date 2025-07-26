@@ -65,18 +65,33 @@
       {
         "tab": "API Reference",
         "groups": [
-          {
-            "group": "Documentation",
-            "pages": [
-              "introduction",
-              "quickstart",
-              "development"
-            ]
-          }
+                    {
+                        "group": "Get Started",
+                        "pages": [
+                            "api-reference/overview"
+                        ]
+                    },
+                    {
+                        "group": "Proctoring",
+                        "pages": [
+                            {
+                                "group": "Provisioning",
+                                "icon": "building",
+                                "pages": [
+                                    "api-reference/proctoring/exams/provision"
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
         ]
-      }
-    ]
   },
+  "api": {
+        "openapi": [
+            "openapi.json"
+        ]
+    },
   "logo": {
     "light": "https://cdn.prod.website-files.com/650b016f7e13a7d9de337f22/6629053ca1393100c09aa484_SmarterServices%20Logo.png",
     "dark": "https://cdn.prod.website-files.com/650b016f7e13a7d9de337f22/6629053ca1393100c09aa484_SmarterServices%20Logo.png"
