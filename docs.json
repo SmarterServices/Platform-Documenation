@@ -1,0 +1,97 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "SmarterServices Platform",
+  "colors": {
+    "primary": "#015692",
+    "light": "#0D9373",
+    "dark": "#0D9373"
+  },
+  "favicon": "/favicon.svg",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Documentation",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "development"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Assessment",
+        "groups": [
+          {
+            "group": "Documentation",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "development"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Proctoring",
+        "groups": [
+          {
+            "group": "Documentation",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "development"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Embedding",
+        "groups": [
+          {
+            "group": "Documentation",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "development"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Documentation",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "development"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "logo": {
+    "light": "https://cdn.prod.website-files.com/650b016f7e13a7d9de337f22/6629053ca1393100c09aa484_SmarterServices%20Logo.png",
+    "dark": "https://cdn.prod.website-files.com/650b016f7e13a7d9de337f22/6629053ca1393100c09aa484_SmarterServices%20Logo.png"
+  },
+  "navbar": {
+        "links": [
+            {
+                "label": "Support",
+                "href": "https://intercom.help/smarterservices-llc-028a8a0949b6/en"
+            }
+        ],
+        "primary": {
+            "type": "button",
+            "label": "Login",
+            "href": "https://app.smarterservices.com"
+        }
+    }
+}

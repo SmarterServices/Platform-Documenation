@@ -90,10 +90,3 @@ Here's a simple example of using SmarterElements:
   });
 </script>
 ```
-
-## Next Steps
-
-- Learn how to [install SmarterElements](./installation)
-- Explore the available [components](./components)
-- Understand [events and callbacks](./events)
-- Customize appearance with [theming](./theming)

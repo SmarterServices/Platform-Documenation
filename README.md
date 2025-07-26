@@ -45,7 +45,7 @@ To preview the documentation locally:
    mintlify dev docs/public
    ```
 
-3. Open your browser to `http://localhost:3000`
+3. Open your browser to `http://localhost:4000`
 
 ### Deployment
 
