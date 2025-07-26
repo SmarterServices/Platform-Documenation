@@ -8,20 +8,43 @@ icon: "puzzle-piece"
 The following diagram shows the data model for the Proctoring application.
 
 ```mermaid
-  flowchart LR
-    subgraph subgraph1
-        direction TB
-        top1[top] --> bottom1[bottom]
-    end
-    subgraph subgraph2
-        direction TB
-        top2[top] --> bottom2[bottom]
-    end
-    %% ^ These subgraphs are identical, except for the links to them:
+  classDiagram
+    class Account
+    class Deployment
+    class Install
+    class Course
+    class User
+    class Enrollment
+    class InstallIntegration
+    class Exam
+    class ExamConfiguration
+    class ProctorType
+    class ModalityOption
+    class PermittedItem
+    class ProctorGroup
 
-    %% Link *to* subgraph1: subgraph1 direction is maintained
-    outside --> subgraph1
-    %% Link *within* subgraph2:
-    %% subgraph2 inherits the direction of the top-level graph (LR)
-    outside ---> top2
+    Account "1" --> "1..*" Deployment : contains
+    Deployment "1" --> "1..*" Install : contains
+    Deployment "1" --> "0..*" Course : contains
+    Deployment "1" --> "0..*" User : contains
+
+    Install "1" --> "0..*" InstallIntegration : contains
+    Install "1" --> "0..*" ProctorGroup : contains
+
+    Course "1" --> "0..*" Exam : contains
+
+    Exam "1" --> "1..*" ExamConfiguration : has
+
+    ExamConfiguration "1" --> "1..*" ProctorType : has
+    ExamConfiguration "1" --> "1..*" ModalityOption : has
+    ExamConfiguration "1" --> "1..*" PermittedItem : has
+
+    ProctorGroup "1" --> "1..*" ProctorType : allows
+
+    Course "1" <-- "0..*" Enrollment : enrolled in
+    User "1" <-- "0..*" Enrollment : has
+
+    Enrollment --> Course : targets
+    Enrollment --> User : for
+
 ```
