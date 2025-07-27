@@ -94,7 +94,7 @@
   "api": {
         "openapi": [
             "proctoring/api/openapi.json",
-            "assessments/api/openapi.json"
+            "assessment/api/openapi.json"
         ]
     },
   "logo": {
