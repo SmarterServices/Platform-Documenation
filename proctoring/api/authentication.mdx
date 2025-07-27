@@ -1,0 +1,25 @@
+---
+title: Authentication
+description: "Authentication for SmarterProctoring API"
+icon: "key"
+---
+
+## API Security
+All requests to the SmarterProctoring API must be submitted using SSL.
+
+## JWT Token Authentication
+The SmarterProctoring API uses JWT (JSON Web Token) authentication. Authentication is performed by including a valid JWT token in the `token` header of your requests.
+
+```http
+GET /v2/installs/{installSid}/provision HTTP/1.1
+Host: api.smarterproctoring.com
+token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+### Obtaining a Token
+To obtain a JWT token, you'll need to contact your SmarterProctoring account manager. The token will be provisioned based on your account's permissions and access levels.
+
+### Token Security
+- Keep your JWT token secure and do not share it in public repositories or client-side code
+- Tokens have an expiration time, after which they will no longer be valid
+- If your token is compromised, contact your SmarterProctoring account manager immediately to have it revoked

@@ -1,0 +1,375 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+      "title": "Multi-Server API",
+      "version": "1.0.0"
+    },
+    "servers": [
+      {
+        "url": "https://api.defaultservice.com/v1",
+        "description": "Default service base URL"
+      }
+    ],
+    "security": [
+      {
+        "basicAuth": []
+      }
+    ],
+    "components": {
+      "securitySchemes": {
+        "basicAuth": {
+          "type": "http",
+          "scheme": "basic",
+          "description": "Basic authentication with username and password"
+        }
+      }
+    },
+    "paths": {
+      "/users": {
+        "servers": [
+          {
+            "url": "https://api.smartermeasure.com/v3",
+            "description": "SmarterMeasure User Service"
+          }
+        ],
+        "get": {
+          "summary": "Returns all users.",
+          "parameters": [
+            { "in": "query", "name": "UserID", "schema": { "type": "string" }, "description": "Only show users with this UserID." },
+            { "in": "query", "name": "InternalID", "schema": { "type": "string" }, "description": "Only show users with this InternalID." },
+            { "in": "query", "name": "Email", "schema": { "type": "string" }, "description": "Only show users with this email address." },
+            { "in": "query", "name": "FirstName", "schema": { "type": "string" }, "description": "Only show users with this first name." },
+            { "in": "query", "name": "LastName", "schema": { "type": "string" }, "description": "Only show users with this last name." },
+            { "in": "query", "name": "AccessCode", "schema": { "type": "string" }, "description": "Only show users with this access code." },
+            { "in": "query", "name": "OrderBy", "schema": { "type": "string" }, "description": "How the results should be ordered." },
+            { "in": "query", "name": "ExcludeCustomQuestions", "schema": { "type": "boolean", "default": true }, "description": "Exclude custom questions from results." },
+            { "in": "query", "name": "limit", "schema": { "type": "integer", "default": 50, "maximum": 1000 }, "description": "Limit number of records returned." },
+            { "in": "query", "name": "offset", "schema": { "type": "integer", "default": 1 }, "description": "Offset of the first row." },
+            { "in": "query", "name": "AssessmentKey", "schema": { "type": "string" }, "description": "Comma delimited list of AssessmentKeys." },
+            { "in": "query", "name": "AdministrativeGroupKey", "schema": { "type": "string" }, "description": "Comma delimited list of AdministrativeGroupKeys." }
+          ],
+          "responses": {
+            "200": {
+              "description": "A list of users."
+            }
+          }
+        },
+        "post": {
+          "summary": "Create a new user.",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["GroupKey", "FirstName", "LastName", "Email"],
+                  "properties": {
+                    "GroupKey": { "type": "number" },
+                    "FirstName": { "type": "string" },
+                    "LastName": { "type": "string" },
+                    "Email": { "type": "string" },
+                    "InternalID": { "type": "string" },
+                    "Gender": { "type": "string", "enum": ["M", "F"] },
+                    "EthnicityID": { "type": "number" },
+                    "AgeRange": { "type": "string" },
+                    "HowManyCoursesTaken": { "type": "string" },
+                    "Custom": {
+                      "type": "object",
+                      "additionalProperties": { "type": "string" }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "User created."
+            }
+          }
+        }
+      },
+      "/users/{userid}": {
+        "servers": [
+          {
+            "url": "https://api.smartermeasure.com/v3",
+            "description": "SmarterMeasure User Service"
+          }
+        ],
+        "get": {
+          "summary": "Returns details for a specific user.",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "userid",
+              "required": true,
+              "schema": { "type": "number" },
+              "description": "User that should be returned."
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "User details."
+            }
+          }
+        },
+        "put": {
+          "summary": "Updates the meta data for a user.",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "userid",
+              "required": true,
+              "schema": { "type": "number" },
+              "description": "User that should be updated."
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "FirstName": { "type": "string" },
+                    "LastName": { "type": "string" },
+                    "Email": { "type": "string" },
+                    "InternalID": { "type": "string" },
+                    "Gender": { "type": "string", "enum": ["M", "F"] },
+                    "EthnicityID": { "type": "number" },
+                    "AgeRange": { "type": "string" },
+                    "HowManyCoursesTaken": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "User metadata updated."
+            }
+          }
+        }
+      },
+      "/users/{userid}/results": {
+        "servers": [
+          {
+            "url": "https://api.smartermeasure.com/v3",
+            "description": "SmarterMeasure User Service"
+          }
+        ],
+        "get": {
+          "summary": "Returns results for a specific user.",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "userid",
+              "required": true,
+              "schema": { "type": "number" },
+              "description": "User that should be returned."
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "User results."
+            }
+          }
+        }
+      },
+      "/users/{userid}/signon": {
+        "servers": [
+          {
+            "url": "https://api.smartermeasure.com/v3",
+            "description": "SmarterMeasure User Service"
+          }
+        ],
+        "get": {
+          "summary": "Provides a URL that can be used to sign the user into the system.",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "userid",
+              "required": true,
+              "schema": { "type": "number" },
+              "description": "User that should be returned."
+            },
+            {
+              "in": "query",
+              "name": "UseSSL",
+              "schema": { "type": "boolean", "default": true },
+              "description": "If this is set to true, the redirect URL will be provided with https."
+            },
+            {
+              "in": "query",
+              "name": "IncludeSettings",
+              "schema": { "type": "boolean", "default": false },
+              "description": "If set to true, the custom settings supplied with the integration you are using will be applied."
+            },
+            {
+              "in": "query",
+              "name": "RedirectToSection",
+              "schema": { "type": "number" },
+              "description": "This only applies to disaggregate mode. If supplied the user will be directed to this section of the assessment upon logging in."
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Sign-on URL for the user."
+            }
+          }
+        }
+      },
+      "/users/{userid}/reportlink": {
+        "servers": [
+          {
+            "url": "https://api.smartermeasure.com/v3",
+            "description": "SmarterMeasure User Service"
+          }
+        ],
+        "get": {
+          "summary": "Provides a URL that can be used to view the report for the user.",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "userid",
+              "required": true,
+              "schema": { "type": "number" },
+              "description": "User that should be returned."
+            },
+            {
+              "in": "query",
+              "name": "ttl",
+              "schema": { "type": "number", "default": 2 },
+              "description": "The number of minutes the link should be valid for. Default is 2 minutes, max is 90 days."
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Report link URL for the user."
+            }
+          }
+        }
+      },
+      "/users/{userid}/report": {
+        "servers": [
+          {
+            "url": "https://api.smartermeasure.com/v3",
+            "description": "SmarterMeasure User Service"
+          }
+        ],
+        "get": {
+          "summary": "Returns the report for a specific user.",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "userid",
+              "required": true,
+              "schema": { "type": "number" },
+              "description": "User that should be returned."
+            },
+            {
+              "in": "query",
+              "name": "Type",
+              "schema": { "type": "string" },
+              "description": "The type of report to be returned."
+            },
+            {
+              "in": "query",
+              "name": "Format",
+              "schema": { "type": "string", "default": "pdf" },
+              "description": "The format the report should be returned in."
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "User report."
+            }
+          }
+        }
+      },
+      "/orders": {
+        "get": {
+          "summary": "Returns all orders.",
+          "responses": {
+            "200": {
+              "description": "A list of orders."
+            }
+          }
+        }
+      },
+      "/results": {
+        "servers": [
+          {
+            "url": "https://api.smartermeasure.com/v3",
+            "description": "SmarterMeasure User Service"
+          }
+        ],
+        "get": {
+          "summary": "Returns result information for one or more users based on filters provided.",
+          "parameters": [
+            { "in": "query", "name": "UserID", "schema": { "type": "string" }, "description": "This can be a comma sep. list of SmarterMeasure user IDs." },
+            { "in": "query", "name": "InternalID", "schema": { "type": "string" }, "description": "InternalID" },
+            { "in": "query", "name": "FirstName", "schema": { "type": "string" }, "description": "FirstName" },
+            { "in": "query", "name": "LastName", "schema": { "type": "string" }, "description": "LastName" },
+            { "in": "query", "name": "EmailAddress", "schema": { "type": "string" }, "description": "EmailAddress" },
+            { "in": "query", "name": "Gender", "schema": { "type": "string" }, "description": "Gender" },
+            { "in": "query", "name": "AdminGroupUserName", "schema": { "type": "string" }, "description": "AdminGroupUserName" },
+            { "in": "query", "name": "TestingGroupUserName", "schema": { "type": "string" }, "description": "TestingGroupUserName" },
+            { "in": "query", "name": "ExtendedData", "schema": { "type": "string" }, "description": "ExtendedData - If passed in, the results will include the detailed scores for the sections passed in here. This is a comma delimited list. Valid data points are LifeFactors, LearnStyles, PersonalAttributes, TechComp, TechKnowledge, Demographic." },
+            { "in": "query", "name": "IncludeAccountRequestedData", "schema": { "type": "boolean", "default": false }, "description": "IncludeAccountRequestedData" },
+            { "in": "query", "name": "StartDate", "schema": { "type": "string" }, "description": "StartDate - When wanting to filter by date started, this is the start date of the date range." },
+            { "in": "query", "name": "EndDate", "schema": { "type": "string" }, "description": "EndDate - When wanting to filter by date started, this is the end date of the date range." },
+            { "in": "query", "name": "UpdateStartDate", "schema": { "type": "string" }, "description": "UpdateStartDate - When wanting to filter by date updated, this is the start date of the date range." },
+            { "in": "query", "name": "UpdateEndDate", "schema": { "type": "string" }, "description": "UpdateEndDate - When wanting to filter by date updated, this is the end date of the date range." },
+            { "in": "query", "name": "CompletionStartDate", "schema": { "type": "string" }, "description": "CompletionStartDate - When wanting to filter by date completed, this is the start date of the date range." },
+            { "in": "query", "name": "CompletionEndDate", "schema": { "type": "string" }, "description": "CompletionEndDate - When wanting to filter by date completed, this is the end date of the date range." },
+            { "in": "query", "name": "StartRecord", "schema": { "type": "integer", "default": 1 }, "description": "StartRecord" },
+            { "in": "query", "name": "EndRecord", "schema": { "type": "integer", "default": 50 }, "description": "EndRecord" }
+          ],
+          "responses": {
+            "200": {
+              "description": "A list of user results."
+            }
+          }
+        }
+      },
+      "/results/new": {
+        "servers": [
+          {
+            "url": "https://api.smartermeasure.com/v3",
+            "description": "SmarterMeasure User Service"
+          }
+        ],
+        "get": {
+          "summary": "Returns result information for one or more users based on filters provided.",
+          "parameters": [
+            { "in": "query", "name": "UserID", "schema": { "type": "string" }, "description": "This can be a comma sep. list of SmarterMeasure user IDs." },
+            { "in": "query", "name": "InternalID", "schema": { "type": "string" }, "description": "InternalID" },
+            { "in": "query", "name": "FirstName", "schema": { "type": "string" }, "description": "FirstName" },
+            { "in": "query", "name": "LastName", "schema": { "type": "string" }, "description": "LastName" },
+            { "in": "query", "name": "EmailAddress", "schema": { "type": "string" }, "description": "EmailAddress" },
+            { "in": "query", "name": "Gender", "schema": { "type": "string" }, "description": "Gender" },
+            { "in": "query", "name": "AdminGroupUserName", "schema": { "type": "string" }, "description": "AdminGroupUserName" },
+            { "in": "query", "name": "TestingGroupUserName", "schema": { "type": "string" }, "description": "TestingGroupUserName" },
+            { "in": "query", "name": "IncludeAccountRequestedData", "schema": { "type": "boolean", "default": false }, "description": "IncludeAccountRequestedData" },
+            { "in": "query", "name": "StartDate", "schema": { "type": "string" }, "description": "StartDate - When wanting to filter by date started, this is the start date of the date range." },
+            { "in": "query", "name": "EndDate", "schema": { "type": "string" }, "description": "EndDate - When wanting to filter by date started, this is the end date of the date range." },
+            { "in": "query", "name": "UpdateStartDate", "schema": { "type": "string" }, "description": "UpdateStartDate - When wanting to filter by date updated, this is the start date of the date range." },
+            { "in": "query", "name": "UpdateEndDate", "schema": { "type": "string" }, "description": "UpdateEndDate - When wanting to filter by date updated, this is the end date of the date range." },
+            { "in": "query", "name": "CompletionStartDate", "schema": { "type": "string" }, "description": "CompletionStartDate - When wanting to filter by date completed, this is the start date of the date range." },
+            { "in": "query", "name": "CompletionEndDate", "schema": { "type": "string" }, "description": "CompletionEndDate - When wanting to filter by date completed, this is the end date of the date range." },
+            { "in": "query", "name": "IncompleteOnly", "schema": { "type": "boolean", "default": false }, "description": "IncompleteOnly" },
+            { "in": "query", "name": "CompleteOnly", "schema": { "type": "boolean", "default": false }, "description": "CompleteOnly" },
+            { "in": "query", "name": "StartRecord", "schema": { "type": "integer", "default": 1 }, "description": "StartRecord" },
+            { "in": "query", "name": "EndRecord", "schema": { "type": "integer", "default": 50 }, "description": "EndRecord" }
+          ],
+          "responses": {
+            "200": {
+              "description": "A list of user results."
+            }
+          }
+        }
+      }
+    }
+  }
+  

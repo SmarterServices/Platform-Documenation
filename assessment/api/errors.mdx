@@ -1,0 +1,16 @@
+---
+title: Error Messages & Codes
+---
+
+# Error Messages & Codes
+
+| Error Code | HTTP Status | Message |
+|-----------|------------|----------|
+| AUTHENTICATIONFAILED | 403 (Forbidden) | The server failed to authenticate the request. Verify that the value of Authorization header is formed correctly and includes the signature. |
+| INTERNALERROR | 500 (Internal Server Error) | The server encountered an internal error. Please retry the request. |
+| INVALIDAUTHENTICATIONINFO | 400 (Bad Request) | The authentication information was not provided in the correct format. Verify the value of Authorization header. |
+| INVALIDINPUT | 400 (Bad Request) | One or more of the request inputs is not valid. |
+| INVALIDPROTOCOL | 400 (Bad Request) | The request was not made under a secure connection, all requests must be made under SSL. |
+| INVALIDURI | 400 (Bad Request) | The requested URI does not represent any resource on the server. |
+| RESOURCENOTFOUND | 404 (Not Found) | The specified resource does not exist. |
+| UNSUPPORTEDHTTPVERB | 405 (Method Not Allowed) | The resource doesn't support the specified HTTP verb. |

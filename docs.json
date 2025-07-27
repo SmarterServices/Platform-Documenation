@@ -5,91 +5,96 @@
   "colors": {
     "primary": "#015692",
     "light": "#0D9373",
-    "dark": "#0D9373"
+    "dark": "#015692"
   },
   "favicon": "/favicon.png",
   "navigation": {
-    "tabs": [
-      {
-        "tab": "Documentation",
-        "groups": [
+  "dropdowns": [
+    {
+      "dropdown": "Platform",
+      "description": "General platform information",
+      "icon": "layer-group",
+      "pages": [
+        "index"
+      ]
+    },
+    {
+      "dropdown": "Assessment",
+      "description": "SmarterMeasure and other assessment solutions",
+      "icon": "pen-to-square",
+      "groups": [
           {
-            "group": "Documentation",
+            "group": "API Reference",
             "pages": [
-              "introduction",
-              "quickstart",
-              "development"
+              "assessment/api/introduction",  
+              "assessment/api/authentication",
+              "assessment/api/errors",
+              {
+                    "group": "Users/Assessments",
+                    "icon": "building",
+                    "pages": [
+                      "assessment/api/users/create-user",  
+                      "assessment/api/users/list-users",                        
+                      "assessment/api/users/get-user",
+                      "assessment/api/users/update-user",
+                      "assessment/api/users/signon",
+                      "assessment/api/users/report-link"                      
+                    ]
+                },
+                {
+                  "group": "Results",
+                  "icon": "building",
+                  "pages": [
+                      "assessment/api/results/user-results",
+                      "assessment/api/results/user-report",
+                      "assessment/api/results/search",
+                      "assessment/api/results/search-expanded"
+                  ]
+              }
             ]
-          }
+        }
         ]
-      },
-      {
-        "tab": "Assessment",
-        "groups": [
-          {
-            "group": "Documentation",
-            "pages": [
-              "introduction",
-              "quickstart",
-              "development"
+    },
+    {
+      "dropdown": "Proctoring",
+      "description": "SmarterProctoring and other proctoring solutions",
+      "icon": "camera-security",
+      "groups": [
+        {
+
+          "group": "Getting Started",
+          "pages": [
+            "proctoring/introduction",  
+            "proctoring/datamodel"
+          ]
+        },
+        {
+          "group": "API Reference",
+          "pages": [
+            "proctoring/api/authentication",
+              {
+                    "group": "Provisioning",
+                    "icon": "building",
+                    "pages": [
+                      "proctoring/api/exams/provision"                      
+                    ]
+                }
             ]
-          }
-        ]
-      },
-      {
-        "tab": "Proctoring",
-        "groups": [
-          {
-            "group": "Documentation",
-            "pages": [
-              "introduction",
-              "quickstart",
-              "development"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "Embedding",
-        "groups": [
-          {
-            "group": "Documentation",
-            "pages": [
-              "introduction",
-              "quickstart",
-              "development"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "API Reference",
-        "groups": [
-                    {
-                        "group": "Get Started",
-                        "pages": [
-                            "api-reference/overview"
-                        ]
-                    },
-                    {
-                        "group": "Proctoring",
-                        "pages": [
-                            {
-                                "group": "Provisioning",
-                                "icon": "building",
-                                "pages": [
-                                    "api-reference/proctoring/exams/provision"
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            }
-        ]
-  },
+        }
+      ]
+    },
+    {
+      "dropdown": "Blog",
+      "icon": "book",
+      "href": "https://www.smarterservices.com/blog"
+    }
+  ]
+},
+  
   "api": {
         "openapi": [
-            "openapi.json"
+            "proctoring/api/openapi.json",
+            "assessments/api/openapi.json"
         ]
     },
   "logo": {
@@ -108,5 +113,15 @@
             "label": "Login",
             "href": "https://app.smarterservices.com"
         }
+    },
+    "footer": {
+    "socials": {
+      "website": "https://www.smarterservices.com",
+      "youtube": "https://www.youtube.com/@smarterservices",
+      "linkedin": "https://www.linkedin.com/company/smarterservices",
+      "facebook": "https://www.facebook.com/smarterservices",
+      "x": "https://x.com/smarterservices",      
+      "github": "https://github.com/smarterservices"
     }
+  }
 }

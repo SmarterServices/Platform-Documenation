@@ -396,6 +396,106 @@
                 "required": [
                     "course"
                 ]
+            },
+            "ProvisionResponse": {
+                "type": "object",
+                "properties": {
+                    "course": {
+                        "type": "object",
+                        "properties": {
+                            "sid": {
+                                "type": "string",
+                                "description": "SmarterProctoring course identifier",
+                                "pattern": "^CU[a-z0-9]{32}$"
+                            },
+                            "result": {
+                                "type": "string",
+                                "description": "Result of the course provision operation",
+                                "enum": ["Created", "Found Existing", "Updated"]
+                            }
+                        },
+                        "required": ["sid", "result"]
+                    },
+                    "user": {
+                        "type": "object",
+                        "properties": {
+                            "sid": {
+                                "type": "string",
+                                "description": "SmarterProctoring user identifier",
+                                "pattern": "^US[a-z0-9]{32}$"
+                            },
+                            "result": {
+                                "type": "string",
+                                "description": "Result of the user provision operation",
+                                "enum": ["Created", "Found Existing", "Updated"]
+                            }
+                        },
+                        "required": ["sid", "result"]
+                    },
+                    "enrollment": {
+                        "type": "object",
+                        "properties": {
+                            "sid": {
+                                "type": "string",
+                                "description": "SmarterProctoring enrollment identifier",
+                                "pattern": "^EN[a-z0-9]{32}$"
+                            },
+                            "result": {
+                                "type": "string",
+                                "description": "Result of the enrollment provision operation",
+                                "enum": ["Created", "Found Existing", "Updated"]
+                            }
+                        },
+                        "required": ["sid", "result"]
+                    },
+                    "exam": {
+                        "type": "object",
+                        "properties": {
+                            "sid": {
+                                "type": "string",
+                                "description": "SmarterProctoring exam identifier",
+                                "pattern": "^EX[a-z0-9]{32}$"
+                            },
+                            "result": {
+                                "type": "string",
+                                "description": "Result of the exam provision operation",
+                                "enum": ["Created", "Found Existing", "Updated"]
+                            }
+                        },
+                        "required": ["sid", "result"]
+                    },
+                    "configuration": {
+                        "type": "object",
+                        "properties": {
+                            "sid": {
+                                "type": "string",
+                                "description": "SmarterProctoring configuration identifier",
+                                "pattern": "^EC[a-z0-9]{32}$"
+                            },
+                            "result": {
+                                "type": "string",
+                                "description": "Result of the configuration provision operation",
+                                "enum": ["Created", "Found Existing", "Updated"]
+                            }
+                        },
+                        "required": ["sid", "result"]
+                    },
+                    "signon": {
+                        "type": "object",
+                        "properties": {
+                            "redirect": {
+                                "type": "string",
+                                "description": "URL to redirect the user to for authentication"
+                            },
+                            "token": {
+                                "type": "string",
+                                "description": "JWT token for authentication"
+                            }
+                        },
+                        "required": ["redirect", "token"]
+                    }
+                },
+                "required": ["course", "user", "enrollment", "exam", "configuration"]
             }
         }
     },
@@ -433,12 +533,12 @@
                     }
                 },
                 "responses": {
-                    "default": {
-                        "description": "Successful",
+                    "200": {
+                        "description": "Successful provision operation",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "string"
+                                    "$ref": "#/components/schemas/ProvisionResponse"
                                 }
                             }
                         }
