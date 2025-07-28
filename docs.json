@@ -34,9 +34,9 @@
                     "icon": "building",
                     "pages": [
                       "assessment/api/users/create-user",  
-                      "assessment/api/users/list-users",                        
-                      "assessment/api/users/get-user",
                       "assessment/api/users/update-user",
+                      "assessment/api/users/list-users",                        
+                      "assessment/api/users/get-user",                      
                       "assessment/api/users/signon",
                       "assessment/api/users/report-link"                      
                     ]
@@ -72,6 +72,7 @@
           "group": "API Reference",
           "pages": [
             "proctoring/api/authentication",
+            "proctoring/api/resource-identifiers",
               {
                     "group": "Provisioning",
                     "icon": "building",
@@ -107,12 +108,7 @@
                 "label": "Support",
                 "href": "https://intercom.help/smarterservices-llc-028a8a0949b6/en"
             }
-        ],
-        "primary": {
-            "type": "button",
-            "label": "Login",
-            "href": "https://app.smarterservices.com"
-        }
+        ]
     },
     "footer": {
     "socials": {

@@ -9,6 +9,11 @@
             "url": "https://api.smarterproctoring.com"
         }
     ],
+    "security": [
+      {
+        "client": []
+      }
+    ],
     "components": {
         "securitySchemes": {
             "client": {
@@ -97,6 +102,7 @@
             },
             "user": {
                 "type": "object",
+                "description": "User data object that will create a new user or update an existing user. If a subsequent course object is provide, the user will also be enrolled into the course.",
                 "properties": {
                     "ids": {
                         "$ref": "#/components/schemas/Model1"
@@ -217,7 +223,7 @@
             },
             "scheduling": {
                 "type": "object",
-                "description": "Defines optional scheduling times.",
+                "description": "Defines optional scheduling times. If not provided, the exam will be available for scheduling at any time until the close date is reached.",
                 "properties": {
                     "open": {
                         "type": "string",

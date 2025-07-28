@@ -2,3 +2,157 @@
 title: 'Batch Provision'
 openapi: POST /v2/installs/{installSid}/provision
 ---
+
+# Batch Provision Endpoint
+
+The Batch Provision endpoint provides a powerful and efficient way to create multiple proctoring resources in a single API call. This streamlined approach allows Learning Management Systems (LMS) and assessment platforms to provision large volumes of data with SmarterProctoring while minimizing network overhead and simplifying integration workflows.
+
+## Overview
+
+With the Batch Provision endpoint, you can simultaneously provision and manage:
+
+- **Courses**: Create course information including metadata, instructors, and configuration
+- **Users**: Provision students, instructors, and administrators with appropriate roles and permissions
+- **Exams**: Set up assessment details with specific proctoring requirements and settings
+
+This endpoint is particularly valuable for initial system setup, semester transitions, or any scenario requiring bulk data synchronization between your platform and SmarterProctoring.
+
+## Implementation Guidance
+
+When implementing the Batch Provision endpoint, consider structuring your requests to group related resources together and include all necessary reference identifiers to establish proper relationships between entities.
+
+## Response Features
+
+In addition to confirmation of provisioned resources, the response includes:
+
+- **SSO Links**: Secure Single Sign-On (SSO) links for users that can be used to provide direct access to the SmarterProctoring platform without requiring additional authentication steps
+
+## Sample Request Payloads
+
+<AccordionGroup>
+  <Accordion title="Create Course and Exam">
+    Create a course and exam if they do not already exist.
+
+    ```json
+    {
+    "course": {
+        "ids": {
+            "api": "sample"
+        },
+        "title": "Sample Course",
+        "code": "sample"
+    },
+    "exam": {
+        "ids": {
+            "external": "exam-1"
+        },
+        "title": "Sample Exam",
+        "description": "This is just a sample exam.",
+        "type": "online",
+        "practice": false,
+        "limitedScope": false,
+        "deliverySystem": "",
+        "configuration": {
+            "ids": {
+                "api": "config-1"
+            },
+            "type": "primary",
+            "url": "https://validurl.com",
+            "access": {
+                "open": "2025-02-16T17:00:00Z",
+                "close": "2025-02-20T17:00:00Z"
+            },
+            "scheduling": {
+                "open": "",
+                "close": ""
+            },
+            "duration": 60,
+            "password": "a8wlquoaois",
+            "attempts": 1,
+            "notes": {
+                "student": "student notes",
+                "proctor": "proctor notes"
+            },
+            "proctorTypes": {
+                "TS6d6011935f4646848ea4f7a29b4f61a5": {
+                    "options": {
+                        "recordScreen": {},
+                        "recordWebcam": {},
+                        "recordAudio": {},
+                        "forceFullScreen": {},
+                        "onlyOneScreen": {},
+                        "disableNewTabs": {},
+                        "closeOpenTabs": {},
+                        "disablePrinting": {},
+                        "disableClipboard": {},
+                        "disableRightClick": {},
+                        "verifyId": {},
+                        "roomScan": {}
+                    }
+                }
+            },
+            "permittedItems": {
+                "bathroomBreak": {
+                    "notes": "Porta-potty is out back."
+                },
+                "calculator": {
+                    "notes": "TI-85"
+                },
+                "dictionary": {
+                    "notes": "Only Nish dictionaries"
+                },
+                "earplugs": {
+                    "notes": "Things will get loud!"
+                },
+                "formulaSheet": {
+                    "notes": ""
+                },
+                "notes": {
+                    "notes": "handwritten only, nothing in print"
+                },
+                "textbook": {
+                    "notes": "Just the book \"Cultural Toolbox\" by Anton Treuer"
+                },
+                "websites": {
+                    "notes": ""
+                }
+            }
+        }
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Enroll Student Only">
+    Enroll a student into an existing course, and ensure a signon link is returned so the user can access the system.
+    ```json
+    {
+        "course": {
+            "ids": {
+                "sid": "CU8b2d9c5ef3e8471ab6cf19509beac183"
+            }
+        },
+        "user": {
+            "ids": {
+                "api": "john-doe-123"
+            },
+            "firstName": "John",
+            "lastName": "Doe",
+            "email": "john.doe@smarterservices.com",
+            "currencyCode": "USD",
+            "timeZone": "America/New_York"
+        },
+        "enrollment": {
+            "role": "learner"
+        },
+        "signon": {
+            "integrationSid": "IIf5a9128504e251fad9e4a38dc0813f74"
+        }
+    }
+    ```
+  </Accordion>
+
+</AccordionGroup>
+
+## Request Parameters
+
+The Batch Provision endpoint accepts a JSON payload containing the following parameters:

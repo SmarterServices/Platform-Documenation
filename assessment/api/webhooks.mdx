@@ -1,0 +1,80 @@
+---
+title: "Webhooks"
+description: "Using webhooks with SmarterMeasure API"
+icon: "bell"
+---
+
+# Webhooks
+
+Webhooks provide a way for the SmarterMeasure system to send real-time notifications to your application when certain events occur. Instead of continuously polling the API for updates, webhooks push data to your application as events happen.
+
+## How Webhooks Work
+
+1. **Registration**: You register a URL endpoint on your server to receive webhook notifications
+2. **Event Triggers**: When specific events occur in SmarterMeasure (e.g., assessment completion), our system sends an HTTP POST request to your registered endpoint
+3. **Processing**: Your application receives and processes the webhook payload, taking appropriate actions based on the event type
+
+## Available Events
+
+SmarterMeasure can send webhooks for the following events:
+
+| Event Type | Description | Payload Example |
+|------------|-------------|-----------------|
+| `assessment.started` | Triggered when a user begins an assessment | `{ "event": "assessment.started", "user_id": "US123456", "assessment_id": "AS789012", "timestamp": "2025-07-27T12:00:00Z" }` |
+| `assessment.completed` | Triggered when a user completes an assessment | `{ "event": "assessment.completed", "user_id": "US123456", "assessment_id": "AS789012", "timestamp": "2025-07-27T12:30:00Z", "score": 85 }` |
+| `user.created` | Triggered when a new user is created | `{ "event": "user.created", "user_id": "US123456", "timestamp": "2025-07-27T11:45:00Z" }` |
+
+## Security
+
+All webhook requests include a signature in the `X-SmarterMeasure-Signature` header. This signature is generated using HMAC-SHA256 with your webhook secret key and the request body as input.
+
+To verify the authenticity of webhook requests:
+
+1. Extract the signature from the `X-SmarterMeasure-Signature` header
+2. Generate an HMAC-SHA256 signature of the request body using your webhook secret
+3. Compare the signatures to ensure they match
+
+```javascript
+const crypto = require('crypto');
+
+function verifyWebhookSignature(requestBody, signature, secret) {
+  const hmac = crypto.createHmac('sha256', secret);
+  const expectedSignature = hmac.update(requestBody).digest('hex');
+  return crypto.timingSafeEqual(
+    Buffer.from(signature),
+    Buffer.from(expectedSignature)
+  );
+}
+```
+
+## Setting Up Webhooks
+
+Currently, webhooks must be configured by contacting our support team at developers@smartermeasure.com. Please provide:
+
+1. The URL endpoint where you want to receive webhook notifications
+2. The specific events you want to subscribe to
+3. Any filtering criteria (e.g., specific user groups)
+
+## Testing Webhooks
+
+Before implementing webhook handlers in production, you can test webhook delivery using tools like:
+
+- [RequestBin](https://requestbin.com/) - Creates temporary endpoints to inspect webhook payloads
+- [Webhook.site](https://webhook.site/) - Provides instant webhook URLs for testing
+- [Ngrok](https://ngrok.com/) - Exposes your local development server to the internet for webhook testing
+
+## Best Practices
+
+1. **Respond quickly**: Return a 2xx status code as soon as possible, even before processing the webhook
+2. **Process asynchronously**: Handle time-consuming operations outside the request-response cycle
+3. **Implement retry logic**: Be prepared to handle duplicate webhook deliveries
+4. **Verify signatures**: Always validate the webhook signature to ensure authenticity
+5. **Monitor failures**: Set up logging and alerting for webhook processing errors
+
+## Rate Limits and Retry Policy
+
+- Webhooks are subject to a rate limit of 10 requests per second per endpoint
+- Failed webhook deliveries are retried with exponential backoff for up to 24 hours
+- After 24 hours, failed webhooks are discarded
+
+For assistance with webhook implementation or troubleshooting, please contact our support team at support@smarterservices.com.
