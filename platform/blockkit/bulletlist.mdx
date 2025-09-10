@@ -1,0 +1,72 @@
+---
+title: "Bullet List"
+description: "A block that displays an unordered (bullet) list"
+---
+
+## Basic Example
+
+```json
+{
+  "type": "bullet_list",
+  "items": [],
+  "replacements": {
+    "course": "Introduction to Programming",
+    "instructor": "Dr. Smith"
+  }
+}
+```
+
+## Live Example
+
+<iframe 
+  src="http://localhost:4000/elements/blockkit/renderer?data=eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJibG9ja3NKc29uIjoiW3tcInR5cGVcIjpcImJ1bGxldF9saXN0XCIsXCJpdGVtc1wiOlt7XCJ0eXBlXCI6XCJsaXN0aXRlbVwiLFwidGV4dFwiOlwiRmlyc3QgaXRlbSBpbiB0aGUgbGlzdFwifSx7XCJ0eXBlXCI6XCJsaXN0aXRlbVwiLFwidGV4dFwiOlwiU2Vjb25kIGl0ZW0gd2l0aCBtb3JlIGRldGFpbHNcIn0se1widHlwZVwiOlwibGlzdGl0ZW1cIixcInRleHRcIjpcIlRoaXJkIGl0ZW0gdG8gY29tcGxldGUgdGhlIGV4YW1wbGVcIn1dfV0ifQ."
+  width="100%" 
+  height="150"
+  class="elements-example"
+></iframe>
+
+```json Example Code expandable
+[
+  {
+    "type": "bullet_list",
+    "items": [
+      {
+        "type": "listitem",
+        "text": "First item in the list"
+      },
+      {
+        "type": "listitem",
+        "text": "Second item with more details"
+      },
+      {
+        "type": "listitem",
+        "text": "Third item to complete the example"
+      }
+    ]
+  }
+]
+```
+
+## Properties
+
+<ParamField path="type" type="string" required="true" >
+  Identifies this as a bullet list block
+
+Must be <code>bullet_list</code>
+</ParamField>
+
+<ParamField path="items" type="array" required="true" >
+  Array of list items to display
+</ParamField>
+
+<ParamField path="replacements" type="object" required="false" >
+  Optional key-value pairs for text replacements in list items
+</ParamField>
+
+
+## Usage Notes
+
+- This element is part of the BlockKit system for building dynamic user interfaces
+- All properties marked as **(required)** must be included in your JSON structure
+- Optional properties can be omitted and will use their default values when applicable
+

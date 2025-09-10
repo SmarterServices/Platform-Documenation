@@ -1,0 +1,43 @@
+---
+title: "Wizard Step"
+description: "A block that represents a single step in a wizard"
+---
+
+## Basic Example
+
+```json
+{
+  "type": "wizard_step",
+  "nextButtonText": "sample-nextButtonText",
+  "acknowledgementText": "sample-acknowledgementText",
+  "elements": []
+}
+```
+
+## Properties
+
+<ParamField path="type" type="string" required="true" >
+  Identifies this as a wizard step block
+
+Must be <code>wizard_step</code>
+</ParamField>
+
+<ParamField path="nextButtonText" type="string" required="false" >
+  Optional custom text for the next/continue button
+</ParamField>
+
+<ParamField path="acknowledgementText" type="string" required="false" >
+  Optional text for an acknowledgement checkbox that must be checked before proceeding
+</ParamField>
+
+<ParamField path="elements" type="array" required="true" >
+  Array of block elements contained within this wizard step
+</ParamField>
+
+
+## Usage Notes
+
+- This element is part of the BlockKit system for building dynamic user interfaces
+- All properties marked as **(required)** must be included in your JSON structure
+- Optional properties can be omitted and will use their default values when applicable
+

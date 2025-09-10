@@ -1,0 +1,62 @@
+---
+title: "Section"
+description: "A container block that groups other block elements together"
+---
+
+## Basic Example
+
+```json
+{
+  "type": "section",
+  "elements": []
+}
+```
+
+## Live Example
+
+<iframe 
+  src="http://localhost:4000/elements/blockkit/renderer?data=eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJibG9ja3NKc29uIjoiW3tcInR5cGVcIjpcInNlY3Rpb25cIixcImVsZW1lbnRzXCI6W3tcInR5cGVcIjpcImhlYWRpbmdcIixcImxldmVsXCI6MyxcInRleHRcIjpcIkdldHRpbmcgU3RhcnRlZFwifSx7XCJ0eXBlXCI6XCJ0ZXh0XCIsXCJ0ZXh0XCI6XCJUaGlzIHNlY3Rpb24gY29udGFpbnMgaW50cm9kdWN0b3J5IGluZm9ybWF0aW9uIGFib3V0IHRoZSB0b3BpYy5cIixcImFzXCI6XCJwXCJ9XX1dIn0."
+  width="100%" 
+  height="150"
+  class="elements-example"
+></iframe>
+
+```json Example Code expandable
+[
+  {
+    "type": "section",
+    "elements": [
+      {
+        "type": "heading",
+        "level": 3,
+        "text": "Getting Started"
+      },
+      {
+        "type": "text",
+        "text": "This section contains introductory information about the topic.",
+        "as": "p"
+      }
+    ]
+  }
+]
+```
+
+## Properties
+
+<ParamField path="type" type="string" required="true" >
+  Identifies this as a section block
+
+Must be <code>section</code>
+</ParamField>
+
+<ParamField path="elements" type="array" required="true" >
+  Array of block elements contained within this section
+</ParamField>
+
+
+## Usage Notes
+
+- This element is part of the BlockKit system for building dynamic user interfaces
+- All properties marked as **(required)** must be included in your JSON structure
+- Optional properties can be omitted and will use their default values when applicable
+

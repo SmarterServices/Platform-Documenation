@@ -1,0 +1,72 @@
+---
+title: "Ordered List"
+description: "A block that displays a numbered (ordered) list"
+---
+
+## Basic Example
+
+```json
+{
+  "type": "ordered_list",
+  "items": [],
+  "replacements": {
+    "course": "Introduction to Programming",
+    "instructor": "Dr. Smith"
+  }
+}
+```
+
+## Live Example
+
+<iframe 
+  src="http://localhost:4000/elements/blockkit/renderer?data=eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJibG9ja3NKc29uIjoiW3tcInR5cGVcIjpcIm9yZGVyZWRfbGlzdFwiLFwiaXRlbXNcIjpbe1widHlwZVwiOlwibGlzdGl0ZW1cIixcInRleHRcIjpcIkZpcnN0IHN0ZXAgaW4gdGhlIHByb2Nlc3NcIn0se1widHlwZVwiOlwibGlzdGl0ZW1cIixcInRleHRcIjpcIlNlY29uZCBzdGVwIHdpdGggaW1wb3J0YW50IGRldGFpbHNcIn0se1widHlwZVwiOlwibGlzdGl0ZW1cIixcInRleHRcIjpcIkZpbmFsIHN0ZXAgdG8gY29tcGxldGUgdGhlIHRhc2tcIn1dfV0ifQ."
+  width="100%" 
+  height="150"
+  class="elements-example"
+></iframe>
+
+```json Example Code expandable
+[
+  {
+    "type": "ordered_list",
+    "items": [
+      {
+        "type": "listitem",
+        "text": "First step in the process"
+      },
+      {
+        "type": "listitem",
+        "text": "Second step with important details"
+      },
+      {
+        "type": "listitem",
+        "text": "Final step to complete the task"
+      }
+    ]
+  }
+]
+```
+
+## Properties
+
+<ParamField path="type" type="string" required="true" >
+  Identifies this as an ordered list block
+
+Must be <code>ordered_list</code>
+</ParamField>
+
+<ParamField path="items" type="array" required="true" >
+  Array of list items to display
+</ParamField>
+
+<ParamField path="replacements" type="object" required="false" >
+  Optional key-value pairs for text replacements in list items
+</ParamField>
+
+
+## Usage Notes
+
+- This element is part of the BlockKit system for building dynamic user interfaces
+- All properties marked as **(required)** must be included in your JSON structure
+- Optional properties can be omitted and will use their default values when applicable
+

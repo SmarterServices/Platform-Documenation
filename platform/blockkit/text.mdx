@@ -1,0 +1,84 @@
+---
+title: "Text"
+description: "A block that displays formatted text with optional replacements"
+---
+
+## Basic Example
+
+```json
+{
+  "type": "text",
+  "text": "Sample textblock content",
+  "replacements": {
+    "course": "Introduction to Programming",
+    "instructor": "Dr. Smith"
+  },
+  "as": "span",
+  "margin": "none",
+  "textAlign": "start"
+}
+```
+
+## Live Example
+
+<iframe 
+  src="http://localhost:4000/elements/blockkit/renderer?data=eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJibG9ja3NKc29uIjoiW3tcInR5cGVcIjpcInRleHRcIixcInRleHRcIjpcIldlbGNvbWUgdG8ge2NvdXJzZU5hbWV9LCB7dXNlck5hbWV9IVwiLFwicmVwbGFjZW1lbnRzXCI6e1wiY291cnNlTmFtZVwiOlwiQWR2YW5jZWQgSmF2YVNjcmlwdFwiLFwidXNlck5hbWVcIjpcIkRyLiBTbWl0aFwifSxcImFzXCI6XCJwXCIsXCJtYXJnaW5cIjpcInNtYWxsXCJ9XSJ9."
+  width="100%" 
+  height="150"
+  class="elements-example"
+></iframe>
+
+```json Example Code expandable
+[
+  {
+    "type": "text",
+    "text": "Welcome to {courseName}, {userName}!",
+    "replacements": {
+      "courseName": "Advanced JavaScript",
+      "userName": "Dr. Smith"
+    },
+    "as": "p",
+    "margin": "small"
+  }
+]
+```
+
+## Properties
+
+<ParamField path="type" type="string" required="true" >
+  Identifies this as a text block
+
+Must be <code>text</code>
+</ParamField>
+
+<ParamField path="text" type="string" required="true" >
+  The text content to display, may include replacement tokens like {course}
+</ParamField>
+
+<ParamField path="replacements" type="object" required="false" >
+  Optional key-value pairs for text replacements
+</ParamField>
+
+<ParamField path="as" type="string" required="false" default="span">
+  The HTML element type to render as (e.g., 'span', 'div', 'p')
+</ParamField>
+
+<ParamField path="margin" type="string" required="false" default="none">
+  Margin spacing around the text block
+
+**Allowed values:** `none`, `auto`, `xxx-small`, `xx-small`, `x-small`, `small`, `medium`, `large`, `x-large`, `xx-large`
+</ParamField>
+
+<ParamField path="textAlign" type="string" required="false" default="start">
+  Text alignment within the block
+
+**Allowed values:** `start`, `center`, `end`
+</ParamField>
+
+
+## Usage Notes
+
+- This element is part of the BlockKit system for building dynamic user interfaces
+- All properties marked as **(required)** must be included in your JSON structure
+- Optional properties can be omitted and will use their default values when applicable
+

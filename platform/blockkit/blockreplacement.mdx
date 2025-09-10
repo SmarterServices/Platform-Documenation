@@ -1,0 +1,39 @@
+---
+title: "Block Replacement"
+description: "A block that serves as a placeholder for dynamic content"
+---
+
+## Basic Example
+
+```json
+{
+  "type": "block_replacement",
+  "ref": "sample-ref"
+}
+```
+
+## Properties
+
+<ParamField path="type" type="string" required="true" >
+  Identifies this as a replacement block
+
+Must be <code>block_replacement</code>
+</ParamField>
+
+<ParamField path="ref" type="string" required="true" >
+  Reference key to look up in the replacements object
+</ParamField>
+
+<ParamField path="default" type="undefined" required="false" >
+  Default content to display if the replacement is not found
+
+**Accepts:** object, array
+</ParamField>
+
+
+## Usage Notes
+
+- This element is part of the BlockKit system for building dynamic user interfaces
+- All properties marked as **(required)** must be included in your JSON structure
+- Optional properties can be omitted and will use their default values when applicable
+

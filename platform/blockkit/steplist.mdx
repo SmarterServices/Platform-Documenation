@@ -1,0 +1,85 @@
+---
+title: "Step List"
+description: "A block that displays a list of steps in a process or workflow"
+---
+
+## Basic Example
+
+```json
+{
+  "type": "step_list",
+  "elements": []
+}
+```
+
+## Live Example
+
+<iframe 
+  src="http://localhost:4000/elements/blockkit/renderer?data=eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJibG9ja3NKc29uIjoiW3tcInR5cGVcIjpcInN0ZXBfbGlzdFwiLFwiZWxlbWVudHNcIjpbe1widHlwZVwiOlwic3RlcFwiLFwibnVtYmVyXCI6MSxcInRpdGxlXCI6XCJQbGFuIFlvdXIgUHJvamVjdFwiLFwiZWxlbWVudHNcIjpbe1widHlwZVwiOlwidGV4dFwiLFwidGV4dFwiOlwiRGVmaW5lIHJlcXVpcmVtZW50cyBhbmQgY3JlYXRlIGEgcHJvamVjdCB0aW1lbGluZS5cIn1dfSx7XCJ0eXBlXCI6XCJzdGVwXCIsXCJudW1iZXJcIjoyLFwidGl0bGVcIjpcIlNldCBVcCBEZXZlbG9wbWVudCBFbnZpcm9ubWVudFwiLFwiZWxlbWVudHNcIjpbe1widHlwZVwiOlwidGV4dFwiLFwidGV4dFwiOlwiSW5zdGFsbCBuZWNlc3NhcnkgdG9vbHMgYW5kIGNvbmZpZ3VyZSB5b3VyIHdvcmtzcGFjZS5cIn1dfSx7XCJ0eXBlXCI6XCJzdGVwXCIsXCJudW1iZXJcIjozLFwidGl0bGVcIjpcIkJlZ2luIEltcGxlbWVudGF0aW9uXCIsXCJlbGVtZW50c1wiOlt7XCJ0eXBlXCI6XCJ0ZXh0XCIsXCJ0ZXh0XCI6XCJTdGFydCBjb2RpbmcgYWNjb3JkaW5nIHRvIHlvdXIgcGxhbm5lZCBzcGVjaWZpY2F0aW9ucy5cIn1dfV19XSJ9."
+  width="100%" 
+  height="150"
+  class="elements-example"
+></iframe>
+
+```json Example Code expandable
+[
+  {
+    "type": "step_list",
+    "elements": [
+      {
+        "type": "step",
+        "number": 1,
+        "title": "Plan Your Project",
+        "elements": [
+          {
+            "type": "text",
+            "text": "Define requirements and create a project timeline."
+          }
+        ]
+      },
+      {
+        "type": "step",
+        "number": 2,
+        "title": "Set Up Development Environment",
+        "elements": [
+          {
+            "type": "text",
+            "text": "Install necessary tools and configure your workspace."
+          }
+        ]
+      },
+      {
+        "type": "step",
+        "number": 3,
+        "title": "Begin Implementation",
+        "elements": [
+          {
+            "type": "text",
+            "text": "Start coding according to your planned specifications."
+          }
+        ]
+      }
+    ]
+  }
+]
+```
+
+## Properties
+
+<ParamField path="type" type="string" required="true" >
+  Identifies this as a step list block
+
+Must be <code>step_list</code>
+</ParamField>
+
+<ParamField path="elements" type="array" required="true" >
+  Array of step blocks to display
+</ParamField>
+
+
+## Usage Notes
+
+- This element is part of the BlockKit system for building dynamic user interfaces
+- All properties marked as **(required)** must be included in your JSON structure
+- Optional properties can be omitted and will use their default values when applicable
+

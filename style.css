@@ -1,0 +1,6 @@
+.elements-example {
+  border: 1px solid #ddd;
+  border-radius: var(--rounded-2xl, 1rem);
+  overflow-y: auto;
+  padding: 5px;
+}

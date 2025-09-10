@@ -1,0 +1,98 @@
+---
+title: "Callout"
+description: "A block that displays a callout with an icon, title, and content to highlight important information"
+---
+
+## Basic Example
+
+```json
+{
+  "type": "callout",
+  "variant": "info",
+  "color": "sample-color",
+  "icon": {},
+  "title": "sample-title",
+  "elements": [],
+  "margin": "small 0"
+}
+```
+
+## Live Example
+
+<iframe 
+  src="http://localhost:4000/elements/blockkit/renderer?data=eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJibG9ja3NKc29uIjoiW3tcInR5cGVcIjpcImNhbGxvdXRcIixcInZhcmlhbnRcIjpcImluZm9cIixcInRpdGxlXCI6XCJXaGF0IFlvdSdsbCBMZWFyblwiLFwiZWxlbWVudHNcIjpbe1widHlwZVwiOlwiYnVsbGV0X2xpc3RcIixcIml0ZW1zXCI6W3tcInR5cGVcIjpcImxpc3RpdGVtXCIsXCJ0ZXh0XCI6XCJIVE1MIGFuZCBDU1MgZnVuZGFtZW50YWxzXCJ9LHtcInR5cGVcIjpcImxpc3RpdGVtXCIsXCJ0ZXh0XCI6XCJKYXZhU2NyaXB0IHByb2dyYW1taW5nIGNvbmNlcHRzXCJ9LHtcInR5cGVcIjpcImxpc3RpdGVtXCIsXCJ0ZXh0XCI6XCJSZXNwb25zaXZlIHdlYiBkZXNpZ25cIn1dfV19XSJ9."
+  width="100%" 
+  height="150"
+  class="elements-example"
+></iframe>
+
+```json Example Code expandable
+[
+  {
+    "type": "callout",
+    "variant": "info",
+    "title": "What You'll Learn",
+    "elements": [
+      {
+        "type": "bullet_list",
+        "items": [
+          {
+            "type": "listitem",
+            "text": "HTML and CSS fundamentals"
+          },
+          {
+            "type": "listitem",
+            "text": "JavaScript programming concepts"
+          },
+          {
+            "type": "listitem",
+            "text": "Responsive web design"
+          }
+        ]
+      }
+    ]
+  }
+]
+```
+
+## Properties
+
+<ParamField path="type" type="string" required="true" >
+  Identifies this as a callout block
+
+Must be <code>callout</code>
+</ParamField>
+
+<ParamField path="variant" type="string" required="false" default="info">
+  The visual style variant of the callout
+
+**Allowed values:** `info`, `success`, `warning`, `error`, `note`
+</ParamField>
+
+<ParamField path="color" type="string" required="false" >
+  Optional custom color for the callout
+</ParamField>
+
+<ParamField path="icon" type="object" required="false" >
+  Icon configuration for the callout
+</ParamField>
+
+<ParamField path="title" type="string" required="false" >
+  Optional title text for the callout
+</ParamField>
+
+<ParamField path="elements" type="array" required="true" >
+  Array of BlockKit elements to render inside the callout
+</ParamField>
+
+<ParamField path="margin" type="string" required="false" default="small 0">
+  Margin spacing around the callout block
+</ParamField>
+
+
+## Usage Notes
+
+- This element is part of the BlockKit system for building dynamic user interfaces
+- All properties marked as **(required)** must be included in your JSON structure
+- Optional properties can be omitted and will use their default values when applicable
+

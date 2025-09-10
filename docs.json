@@ -9,114 +9,141 @@
   },
   "favicon": "/favicon.png",
   "navigation": {
-  "dropdowns": [
-    {
-      "dropdown": "Platform",
-      "description": "General platform information",
-      "icon": "layer-group",
-      "pages": [
-        "index"
-      ]
-    },
-    {
-      "dropdown": "Assessment",
-      "description": "SmarterMeasure and other assessment solutions",
-      "icon": "pen-to-square",
-      "groups": [
+    "dropdowns": [
+      {
+        "dropdown": "Platform",
+        "description": "General platform information",
+        "icon": "layer-group",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "index"
+            ]
+          },
+          {
+            "group": "BlockKit",
+            "pages": [
+              "platform/blockkit/overview",
+              {
+                "group": "Elements",
+                "pages": [
+                  "platform/blockkit/alert",
+                  "platform/blockkit/blockreplacement",
+                  "platform/blockkit/bulletlist",
+                  "platform/blockkit/callout",
+                  "platform/blockkit/heading",
+                  "platform/blockkit/listitem",
+                  "platform/blockkit/orderedlist",
+                  "platform/blockkit/section",
+                  "platform/blockkit/step",
+                  "platform/blockkit/steplist",
+                  "platform/blockkit/text",
+                  "platform/blockkit/wizard",
+                  "platform/blockkit/wizardstep"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "dropdown": "Assessment",
+        "description": "SmarterMeasure and other assessment solutions",
+        "icon": "pen-to-square",
+        "groups": [
           {
             "group": "API Reference",
             "pages": [
-              "assessment/api/introduction",  
+              "assessment/api/introduction",
               "assessment/api/authentication",
               "assessment/api/errors",
               {
-                    "group": "Users/Assessments",
-                    "icon": "building",
-                    "pages": [
-                      "assessment/api/users/create-user",  
-                      "assessment/api/users/update-user",
-                      "assessment/api/users/list-users",                        
-                      "assessment/api/users/get-user",                      
-                      "assessment/api/users/signon",
-                      "assessment/api/users/report-link"                      
-                    ]
-                },
-                {
-                  "group": "Results",
-                  "icon": "building",
-                  "pages": [
-                      "assessment/api/results/user-results",
-                      "assessment/api/results/user-report",
-                      "assessment/api/results/search",
-                      "assessment/api/results/search-expanded"
-                  ]
+                "group": "Users/Assessments",
+                "icon": "building",
+                "pages": [
+                  "assessment/api/users/create-user",
+                  "assessment/api/users/update-user",
+                  "assessment/api/users/list-users",
+                  "assessment/api/users/get-user",
+                  "assessment/api/users/signon",
+                  "assessment/api/users/report-link"
+                ]
+              },
+              {
+                "group": "Results",
+                "icon": "building",
+                "pages": [
+                  "assessment/api/results/user-results",
+                  "assessment/api/results/user-report",
+                  "assessment/api/results/search",
+                  "assessment/api/results/search-expanded"
+                ]
               }
             ]
-        }
+          }
         ]
-    },
-    {
-      "dropdown": "Proctoring",
-      "description": "SmarterProctoring and other proctoring solutions",
-      "icon": "camera-security",
-      "groups": [
-        {
-
-          "group": "Getting Started",
-          "pages": [
-            "proctoring/introduction",  
-            "proctoring/datamodel"
-          ]
-        },
-        {
-          "group": "API Reference",
-          "pages": [
-            "proctoring/api/authentication",
-            "proctoring/api/resource-identifiers",
-              {
-                    "group": "Provisioning",
-                    "icon": "building",
-                    "pages": [
-                      "proctoring/api/exams/provision"                      
-                    ]
-                }
+      },
+      {
+        "dropdown": "Proctoring",
+        "description": "SmarterProctoring and other proctoring solutions",
+        "icon": "camera-security",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "proctoring/introduction",
+              "proctoring/datamodel"
             ]
-        }
-      ]
-    },
-    {
-      "dropdown": "Blog",
-      "icon": "book",
-      "href": "https://www.smarterservices.com/blog"
-    }
-  ]
-},
-  
-  "api": {
-        "openapi": [
-            "proctoring/api/openapi.json",
-            "assessment/api/openapi.json"
+          },
+          {
+            "group": "API Reference",
+            "pages": [
+              "proctoring/api/authentication",
+              "proctoring/api/resource-identifiers",
+              {
+                "group": "Provisioning",
+                "icon": "building",
+                "pages": [
+                  "proctoring/api/exams/provision"
+                ]
+              }
+            ]
+          }
         ]
-    },
+      },
+      {
+        "dropdown": "Blog",
+        "icon": "book",
+        "href": "https://www.smarterservices.com/blog"
+      }
+    ]
+  },
+  "api": {
+    "openapi": [
+      "proctoring/api/openapi.json",
+      "assessment/api/openapi.json"
+    ]
+  },
   "logo": {
     "light": "https://cdn.prod.website-files.com/650b016f7e13a7d9de337f22/6629053ca1393100c09aa484_SmarterServices%20Logo.png",
     "dark": "https://cdn.prod.website-files.com/650b016f7e13a7d9de337f22/6629053ca1393100c09aa484_SmarterServices%20Logo.png"
   },
   "navbar": {
-        "links": [
-            {
-                "label": "Support",
-                "href": "https://intercom.help/smarterservices-llc-028a8a0949b6/en"
-            }
-        ]
-    },
-    "footer": {
+    "links": [
+      {
+        "label": "Support",
+        "href": "https://intercom.help/smarterservices-llc-028a8a0949b6/en"
+      }
+    ]
+  },
+  "footer": {
     "socials": {
       "website": "https://www.smarterservices.com",
       "youtube": "https://www.youtube.com/@smarterservices",
       "linkedin": "https://www.linkedin.com/company/smarterservices",
       "facebook": "https://www.facebook.com/smarterservices",
-      "x": "https://x.com/smarterservices",      
+      "x": "https://x.com/smarterservices",
       "github": "https://github.com/smarterservices"
     }
   }

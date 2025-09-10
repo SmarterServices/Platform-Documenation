@@ -1,0 +1,69 @@
+---
+title: "Alert"
+description: "A block that displays an alert message with different severity levels"
+---
+
+## Basic Example
+
+```json
+{
+  "type": "alert",
+  "severity": "info",
+  "text": "Sample alertblock content"
+}
+```
+
+## Live Example
+
+<iframe 
+  src="http://localhost:4000/elements/blockkit/renderer?data=eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJibG9ja3NKc29uIjoiW3tcInR5cGVcIjpcImFsZXJ0XCIsXCJzZXZlcml0eVwiOlwic3VjY2Vzc1wiLFwidGV4dFwiOlwiWW91ciBjaGFuZ2VzIGhhdmUgYmVlbiBzYXZlZCBzdWNjZXNzZnVsbHkhXCJ9LHtcInR5cGVcIjpcImFsZXJ0XCIsXCJzZXZlcml0eVwiOlwid2FybmluZ1wiLFwidGV4dFwiOlwiUGxlYXNlIHJldmlldyB0aGUgZm9sbG93aW5nIGluZm9ybWF0aW9uIGNhcmVmdWxseS5cIn0se1widHlwZVwiOlwiYWxlcnRcIixcInNldmVyaXR5XCI6XCJlcnJvclwiLFwidGV4dFwiOlwiQW4gZXJyb3Igb2NjdXJyZWQgd2hpbGUgcHJvY2Vzc2luZyB5b3VyIHJlcXVlc3QuXCJ9XSJ9."
+  width="100%" 
+  height="200"
+  class="elements-example"
+></iframe>
+
+```json Example Code expandable
+[
+  {
+    "type": "alert",
+    "severity": "success",
+    "text": "Your changes have been saved successfully!"
+  },
+  {
+    "type": "alert",
+    "severity": "warning",
+    "text": "Please review the following information carefully."
+  },
+  {
+    "type": "alert",
+    "severity": "error",
+    "text": "An error occurred while processing your request."
+  }
+]
+```
+
+## Properties
+
+<ParamField path="type" type="string" required="true" >
+  Identifies this as an alert block
+
+Must be <code>alert</code>
+</ParamField>
+
+<ParamField path="severity" type="string" required="false" default="info">
+  The severity level of the alert
+
+**Allowed values:** `info`, `success`, `warning`, `error`
+</ParamField>
+
+<ParamField path="text" type="string" required="true" >
+  The text content of the alert message
+</ParamField>
+
+
+## Usage Notes
+
+- This element is part of the BlockKit system for building dynamic user interfaces
+- All properties marked as **(required)** must be included in your JSON structure
+- Optional properties can be omitted and will use their default values when applicable
+

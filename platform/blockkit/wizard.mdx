@@ -1,0 +1,99 @@
+---
+title: "Wizard"
+description: "A block that displays a multi-step wizard with navigation controls"
+---
+
+## Basic Example
+
+```json
+{
+  "type": "wizard",
+  "elements": []
+}
+```
+
+## Live Example
+
+<iframe 
+  src="http://localhost:4000/elements/blockkit/renderer?data=eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJibG9ja3NKc29uIjoiW3tcInR5cGVcIjpcIndpemFyZFwiLFwiZWxlbWVudHNcIjpbe1widHlwZVwiOlwid2l6YXJkX3N0ZXBcIixcInRpdGxlXCI6XCJQZXJzb25hbCBJbmZvcm1hdGlvblwiLFwiZWxlbWVudHNcIjpbe1widHlwZVwiOlwidGV4dFwiLFwidGV4dFwiOlwiVGhpcyBpcyB0aGUgZmlyc3Qgc3RlcCBvZiB0aGUgd2l6YXJkLlwifV19LHtcInR5cGVcIjpcIndpemFyZF9zdGVwXCIsXCJ0aXRsZVwiOlwiUHJlZmVyZW5jZXNcIixcImVsZW1lbnRzXCI6W3tcInR5cGVcIjpcInRleHRcIixcInRleHRcIjpcIkFueSB0eXBlIG9mIGVsZW1lbnQgY2FuIGJlIHVzZWQgaW4gYSB3aXphcmQgc3RlcC4gQmVsb3cgd2UgaGF2ZSBhbiBvcmRlcmVkIGxpc3QgZWxlbWVudC5cIn0se1widHlwZVwiOlwib3JkZXJlZF9saXN0XCIsXCJpdGVtc1wiOlt7XCJ0eXBlXCI6XCJsaXN0aXRlbVwiLFwidGV4dFwiOlwiRmlyc3Qgc3RlcCBpbiB0aGUgcHJvY2Vzc1wifSx7XCJ0eXBlXCI6XCJsaXN0aXRlbVwiLFwidGV4dFwiOlwiU2Vjb25kIHN0ZXAgd2l0aCBpbXBvcnRhbnQgZGV0YWlsc1wifSx7XCJ0eXBlXCI6XCJsaXN0aXRlbVwiLFwidGV4dFwiOlwiRmluYWwgc3RlcCB0byBjb21wbGV0ZSB0aGUgdGFza1wifV19XX0se1widHlwZVwiOlwid2l6YXJkX3N0ZXBcIixcInRpdGxlXCI6XCJDb25maXJtYXRpb25cIixcImVsZW1lbnRzXCI6W3tcInR5cGVcIjpcInRleHRcIixcInRleHRcIjpcIlRoaXMgaXMgdGhlIHRoaXJkIGFuZCBmaW5hbCBzdGVwIG9mIHRoZSB3aXphcmQuXCJ9XX1dfV0ifQ."
+  width="100%" 
+  height="150"
+  class="elements-example"
+></iframe>
+
+```json Example Code expandable
+[
+  {
+    "type": "wizard",
+    "elements": [
+      {
+        "type": "wizard_step",
+        "title": "Personal Information",
+        "elements": [
+          {
+            "type": "text",
+            "text": "This is the first step of the wizard."
+          }
+        ]
+      },
+      {
+        "type": "wizard_step",
+        "title": "Preferences",
+        "elements": [
+          {
+            "type": "text",
+            "text": "Any type of element can be used in a wizard step. Below we have an ordered list element."
+          },
+          {
+            "type": "ordered_list",
+            "items": [
+              {
+                "type": "listitem",
+                "text": "First step in the process"
+              },
+              {
+                "type": "listitem",
+                "text": "Second step with important details"
+              },
+              {
+                "type": "listitem",
+                "text": "Final step to complete the task"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "wizard_step",
+        "title": "Confirmation",
+        "elements": [
+          {
+            "type": "text",
+            "text": "This is the third and final step of the wizard."
+          }
+        ]
+      }
+    ]
+  }
+]
+```
+
+## Properties
+
+<ParamField path="type" type="string" required="true" >
+  Identifies this as a wizard block
+
+Must be <code>wizard</code>
+</ParamField>
+
+<ParamField path="elements" type="array" required="true" >
+  Array of wizard step blocks to display
+</ParamField>
+
+
+## Usage Notes
+
+- This element is part of the BlockKit system for building dynamic user interfaces
+- All properties marked as **(required)** must be included in your JSON structure
+- Optional properties can be omitted and will use their default values when applicable
+

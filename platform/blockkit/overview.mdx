@@ -1,0 +1,55 @@
+---
+title: "Overview"
+description: "BlockKit is a powerful system that allows you to build dynamic user interfaces using JSON structures. It provides a set of predefined elements that can be composed together to create rich, interactive experiences."
+---
+
+BlockKit elements are JSON objects that define the structure and behavior of UI components. Each element has a specific `type` property that identifies what kind of element it is, along with additional properties that configure its appearance and behavior.
+
+## Available Elements
+
+The following BlockKit elements are available:
+
+- [Alert](/platform/blockkit/alert) - A block that displays an alert message with different severity levels
+- [Block Replacement](/platform/blockkit/blockreplacement) - A block that serves as a placeholder for dynamic content
+- [Bullet List](/platform/blockkit/bulletlist) - A block that displays an unordered (bullet) list
+- [Callout](/platform/blockkit/callout) - A block that displays a callout with an icon, title, and content to highlight important information
+- [Heading](/platform/blockkit/heading) - A block that displays a heading with a specified level
+- [List Item](/platform/blockkit/listitem) - A list item that can be used in bullet or ordered lists
+- [Ordered List](/platform/blockkit/orderedlist) - A block that displays a numbered (ordered) list
+- [Section](/platform/blockkit/section) - A container block that groups other block elements together
+- [Step](/platform/blockkit/step) - A block that represents a step in a process or workflow
+- [Step List](/platform/blockkit/steplist) - A block that displays a list of steps in a process or workflow
+- [Text](/platform/blockkit/text) - A block that displays formatted text with optional replacements
+- [Wizard](/platform/blockkit/wizard) - A block that displays a multi-step wizard with navigation controls
+- [Wizard Step](/platform/blockkit/wizardstep) - A block that represents a single step in a wizard
+
+## Basic Structure
+
+Every BlockKit element follows this basic structure:
+
+```json
+{
+  "type": "element-type",
+  // Additional properties specific to the element type
+}
+```
+
+## Getting Started
+
+1. Choose the appropriate element type for your needs
+2. Review the element's documentation for required and optional properties
+3. Compose your JSON structure using the element's schema
+4. Test your BlockKit structure in your application
+
+Use our [BlockKit Builder](https://app.smarterservices.com/elements/blockkit/builder) to help you build and test your BlockKit structures.
+
+## Best Practices
+
+- Always include required properties for each element
+- Use meaningful text content that provides value to users
+- Consider accessibility when composing your BlockKit structures
+- Test your structures with different data to ensure they work as expected
+
+## Composition
+
+BlockKit elements can often be nested or combined to create more complex structures. Refer to individual element documentation for details on how they can be composed together.

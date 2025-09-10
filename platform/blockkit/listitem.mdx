@@ -1,0 +1,46 @@
+---
+title: "List Item"
+description: "A list item that can be used in bullet or ordered lists"
+---
+
+## Basic Example
+
+```json
+{
+  "type": "list_item",
+  "text": "Sample listitemblock content",
+  "elements": [],
+  "replacements": {
+    "course": "Introduction to Programming",
+    "instructor": "Dr. Smith"
+  }
+}
+```
+
+## Properties
+
+<ParamField path="type" type="string" required="true" >
+  Identifies this as a list item block
+
+Must be <code>list_item</code>
+</ParamField>
+
+<ParamField path="text" type="string" required="true" >
+  The text content of the list item
+</ParamField>
+
+<ParamField path="elements" type="array" required="false" >
+  Optional nested block elements
+</ParamField>
+
+<ParamField path="replacements" type="object" required="false" >
+  Optional key-value pairs for text replacements
+</ParamField>
+
+
+## Usage Notes
+
+- This element is part of the BlockKit system for building dynamic user interfaces
+- All properties marked as **(required)** must be included in your JSON structure
+- Optional properties can be omitted and will use their default values when applicable
+
