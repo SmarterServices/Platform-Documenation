@@ -1,0 +1,718 @@
+---
+title: "Conditions"
+description: "Advanced conditional access controls for IAM policies"
+---
+
+# Conditions
+
+Conditions provide fine-grained control over when IAM policies apply. They allow you to specify additional constraints that must be met for a policy statement to take effect, such as time-based access, IP restrictions, or resource-specific attributes.
+
+## Condition Structure
+
+Conditions are specified in the `Condition` element of a policy statement:
+
+```json
+{
+  "Effect": "Allow",
+  "Action": ["sp:ReadSession"],
+  "Resource": ["ssrn:ss:sp::578:session/*"],
+  "Condition": {
+    "Equals": {
+      "session:proctorAccountSid": "PA123456"
+    }
+  }
+}
+```
+
+## Condition Operators
+
+### String Conditions
+
+#### Equals
+Exact string match (case-sensitive).
+
+```json
+{
+  "Condition": {
+    "Equals": {
+      "session:proctorAccountSid": "PA123456"
+    }
+  }
+}
+```
+
+#### NotEquals
+String does not match (case-sensitive).
+
+```json
+{
+  "Condition": {
+    "NotEquals": {
+      "user:role": "guest"
+    }
+  }
+}
+```
+
+#### StringLike
+Pattern matching with wildcards (`*` and `?`).
+
+```json
+{
+  "Condition": {
+    "StringLike": {
+      "user:email": "*@university.edu"
+    }
+  }
+}
+```
+
+#### StringNotLike
+Pattern does not match.
+
+```json
+{
+  "Condition": {
+    "StringNotLike": {
+      "user:department": "temp-*"
+    }
+  }
+}
+```
+
+### Numeric Conditions
+
+#### NumericEquals
+Exact numeric match.
+
+```json
+{
+  "Condition": {
+    "NumericEquals": {
+      "session:duration": "120"
+    }
+  }
+}
+```
+
+#### NumericLessThan
+Numeric value is less than specified.
+
+```json
+{
+  "Condition": {
+    "NumericLessThan": {
+      "user:loginAttempts": "5"
+    }
+  }
+}
+```
+
+#### NumericGreaterThan
+Numeric value is greater than specified.
+
+```json
+{
+  "Condition": {
+    "NumericGreaterThan": {
+      "assessment:score": "80"
+    }
+  }
+}
+```
+
+### Date/Time Conditions
+
+#### DateEquals
+Exact date/time match.
+
+```json
+{
+  "Condition": {
+    "DateEquals": {
+      "aws:CurrentTime": "2023-12-25T00:00:00Z"
+    }
+  }
+}
+```
+
+#### DateGreaterThan
+Current time is after specified date.
+
+```json
+{
+  "Condition": {
+    "DateGreaterThan": {
+      "aws:CurrentTime": "2023-01-01T00:00:00Z"
+    }
+  }
+}
+```
+
+#### DateLessThan
+Current time is before specified date.
+
+```json
+{
+  "Condition": {
+    "DateLessThan": {
+      "aws:CurrentTime": "2023-12-31T23:59:59Z"
+    }
+  }
+}
+```
+
+### Boolean Conditions
+
+#### Bool
+Boolean value match.
+
+```json
+{
+  "Condition": {
+    "Bool": {
+      "aws:MultiFactorAuthPresent": "true"
+    }
+  }
+}
+```
+
+### IP Address Conditions
+
+#### IpAddress
+Request originates from specified IP range.
+
+```json
+{
+  "Condition": {
+    "IpAddress": {
+      "aws:SourceIp": ["192.168.1.0/24", "10.0.0.0/16"]
+    }
+  }
+}
+```
+
+#### NotIpAddress
+Request does not originate from specified IP range.
+
+```json
+{
+  "Condition": {
+    "NotIpAddress": {
+      "aws:SourceIp": "192.168.1.100/32"
+    }
+  }
+}
+```
+
+## Condition Keys
+
+### Global Condition Keys
+
+These keys are available in all contexts:
+
+#### aws:CurrentTime
+Current date and time of the request.
+
+```json
+{
+  "Condition": {
+    "DateGreaterThan": {
+      "aws:CurrentTime": "2023-01-01T09:00:00Z"
+    }
+  }
+}
+```
+
+#### aws:SourceIp
+IP address of the request source.
+
+```json
+{
+  "Condition": {
+    "IpAddress": {
+      "aws:SourceIp": "192.168.1.0/24"
+    }
+  }
+}
+```
+
+#### aws:UserAgent
+User agent string of the request.
+
+```json
+{
+  "Condition": {
+    "StringLike": {
+      "aws:UserAgent": "SmarterServices-*"
+    }
+  }
+}
+```
+
+#### aws:MultiFactorAuthPresent
+Whether multi-factor authentication was used.
+
+```json
+{
+  "Condition": {
+    "Bool": {
+      "aws:MultiFactorAuthPresent": "true"
+    }
+  }
+}
+```
+
+### Service-Specific Condition Keys
+
+#### Session Namespace (session:)
+
+##### session:proctorAccountSid
+Proctor account assigned to the session.
+
+```json
+{
+  "Condition": {
+    "Equals": {
+      "session:proctorAccountSid": "PA123456"
+    }
+  }
+}
+```
+
+##### session:schedulingModule
+Scheduling system used for the session.
+
+```json
+{
+  "Condition": {
+    "Equals": {
+      "session:schedulingModule": "register-blast"
+    }
+  }
+}
+```
+
+##### session:status
+Current status of the session.
+
+```json
+{
+  "Condition": {
+    "Equals": {
+      "session:status": "active"
+    }
+  }
+}
+```
+
+##### session:examType
+Type of exam being proctored.
+
+```json
+{
+  "Condition": {
+    "StringLike": {
+      "session:examType": "final-*"
+    }
+  }
+}
+```
+
+#### User Namespace (user:)
+
+##### user:role
+User's role in the system.
+
+```json
+{
+  "Condition": {
+    "Equals": {
+      "user:role": "instructor"
+    }
+  }
+}
+```
+
+##### user:department
+User's department affiliation.
+
+```json
+{
+  "Condition": {
+    "StringLike": {
+      "user:department": "engineering-*"
+    }
+  }
+}
+```
+
+##### user:accountType
+Type of user account.
+
+```json
+{
+  "Condition": {
+    "NotEquals": {
+      "user:accountType": "trial"
+    }
+  }
+}
+```
+
+#### Assessment Namespace (assessment:)
+
+##### assessment:type
+Type of assessment.
+
+```json
+{
+  "Condition": {
+    "Equals": {
+      "assessment:type": "placement"
+    }
+  }
+}
+```
+
+##### assessment:status
+Current status of the assessment.
+
+```json
+{
+  "Condition": {
+    "NotEquals": {
+      "assessment:status": "draft"
+    }
+  }
+}
+```
+
+## Multiple Conditions
+
+### AND Logic (Multiple Operators)
+All conditions must be true.
+
+```json
+{
+  "Condition": {
+    "Equals": {
+      "session:proctorAccountSid": "PA123456"
+    },
+    "DateGreaterThan": {
+      "aws:CurrentTime": "2023-01-01T00:00:00Z"
+    },
+    "IpAddress": {
+      "aws:SourceIp": "192.168.1.0/24"
+    }
+  }
+}
+```
+
+### OR Logic (Multiple Values)
+Any value can match.
+
+```json
+{
+  "Condition": {
+    "Equals": {
+      "user:role": ["instructor", "admin", "proctor"]
+    }
+  }
+}
+```
+
+### Complex Logic
+Combining AND and OR logic.
+
+```json
+{
+  "Condition": {
+    "Equals": {
+      "user:role": ["instructor", "admin"]
+    },
+    "StringLike": {
+      "user:department": ["math-*", "science-*"]
+    },
+    "DateGreaterThan": {
+      "aws:CurrentTime": "2023-01-01T00:00:00Z"
+    }
+  }
+}
+```
+
+## Common Use Cases
+
+### Time-Based Access
+
+#### Business Hours Only
+```json
+{
+  "Version": "2023-01-01",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": ["sm:*"],
+      "Resource": ["ssrn:ss:sm::578:*"],
+      "Condition": {
+        "DateGreaterThan": {
+          "aws:CurrentTime": "09:00:00Z"
+        },
+        "DateLessThan": {
+          "aws:CurrentTime": "17:00:00Z"
+        }
+      }
+    }
+  ]
+}
+```
+
+#### Exam Period Access
+```json
+{
+  "Condition": {
+    "DateGreaterThan": {
+      "aws:CurrentTime": "2023-05-01T00:00:00Z"
+    },
+    "DateLessThan": {
+      "aws:CurrentTime": "2023-05-15T23:59:59Z"
+    }
+  }
+}
+```
+
+### Location-Based Access
+
+#### Campus Network Only
+```json
+{
+  "Condition": {
+    "IpAddress": {
+      "aws:SourceIp": [
+        "192.168.0.0/16",
+        "10.0.0.0/8",
+        "172.16.0.0/12"
+      ]
+    }
+  }
+}
+```
+
+#### Block Specific Locations
+```json
+{
+  "Effect": "Deny",
+  "Action": ["*"],
+  "Resource": ["*"],
+  "Condition": {
+    "IpAddress": {
+      "aws:SourceIp": ["192.168.100.0/24"]
+    }
+  }
+}
+```
+
+### Role-Based Conditions
+
+#### Department-Specific Access
+```json
+{
+  "Condition": {
+    "Equals": {
+      "user:department": "mathematics"
+    },
+    "StringLike": {
+      "assessment:subject": "math-*"
+    }
+  }
+}
+```
+
+#### Instructor-Only Features
+```json
+{
+  "Condition": {
+    "Equals": {
+      "user:role": "instructor"
+    },
+    "Bool": {
+      "user:verified": "true"
+    }
+  }
+}
+```
+
+### Session-Specific Conditions
+
+#### Assigned Proctor Only
+```json
+{
+  "Condition": {
+    "Equals": {
+      "session:assignedProctor": "${user.proctorId}"
+    }
+  }
+}
+```
+
+#### Specific Scheduling Systems
+```json
+{
+  "Condition": {
+    "Equals": {
+      "session:schedulingModule": ["register-blast", "canvas-integration"]
+    }
+  }
+}
+```
+
+### Security Conditions
+
+#### MFA Required for Sensitive Actions
+```json
+{
+  "Effect": "Allow",
+  "Action": ["sm:DeleteUser", "sp:DeleteSession"],
+  "Resource": ["*"],
+  "Condition": {
+    "Bool": {
+      "aws:MultiFactorAuthPresent": "true"
+    }
+  }
+}
+```
+
+#### Trusted User Agents Only
+```json
+{
+  "Condition": {
+    "StringLike": {
+      "aws:UserAgent": [
+        "SmarterServices-Web/*",
+        "SmarterServices-Mobile/*"
+      ]
+    }
+  }
+}
+```
+
+## Advanced Patterns
+
+### Conditional Deny
+Deny access unless conditions are met.
+
+```json
+{
+  "Effect": "Deny",
+  "Action": ["sp:ViewRecording"],
+  "Resource": ["*"],
+  "Condition": {
+    "NotEquals": {
+      "session:assignedProctor": "${user.proctorId}"
+    }
+  }
+}
+```
+
+### Time-Window Access
+Allow access only during specific time windows.
+
+```json
+{
+  "Condition": {
+    "DateGreaterThan": {
+      "aws:CurrentTime": "${exam.startTime}"
+    },
+    "DateLessThan": {
+      "aws:CurrentTime": "${exam.endTime}"
+    }
+  }
+}
+```
+
+### Dynamic Resource Access
+Access based on resource attributes.
+
+```json
+{
+  "Condition": {
+    "Equals": {
+      "assessment:createdBy": "${user.id}"
+    }
+  }
+}
+```
+
+## Best Practices
+
+### 1. Use Specific Conditions
+```json
+// ✅ Specific condition
+{
+  "Condition": {
+    "Equals": {
+      "user:department": "engineering"
+    }
+  }
+}
+
+// ❌ Too broad
+{
+  "Condition": {
+    "StringLike": {
+      "user:department": "*"
+    }
+  }
+}
+```
+
+### 2. Combine Multiple Conditions
+```json
+{
+  "Condition": {
+    "Equals": {
+      "user:role": "proctor"
+    },
+    "Bool": {
+      "user:verified": "true"
+    },
+    "IpAddress": {
+      "aws:SourceIp": "192.168.1.0/24"
+    }
+  }
+}
+```
+
+### 3. Use Deny for Security
+```json
+{
+  "Effect": "Deny",
+  "Action": ["*"],
+  "Resource": ["*"],
+  "Condition": {
+    "NotIpAddress": {
+      "aws:SourceIp": ["192.168.0.0/16"]
+    }
+  }
+}
+```
+
+### 4. Test Conditions Thoroughly
+Always test conditions in a development environment before deploying to production.
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Case Sensitivity**: String conditions are case-sensitive
+2. **Date Formats**: Use ISO 8601 format for dates
+3. **IP Ranges**: Use CIDR notation for IP addresses
+4. **Multiple Values**: Use arrays for OR logic
+5. **Variable Substitution**: Ensure variables are properly formatted
+
+### Debugging Tips
+
+1. **Log Condition Evaluations**: Enable detailed logging
+2. **Test Individual Conditions**: Test each condition separately
+3. **Validate Syntax**: Use JSON validators for policy syntax
+4. **Check Variable Values**: Verify variable substitution works correctly

@@ -74,6 +74,22 @@ When making API requests, you'll often need to reference resources using their i
 - Use consistent ID formats within your integration
 - Include multiple ID types when available to improve matching reliability
 
+## Proctor Location Types
+
+The following tables outline the available proctor location types in the SmarterProctoring system. These are referenced using the `LT` prefix in their SIDs:
+
+| SID | Type | Key |
+| --- | --- | --- |
+| LT3ddbab9b6a1f40c385e7efc015967034 | Classroom / Lecture Hall | in-person |
+| LT1fef2992eda74744a432dc963c9877ed | Coffee Shop | in-person |
+| LTe1f2452810d34266864938b4cc8c8f0e | Computer Lab | in-person |
+| LT79a424a742534a7689bb5f0803626bc6 | Library | in-person |
+| LT5e18eda572134379939dd2ef766ebf43 | Office Building | in-person |
+| LT7068df1ade4846abb0e7612c51d7d141 | Testing Center | in-person |
+| LT07b8055c8a9c457c82c58b235a05d53b | Online | online |
+
+<Tip>Any remote proctoring will use the Online type and any testing center wil use the Testing Center type. These are the most used types.</Tip>
+
 ## Proctor Types
 
 The following tables outline the available proctor types in the SmarterProctoring system. These are referenced using the `TS` prefix in their SIDs:

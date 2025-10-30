@@ -1,0 +1,564 @@
+---
+title: "Getting Started"
+description: "Learn how to integrate SmarterElements into your application"
+---
+
+# Getting Started with SmarterElements
+
+SmarterElements provides iframe-based UI components with automatic resizing, modal support, and secure isolation. Components can be mounted directly into the DOM or displayed as overlay modals.
+
+## Installation
+
+### npm Installation
+
+```bash
+npm install @smarterservices/smarter-elements
+```
+
+### CDN / Script Tag Installation
+
+For projects that don't use npm or bundlers, you can include SmarterElements directly via script tags using unpkg.com:
+
+#### Version Options
+
+**Latest Version (Recommended for Development):**
+```html
+<script src="https://unpkg.com/@smarterservices/smarter-elements@latest/dist/browser.js"></script>
+```
+
+**Specific Version (Recommended for Production):**
+```html
+<!-- Replace 1.2.3 with your desired version -->
+<script src="https://unpkg.com/@smarterservices/smarter-elements@1.2.3/dist/browser.js"></script>
+```
+
+**Major Version Range:**
+```html
+<!-- Gets the latest patch/minor within major version 1 -->
+<script src="https://unpkg.com/@smarterservices/smarter-elements@^1.0.0/dist/browser.js"></script>
+```
+
+**Minor Version Range:**
+```html
+<!-- Gets the latest patch within version 1.2.x -->
+<script src="https://unpkg.com/@smarterservices/smarter-elements@~1.2.0/dist/browser.js"></script>
+```
+
+#### Complete Example
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SmarterElements Example</title>
+</head>
+<body>
+    <!-- Include SmarterElements from CDN -->
+    <script src="https://unpkg.com/@smarterservices/smarter-elements@latest/dist/browser.js"></script>
+    
+    <div id="element-container"></div>
+    <button onclick="createDOMElement()">Mount to DOM</button>
+    <button onclick="createModalElement()">Open Modal</button>
+
+    <script>
+        // SmarterElements is available globally
+        const elements = new SmarterElements({
+            baseUrl: '/elements'
+        });
+
+        function createDOMElement() {
+            const element = elements.create('blockkit/renderer', {
+                config: {
+                    blocksJson: JSON.stringify([
+                        { type: "heading", level: 1, text: "Hello from CDN!" },
+                        { type: "text", text: "This element is mounted to the DOM." }
+                    ])
+                }
+            });
+            element.mount('#element-container');
+        }
+
+        async function createModalElement() {
+            const element = elements.create('blockkit/renderer', {
+                config: {
+                    blocksJson: JSON.stringify([
+                        { type: "heading", level: 1, text: "Modal Element" },
+                        { type: "text", text: "This element is displayed in a modal." }
+                    ])
+                }
+            });
+            
+            await element.openModal({
+                width: '600px',
+                maxWidth: '90vw'
+            });
+        }
+    </script>
+</body>
+</html>
+```
+
+#### Version Selection Guide
+
+| Use Case | Recommended Version | Example |
+|----------|-------------------|---------|
+| **Development/Testing** | `@latest` | `@smarterservices/smarter-elements@latest` |
+| **Production** | Specific version | `@smarterservices/smarter-elements@1.2.3` |
+| **Auto-updates (patch)** | Minor range | `@smarterservices/smarter-elements@~1.2.0` |
+| **Auto-updates (minor)** | Major range | `@smarterservices/smarter-elements@^1.0.0` |
+
+## Quick Start
+
+### React Integration
+
+```jsx
+import React, { useState } from 'react';
+import { useSmarterElements } from '@smarterservices/smarter-elements';
+
+function App() {
+  const elements = useSmarterElements({ baseUrl: '/elements' });
+  const [elementRef, setElementRef] = useState(null);
+  
+  const mountElement = () => {
+    const element = elements.create('blockkit/renderer', {
+      config: {
+        blocksJson: JSON.stringify([
+          { type: "heading", level: 1, text: "Hello SmarterElements!" },
+          { type: "text", text: "Mounted in React component." }
+        ])
+      },
+      onReady: () => console.log('Element ready'),
+      onResize: ({ height, width }) => console.log('Resized:', { height, width })
+    });
+    
+    element.mount('#react-container');
+    setElementRef(element);
+  };
+  
+  const openModal = async () => {
+    const element = elements.create('blockkit/renderer', {
+      config: {
+        blocksJson: JSON.stringify([
+          { type: "heading", level: 1, text: "Modal Element" },
+          { type: "text", text: "This opens in a modal with auto-sizing." }
+        ])
+      }
+    });
+    
+    await element.openModal({
+      width: '80%',
+      maxWidth: '800px',
+      dismissOnDocumentClick: true
+    });
+  };
+  
+  const closeElement = () => {
+    if (elementRef) {
+      elementRef.destroy();
+      setElementRef(null);
+    }
+  };
+  
+  return (
+    <div>
+      <div id="react-container" style={{ minHeight: '200px', border: '1px solid #ccc' }} />
+      <button onClick={mountElement}>Mount Element</button>
+      <button onClick={openModal}>Open Modal</button>
+      <button onClick={closeElement} disabled={!elementRef}>Close Element</button>
+    </div>
+  );
+}
+```
+
+### JavaScript Integration
+
+```javascript
+import { SmarterElements } from '@smarterservices/smarter-elements';
+
+// Initialize the elements system
+const elements = new SmarterElements({
+  baseUrl: '/elements',
+  environment: 'production' // or 'development'
+});
+
+// Create element with comprehensive configuration
+const element = elements.create('blockkit/renderer', {
+  config: {
+    blocksJson: JSON.stringify([
+      { type: "heading", level: 1, text: "Hello SmarterElements!" },
+      { type: "text", text: "This element demonstrates the JavaScript API." }
+    ])
+  },
+  constraints: {
+    minWidth: 300,
+    maxWidth: 800,
+    minHeight: 200
+  },
+  onReady: () => console.log('Element loaded successfully'),
+  onResize: ({ height, width, elementId }) => {
+    console.log(`Element ${elementId} resized:`, { height, width });
+  },
+  onError: (error) => console.error('Element error:', error)
+});
+
+// Mount to DOM with automatic resizing
+element.mount('#my-container');
+
+// Or open as modal with advanced options
+await element.openModal({
+  width: '80%',
+  maxWidth: '900px',
+  maxHeight: '90vh',
+  dismissOnDocumentClick: true,
+  escapeClose: true,
+  zIndex: 1000
+});
+
+// Update element configuration
+element.updateConfig({
+  blocksJson: JSON.stringify([
+    { type: "heading", level: 2, text: "Updated Content" }
+  ])
+});
+
+// Clean up when done
+element.destroy();
+```
+
+## Core Concepts
+
+### Elements
+
+Elements are self-contained UI components that run in isolated iframes. Each element has:
+
+- **Type**: A unique identifier (e.g., `blockkit/renderer`)
+- **Configuration**: Parameters passed to the element
+- **Events**: Messages the element can send/receive
+- **Lifecycle**: Methods for mounting, destroying, etc.
+
+### Element Lifecycle
+
+1. **Create** - Initialize element with configuration
+2. **Mount** - Attach to DOM or open in modal
+3. **Ready** - Element is loaded and interactive
+4. **Events** - Ongoing communication with element
+5. **Destroy** - Clean up resources
+
+### Configuration
+
+Elements accept configuration through the `config` parameter:
+
+```javascript
+const element = elements.create('element-type', {
+  config: {
+    // Element-specific parameters
+    param1: 'value1',
+    param2: 'value2'
+  }
+});
+```
+
+### Size Constraints
+
+Control element dimensions with width and height constraints:
+
+```javascript
+const element = elements.create('blockkit/renderer', {
+  config: {
+    blocksJson: '[{"type": "text", "text": "Hello"}]'
+  },
+  constraints: {
+    minWidth: 300,      // Minimum width in pixels
+    maxWidth: 800,      // Maximum width in pixels
+    minHeight: 200,     // Minimum height in pixels
+    maxHeight: 600      // Maximum height in pixels
+  }
+});
+
+// Mount with constraints applied
+element.mount('#container');
+```
+
+**CSS Units Supported:**
+- Pixels: `300` or `'300px'`
+- Percentages: `'80%'` (of parent container)
+- Viewport units: `'50vw'`, `'30vh'`
+- Relative units: `'20rem'`, `'15em'`
+
+**Important:** Elements will never exceed their parent container boundaries, even if constraints specify larger values.
+
+## Display Options
+
+### DOM Mounting
+
+Mount elements directly into existing DOM elements:
+
+```javascript
+const element = elements.create('element-type', { config });
+element.mount('#container'); // Mount to element with ID 'container'
+element.mount('.my-class');  // Mount to first element with class
+element.mount(domElement);   // Mount to DOM element reference
+```
+
+### Modal Display
+
+Display elements in overlay modals with comprehensive options:
+
+```javascript
+const element = elements.create('element-type', { config });
+
+// Basic modal
+await element.openModal();
+
+// Advanced modal configuration
+await element.openModal({
+  width: '80%',                    // Modal width (supports px, %, vw, etc.)
+  height: '600px',                 // Fixed height (optional, auto-sizes by default)
+  maxWidth: '1000px',              // Maximum width constraint
+  maxHeight: '90vh',               // Maximum height constraint
+  dismissOnDocumentClick: true,    // Close on backdrop click (default: false)
+  escapeClose: true,               // Close on Escape key (default: true)
+  zIndex: 1000,                    // Modal z-index (default: 9999)
+  padding: '20px'                  // Internal padding (default: '10px')
+});
+
+// Modal with body scroll prevention (automatic)
+// The modal system automatically prevents background scrolling
+
+// Close modal programmatically
+element.closeModal();
+```
+
+## Event Handling
+
+Elements can send events to the parent application:
+
+```javascript
+const element = elements.create('element-type', {
+  config: { /* ... */ },
+  onEvent: (eventType, data) => {
+    switch (eventType) {
+      case 'user-action':
+        console.log('User performed action:', data);
+        break;
+      case 'data-changed':
+        console.log('Data updated:', data);
+        break;
+    }
+  }
+});
+```
+
+## Error Handling
+
+Handle element errors gracefully:
+
+```javascript
+const element = elements.create('element-type', {
+  config: { /* ... */ },
+  onError: (error) => {
+    console.error('Element error:', error);
+    // Handle error (show message, retry, etc.)
+  }
+});
+```
+
+## Advanced Features
+
+### Auto-Resizing System
+
+Elements use ResizeObserver for efficient content-based sizing:
+
+- **Content-driven sizing** - Height adjusts automatically to content
+- **Smooth transitions** - CSS animations for resize changes
+- **Performance optimization** - Debounced updates (60fps throttling)
+- **Constraint handling** - Respects min/max width/height limits
+- **Container awareness** - Never exceeds parent container bounds
+
+```javascript
+const element = elements.create('blockkit/renderer', {
+  config: { /* ... */ },
+  constraints: {
+    minWidth: 300,     // Minimum width in pixels
+    maxWidth: '80%',   // Maximum width as percentage
+    minHeight: 200,    // Minimum height
+    maxHeight: '90vh'  // Maximum height as viewport units
+  },
+  autoResize: true,    // Enable automatic resizing (default)
+  onResize: ({ height, width, elementId }) => {
+    console.log(`Element ${elementId} resized to ${width}x${height}`);
+  }
+});
+```
+
+### Element Lifecycle Management
+
+```javascript
+// Create element
+const element = elements.create('element-type', {
+  config: { /* ... */ },
+  onReady: () => console.log('Element is ready'),
+  onError: (error) => console.error('Element error:', error)
+});
+
+// Mount and manage
+element.mount('#container');
+
+// Update configuration
+element.updateConfig({ newParam: 'newValue' });
+
+// Update constraints
+element.updateConstraints({ maxWidth: 1000 });
+
+// Send custom messages
+element.sendMessage('custom-event', { data: 'value' });
+
+// Clean up
+element.destroy();
+```
+
+### Multiple Elements
+
+```javascript
+const elements = new SmarterElements({ baseUrl: '/elements' });
+
+// Create multiple elements
+const element1 = elements.create('type1', { config: {} });
+const element2 = elements.create('type2', { config: {} });
+
+// Mount to different containers
+element1.mount('#container1');
+element2.mount('#container2');
+
+// Open one as modal
+await element2.openModal({ width: '600px' });
+
+// Manage lifecycle
+element1.destroy();
+element2.closeModal();
+```
+
+## Best Practices
+
+### Performance
+
+```javascript
+// ✅ Good: Create elements when needed
+const createElement = () => {
+  return elements.create('element-type', { config });
+};
+
+// ✅ Good: Clean up when done
+const element = createElement();
+element.mount('#container');
+// Later...
+element.destroy();
+
+// ✅ Good: Use constraints to prevent oversized elements
+const element = elements.create('element-type', {
+  constraints: { maxWidth: 1200, maxHeight: 800 }
+});
+```
+
+### Error Handling
+
+```javascript
+// ✅ Comprehensive error handling
+const element = elements.create('element-type', {
+  config: { /* ... */ },
+  onError: (error) => {
+    console.error('Element error:', error);
+    // Show user-friendly error message
+    showErrorMessage('Failed to load component. Please try again.');
+  },
+  onReady: () => {
+    // Hide loading state
+    hideLoadingSpinner();
+  }
+});
+
+// Handle modal errors
+try {
+  await element.openModal({ width: '80%' });
+} catch (error) {
+  console.error('Modal failed to open:', error);
+  // Fallback to DOM mounting
+  element.mount('#fallback-container');
+}
+```
+
+### Accessibility
+
+- **Modal Focus Management**: Automatic focus trapping and restoration
+- **Keyboard Navigation**: ESC key closes modals, tab navigation works
+- **Screen Reader Support**: Proper ARIA labels and semantic HTML
+- **Body Scroll Prevention**: Background scrolling disabled in modals
+
+```javascript
+// Modal with accessibility features
+await element.openModal({
+  width: '600px',
+  escapeClose: true,        // ESC key support
+  dismissOnDocumentClick: true, // Click outside to close
+  // Focus automatically managed
+});
+```
+
+## Utility Functions
+
+SmarterElements includes helpful utility functions for common tasks:
+
+### Debounce and Throttle
+
+Handle frequent events efficiently:
+
+```javascript
+import { debounce, throttle } from '@smarterservices/smarter-elements';
+
+// Debounce resize events
+const debouncedResize = debounce(() => {
+  element.recalculateSize();
+}, 300);
+
+window.addEventListener('resize', debouncedResize);
+
+// Throttle scroll events  
+const throttledScroll = throttle(() => {
+  console.log('Scrolling...');
+}, 100);
+
+window.addEventListener('scroll', throttledScroll);
+```
+
+### CDN Usage
+
+```html
+<script src="https://unpkg.com/@smarterservices/smarter-elements@latest/dist/browser.js"></script>
+<script>
+  const { debounce, throttle } = SmarterElements;
+  
+  const debouncedHandler = debounce(() => {
+    element.recalculateSize();
+  }, 300);
+</script>
+```
+
+## Next Steps
+
+- **[API Reference](/smarter-elements/api-reference)** - Complete method documentation
+- **[Examples](/smarter-elements/examples)** - Real-world usage patterns  
+- **[Troubleshooting](/smarter-elements/troubleshooting)** - Common issues and solutions
+
+### Quick Reference
+
+| Task | Method | Example |
+|------|--------|----------|
+| Create element | `elements.create()` | `elements.create('type', { config })` |
+| Mount to DOM | `element.mount()` | `element.mount('#container')` |
+| Open modal | `element.openModal()` | `await element.openModal({ width: '80%' })` |
+| Update config | `element.updateConfig()` | `element.updateConfig({ newParam: 'value' })` |
+| Clean up | `element.destroy()` | `element.destroy()` |
+
+---
+
+*Need help? Check our [troubleshooting guide](/smarter-elements/troubleshooting) or [contact support](mailto:support@smarterservices.com).*

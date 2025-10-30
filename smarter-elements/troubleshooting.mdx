@@ -1,0 +1,612 @@
+---
+title: "Troubleshooting"
+description: "Common issues and solutions for SmarterElements"
+---
+
+# Troubleshooting
+
+Solutions to common issues when working with SmarterElements.
+
+## CDN Version Issues
+
+### Version Mismatch Problems
+
+**Symptoms:**
+- Features not working as expected
+- Console errors about missing methods
+- Inconsistent behavior across environments
+
+**Solutions:**
+
+1. **Check Loaded Version**
+   ```javascript
+   // Verify which version is actually loaded
+   console.log('Loaded version:', SmarterElements.version);
+   
+   // Compare with expected version
+   if (SmarterElements.version !== '1.2.3') {
+     console.warn('Version mismatch detected');
+   }
+   ```
+
+2. **Lock to Specific Version**
+   ```html
+   <!-- ❌ Problematic - version can change unexpectedly -->
+   <script src="https://unpkg.com/@smarterservices/smarter-elements@latest/dist/smarter-elements.umd.js"></script>
+   
+   <!-- ✅ Better - locked to specific version -->
+   <script src="https://unpkg.com/@smarterservices/smarter-elements@1.2.3/dist/smarter-elements.umd.js"></script>
+   ```
+
+3. **Handle Version Compatibility**
+   ```javascript
+   // Feature detection instead of version checking
+   if (typeof SmarterElements.prototype.openModal === 'function') {
+     // Modal feature is available
+     element.openModal(options);
+   } else {
+     // Fallback for older versions
+     element.mount('#container');
+   }
+   ```
+
+### CDN Loading Issues
+
+**Symptoms:**
+- Script fails to load
+- `SmarterElements is not defined` errors
+- Network timeouts
+
+**Solutions:**
+
+1. **Add Fallback CDN**
+   ```html
+   <!-- Primary CDN -->
+   <script src="https://unpkg.com/@smarterservices/smarter-elements@1.2.3/dist/smarter-elements.umd.js"></script>
+   
+   <!-- Fallback CDN -->
+   <script>
+     if (typeof SmarterElements === 'undefined') {
+       document.write('<script src="https://cdn.jsdelivr.net/npm/@smarterservices/smarter-elements@1.2.3/dist/smarter-elements.umd.js"><\/script>');
+     }
+   </script>
+   ```
+
+2. **Add Loading Error Handling**
+   ```html
+   <script 
+     src="https://unpkg.com/@smarterservices/smarter-elements@1.2.3/dist/smarter-elements.umd.js"
+     onerror="handleCDNError()"
+   ></script>
+   
+   <script>
+     function handleCDNError() {
+       console.error('Failed to load SmarterElements from CDN');
+       // Show fallback UI or load from alternative source
+       document.getElementById('fallback-message').style.display = 'block';
+     }
+   </script>
+   ```
+
+3. **Verify CDN Availability**
+   ```javascript
+   // Check if CDN is accessible
+   fetch('https://unpkg.com/@smarterservices/smarter-elements@1.2.3/package.json')
+     .then(response => response.json())
+     .then(data => {
+       console.log('Available version:', data.version);
+     })
+     .catch(error => {
+       console.error('CDN not accessible:', error);
+     });
+   ```
+
+### Version Update Strategy
+
+**Best Practices:**
+
+1. **Development Environment**
+   ```html
+   <!-- Use latest for development -->
+   <script src="https://unpkg.com/@smarterservices/smarter-elements@latest/dist/smarter-elements.umd.js"></script>
+   ```
+
+2. **Staging Environment**
+   ```html
+   <!-- Test with specific version before production -->
+   <script src="https://unpkg.com/@smarterservices/smarter-elements@1.3.0/dist/smarter-elements.umd.js"></script>
+   ```
+
+3. **Production Environment**
+   ```html
+   <!-- Lock to tested version -->
+   <script src="https://unpkg.com/@smarterservices/smarter-elements@1.2.3/dist/smarter-elements.umd.js"></script>
+   ```
+
+4. **Gradual Updates**
+   ```html
+   <!-- Allow patch updates only -->
+   <script src="https://unpkg.com/@smarterservices/smarter-elements@~1.2.0/dist/smarter-elements.umd.js"></script>
+   ```
+
+## Common Issues
+
+### Element Not Loading
+
+**Symptoms:**
+- Element container remains empty
+- Console shows network errors
+- `onError` callback is triggered
+
+**Possible Causes & Solutions:**
+
+1. **Incorrect Base URL**
+   ```javascript
+   // ❌ Wrong
+   const elements = new SmarterElements({ baseUrl: '/wrong-path' });
+   
+   // ✅ Correct
+   const elements = new SmarterElements({ baseUrl: '/elements' });
+   ```
+
+2. **Element Type Not Found**
+   ```javascript
+   // Check if element type exists
+   const element = elements.create('nonexistent/element', {
+     onError: (error) => {
+       if (error.code === 'ELEMENT_NOT_FOUND') {
+         console.error('Element type does not exist');
+       }
+     }
+   });
+   ```
+
+3. **Network Connectivity Issues**
+   ```javascript
+   // Add timeout and retry logic
+   const elements = new SmarterElements({ 
+     baseUrl: '/elements',
+     timeout: 60000 // Increase timeout
+   });
+   ```
+
+### Modal Not Displaying
+
+**Symptoms:**
+- Modal overlay appears but content is empty
+- Modal doesn't open at all
+- JavaScript errors in console
+
+**Solutions:**
+
+1. **Check Modal Options**
+   ```javascript
+   // Ensure valid modal options
+   await element.openModal({
+     width: '80%',        // Valid CSS value
+     maxWidth: '1000px',  // Valid CSS value
+     zIndex: 1000         // Numeric value
+   });
+   ```
+
+2. **Verify Element is Ready**
+   ```javascript
+   const element = elements.create('element/type', {
+     config: {},
+     onReady: async () => {
+       // Only open modal after element is ready
+       await element.openModal(options);
+     }
+   });
+   ```
+
+3. **Check for Conflicting CSS**
+   ```css
+   /* Ensure modal z-index is higher than other elements */
+   .modal-overlay {
+     z-index: 1000 !important;
+   }
+   ```
+
+### Auto-Resize Not Working
+
+**Symptoms:**
+- Element content is cut off
+- Modal doesn't adjust to content size
+- Fixed height despite auto-resize
+
+**Solutions:**
+
+1. **Enable Auto-Resize**
+   ```javascript
+   const element = elements.create('element/type', {
+     config: {},
+     autoResize: true, // Enable auto-resize
+     onResize: (dimensions) => {
+       console.log('New dimensions:', dimensions);
+     }
+   });
+   ```
+
+2. **Check Element Implementation**
+   ```javascript
+   // Element should send resize messages
+   // This is handled automatically by SmarterElements framework
+   ```
+
+3. **Verify Container Constraints**
+   ```javascript
+   await element.openModal({
+     width: '80%',
+     maxHeight: '90vh', // Don't constrain height too much
+     // Remove fixed height to allow auto-resize
+   });
+   ```
+
+### Memory Leaks
+
+**Symptoms:**
+- Browser becomes slow over time
+- Increasing memory usage
+- Elements not being cleaned up
+
+**Solutions:**
+
+1. **Proper Element Cleanup**
+   ```javascript
+   // Always destroy elements when done
+   useEffect(() => {
+     const element = elements.create('type', config);
+     
+     return () => {
+       element.destroy(); // Cleanup on unmount
+     };
+   }, []);
+   ```
+
+2. **Remove Event Listeners**
+   ```javascript
+   const handler = (data) => console.log(data);
+   
+   element.on('event', handler);
+   
+   // Remove when done
+   element.off('event', handler);
+   ```
+
+3. **Destroy All Elements**
+   ```javascript
+   // When app unmounts or navigates away
+   elements.destroyAll();
+   ```
+
+## Error Codes
+
+### ELEMENT_NOT_FOUND
+
+**Cause:** Element type doesn't exist or is misspelled.
+
+**Solution:**
+```javascript
+// Check available element types
+const availableTypes = [
+  'blockkit/renderer',
+  'proctoring/session-viewer',
+  // ... other types
+];
+
+if (!availableTypes.includes(elementType)) {
+  console.error(`Element type '${elementType}' is not available`);
+}
+```
+
+### LOAD_FAILED
+
+**Cause:** Element failed to load due to server error or network issue.
+
+**Solution:**
+```javascript
+const element = elements.create('element/type', {
+  config: {},
+  onError: (error) => {
+    if (error.code === 'LOAD_FAILED') {
+      // Retry after delay
+      setTimeout(() => {
+        element.mount('#container');
+      }, 2000);
+    }
+  }
+});
+```
+
+### TIMEOUT
+
+**Cause:** Element took too long to load.
+
+**Solution:**
+```javascript
+// Increase timeout
+const elements = new SmarterElements({ 
+  baseUrl: '/elements',
+  timeout: 60000 // 60 seconds
+});
+```
+
+### CONFIG_ERROR
+
+**Cause:** Invalid configuration passed to element.
+
+**Solution:**
+```javascript
+// Validate configuration before creating element
+function validateConfig(config, schema) {
+  // Add validation logic based on element schema
+  if (!config.requiredParam) {
+    throw new Error('Missing required parameter: requiredParam');
+  }
+}
+
+try {
+  validateConfig(config, elementSchema);
+  const element = elements.create('element/type', { config });
+} catch (error) {
+  console.error('Configuration error:', error.message);
+}
+```
+
+## Performance Issues
+
+### Slow Element Loading
+
+**Symptoms:**
+- Elements take a long time to appear
+- Poor user experience
+
+**Solutions:**
+
+1. **Preload Critical Elements**
+   ```javascript
+   // Preload elements that will be used soon
+   const preloadElement = (type, config) => {
+     const element = elements.create(type, { config });
+     // Don't mount yet, just create
+     return element;
+   };
+   ```
+
+2. **Use Loading States**
+   ```javascript
+   function showLoadingState(container) {
+     container.innerHTML = `
+       <div class="loading">
+         <div class="spinner"></div>
+         <p>Loading element...</p>
+       </div>
+     `;
+   }
+   
+   const element = elements.create('element/type', {
+     config: {},
+     onReady: () => {
+       // Remove loading state
+       container.querySelector('.loading')?.remove();
+     }
+   });
+   
+   showLoadingState(container);
+   element.mount(container);
+   ```
+
+3. **Implement Element Pooling**
+   ```javascript
+   // Reuse elements instead of creating new ones
+   class ElementPool {
+     constructor(elementType, poolSize = 3) {
+       this.pool = [];
+       this.elementType = elementType;
+       
+       // Pre-create elements
+       for (let i = 0; i < poolSize; i++) {
+         this.pool.push(this.createElement());
+       }
+     }
+     
+     createElement() {
+       return elements.create(this.elementType, {
+         config: {}
+       });
+     }
+     
+     acquire() {
+       return this.pool.pop() || this.createElement();
+     }
+     
+     release(element) {
+       // Reset element state
+       element.postMessage({ type: 'reset' });
+       this.pool.push(element);
+     }
+   }
+   ```
+
+### High Memory Usage
+
+**Solutions:**
+
+1. **Limit Concurrent Elements**
+   ```javascript
+   class ElementManager {
+     constructor(maxElements = 10) {
+       this.elements = [];
+       this.maxElements = maxElements;
+     }
+     
+     create(type, config) {
+       // Remove oldest element if at limit
+       if (this.elements.length >= this.maxElements) {
+         const oldest = this.elements.shift();
+         oldest.destroy();
+       }
+       
+       const element = elements.create(type, config);
+       this.elements.push(element);
+       return element;
+     }
+   }
+   ```
+
+2. **Lazy Load Elements**
+   ```javascript
+   // Only create elements when they're visible
+   const observer = new IntersectionObserver((entries) => {
+     entries.forEach(entry => {
+       if (entry.isIntersecting) {
+         createElementForContainer(entry.target);
+         observer.unobserve(entry.target);
+       }
+     });
+   });
+   
+   document.querySelectorAll('.lazy-element').forEach(el => {
+     observer.observe(el);
+   });
+   ```
+
+## Browser Compatibility
+
+### Internet Explorer Issues
+
+**Note:** SmarterElements requires modern browser features and doesn't support Internet Explorer.
+
+**Minimum Requirements:**
+- Chrome 60+
+- Firefox 55+
+- Safari 12+
+- Edge 79+
+
+### Mobile Browser Issues
+
+**Common Issues:**
+- Touch events not working
+- Modal sizing problems on mobile
+- Performance issues on older devices
+
+**Solutions:**
+
+1. **Mobile-Optimized Modal Options**
+   ```javascript
+   const isMobile = window.innerWidth < 768;
+   
+   await element.openModal({
+     width: isMobile ? '95%' : '80%',
+     maxWidth: isMobile ? 'none' : '1000px',
+     maxHeight: isMobile ? '90vh' : '80vh'
+   });
+   ```
+
+2. **Touch Event Handling**
+   ```javascript
+   // Elements automatically handle touch events
+   // No additional configuration needed
+   ```
+
+## Development Issues
+
+### Hot Reload Problems
+
+**Symptoms:**
+- Elements don't update during development
+- Stale element instances
+
+**Solutions:**
+
+1. **Clean Up on Hot Reload**
+   ```javascript
+   // In development, clean up elements on module reload
+   if (module.hot) {
+     module.hot.dispose(() => {
+       elements.destroyAll();
+     });
+   }
+   ```
+
+2. **Force Element Refresh**
+   ```javascript
+   // Add cache busting in development
+   const elements = new SmarterElements({
+     baseUrl: '/elements',
+     debug: process.env.NODE_ENV === 'development'
+   });
+   ```
+
+### TypeScript Issues
+
+**Common Problems:**
+- Type errors with element configuration
+- Missing type definitions
+
+**Solutions:**
+
+1. **Extend Element Interfaces**
+   ```typescript
+   interface MyElementConfig extends ElementConfig {
+     customParam: string;
+   }
+   
+   const element = elements.create<MyElementConfig>('my/element', {
+     config: {
+       customParam: 'value'
+     }
+   });
+   ```
+
+2. **Type Assertion for Dynamic Config**
+   ```typescript
+   const config = dynamicConfig as ElementConfig;
+   const element = elements.create('element/type', { config });
+   ```
+
+## Getting Help
+
+### Debug Information
+
+When reporting issues, include:
+
+1. **Browser and Version**
+2. **SmarterElements Version**
+3. **Console Errors**
+4. **Element Configuration**
+5. **Reproduction Steps**
+
+### Enable Debug Mode
+
+```javascript
+const elements = new SmarterElements({
+  baseUrl: '/elements',
+  debug: true // Enables detailed logging
+});
+```
+
+### Collect Debug Information
+
+```javascript
+// Get system information
+const debugInfo = {
+  userAgent: navigator.userAgent,
+  elementsVersion: elements.version,
+  activeElements: elements.getElements().length,
+  lastError: elements.getLastError()
+};
+
+console.log('Debug Info:', debugInfo);
+```
+
+### Contact Support
+
+- **Documentation:** [SmarterElements Docs](/smarter-elements)
+- **GitHub Issues:** [Report a Bug](https://github.com/smarterservices/platform/issues)
+- **Email Support:** [support@smarterservices.com](mailto:support@smarterservices.com)
+
+---
+
+*Still having issues? Check our [FAQ](/smarter-elements/faq) or reach out to our support team.*

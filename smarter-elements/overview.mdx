@@ -1,96 +1,124 @@
 ---
 title: "SmarterElements"
-description: ""
+description: "Embeddable UI components with iframe isolation and modal support"
 icon: "puzzle-piece"
 ---
 
-SmarterElements is a JavaScript library that allows you to embed UI components into any web application, similar to how Stripe Elements works. This library provides a simple way to integrate proctoring functionality into your application without having to build the UI components yourself.
+SmarterElements is a JavaScript library for embedding isolated UI components into web applications. Components run in secure iframes with automatic resizing, modal support, and seamless parent-child communication.
 
 ## What are SmarterElements?
 
-SmarterElements are pre-built, customizable UI components that you can easily embed in your web application. These components handle complex functionality like:
+SmarterElements are iframe-based UI components that provide:
 
-- Exam information display
-- Proctor scheduling
-- Identity verification
-- Exam verification
-- Proctoring sessions
+- **Iframe Isolation**: Components run in isolated contexts for security
+- **Automatic Resizing**: Content-driven sizing with smooth transitions
+- **Modal System**: Overlay display with backdrop blur and focus management
+- **Event Communication**: Bidirectional messaging between parent and element
+- **Size Constraints**: Flexible width/height limits with CSS unit support
 
-Each element is designed to be:
+## Key Features
 
-- **Easy to integrate**: Simple JavaScript API
-- **Customizable**: Matches your application's design
-- **Responsive**: Works on all devices
-- **Accessible**: Built with accessibility in mind
-- **Secure**: Handles sensitive operations securely
+- **Secure Isolation**: Each element runs in its own iframe sandbox
+- **Modal & DOM Mounting**: Display elements inline or as overlay modals
+- **Auto-Resizing**: Elements automatically adjust to content size
+- **React Integration**: Dedicated hooks and components for React apps
+- **CDN Ready**: Direct script inclusion without build tools
+- **Utility Functions**: Built-in debounce and throttle for performance
+- **TypeScript Support**: Full type definitions included
 
-## Available Elements
+## Architecture
 
-The SmarterElements library includes several components:
+### Element Types
 
-- **ExamCard**: Displays exam information in a card format
-- **ProctorSchedule**: Shows a proctor's schedule in a calendar-like format
-- **ExamVerification**: Handles verification steps before an exam
-- **IdentityCheck**: Handles identity verification for exam takers
-- **ProctorSession**: Manages the entire proctoring session
-- **ElementsLayout**: Provides a container for elements with auto-resizing iframe support
+- **BlockKit Renderer**: Dynamic UI rendering from JSON configurations
+- **Custom Elements**: Application-specific components
+- **Modal Elements**: Overlay components with backdrop and focus management
 
-## Integration Methods
+### Integration Patterns
 
-SmarterElements can be integrated in several ways:
+- **DOM Mounting**: Embed elements directly into existing containers
+- **Modal Display**: Show elements as overlay modals with auto-sizing
+- **React Components**: Use dedicated React hooks and components
+- **Vanilla JavaScript**: Direct API usage without frameworks
 
-### Direct Script Include
-
-```html
-<script src="https://cdn.smarterproctoring.com/elements/v1/smarter-elements.umd.js"></script>
-```
+## Installation
 
 ### NPM Package
 
 ```bash
-npm install @smarterproctoring/elements
+npm install @smarterservices/smarter-elements
 ```
 
-### React Components
-
-```jsx
-import { ExamCard } from '@smarterproctoring/elements/react';
-```
-
-## Basic Example
-
-Here's a simple example of using SmarterElements:
+### CDN (Browser)
 
 ```html
-<div id="exam-card-element"></div>
+<script src="https://unpkg.com/@smarterservices/smarter-elements@latest/dist/browser.js"></script>
+```
 
-<script>
-  // Initialize SmarterElements
-  const elements = window.SmarterElements({
-    environment: 'production',
-    apiKey: 'YOUR_API_KEY',
-  });
+### React Integration
 
-  // Create an Exam Card element
-  const examCard = elements.create('examCard', {
-    exam: {
-      id: 'exam123',
-      title: 'Mathematics 101',
-      course: 'MATH 101 - Calculus I',
-      description: 'Final Exam - Spring 2025',
-      date: '2025-06-15',
-      startTime: '9:00 AM',
-      endTime: '11:00 AM',
-      duration: 120,
-    },
-  });
+```jsx
+import { useSmarterElements } from '@smarterservices/smarter-elements';
+```
 
-  // Mount the element to the container
-  examCard.mount('#exam-card-element');
+## Quick Start
 
-  // Listen for events
-  examCard.on('exam-selected', data => {
-    console.log('Exam selected:', data.examId);
-  });
-</script>
+### Vanilla JavaScript
+
+```javascript
+// Initialize SmarterElements
+const elements = new SmarterElements({
+  baseUrl: '/elements'
+});
+
+// Create and mount an element
+const element = elements.create('blockkit/renderer', {
+  config: {
+    blocksJson: JSON.stringify([
+      { type: "heading", level: 1, text: "Hello World" }
+    ])
+  }
+});
+
+// Mount to DOM
+element.mount('#container');
+
+// Or open as modal
+await element.openModal({
+  width: '600px',
+  maxWidth: '90vw'
+});
+```
+
+### React Hook
+
+```jsx
+import { useSmarterElements } from '@smarterservices/smarter-elements';
+
+function MyComponent() {
+  const elements = useSmarterElements();
+  
+  const openElement = async () => {
+    const element = elements.create('blockkit/renderer', {
+      config: { /* ... */ }
+    });
+    
+    await element.openModal({ width: '80%' });
+  };
+  
+  return <button onClick={openElement}>Open Element</button>;
+}
+```
+
+### Utility Functions
+
+```javascript
+import { debounce, throttle } from '@smarterservices/smarter-elements';
+
+// Debounce resize events for performance
+const debouncedResize = debounce(() => {
+  element.recalculateSize();
+}, 300);
+
+window.addEventListener('resize', debouncedResize);
 ```

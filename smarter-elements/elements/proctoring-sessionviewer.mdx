@@ -1,0 +1,210 @@
+---
+title: "Session Viewer"
+description: "A component for viewing and interacting with proctoring sessions"
+---
+
+# Session Viewer
+
+A component for viewing and interacting with proctoring sessions
+
+## Element Type
+
+`proctoring/session-viewer`
+
+## Usage
+
+### React Integration
+
+```jsx
+import { useSmarterElements } from '@smarterservices/smarter-elements';
+
+function MyComponent() {
+  const elements = useSmarterElements();
+  
+  const handleCreateElement = async () => {
+    const element = elements.create('proctoring/session-viewer', {
+      config: {
+        // Add your configuration here
+      },
+      onReady: () => {
+        console.log('Element is ready');
+      },
+      onError: (error) => {
+        console.error('Element error:', error);
+      }
+    });
+    
+    // Mount the element
+    element.mount('#element-container');
+    
+    // Or open as modal
+    await element.openModal({
+      width: '80%',
+      maxWidth: '900px'
+    });
+  };
+  
+  return (
+    <div>
+      <button onClick={handleCreateElement}>
+        Create Session Viewer
+      </button>
+      <div id="element-container"></div>
+    </div>
+  );
+}
+```
+
+### JavaScript Integration
+
+```javascript
+// Load SmarterElements
+import { SmarterElements } from '@smarterservices/smarter-elements';
+
+// Initialize
+const elements = new SmarterElements({
+  baseUrl: '/elements'
+});
+
+// Create element
+const element = elements.create('proctoring/session-viewer', {
+  config: {
+    // Add your configuration here
+  },
+  onReady: () => {
+    console.log('Element is ready');
+  },
+  onError: (error) => {
+    console.error('Element error:', error);
+  }
+});
+
+// Mount to DOM element
+element.mount('#element-container');
+
+// Or open as modal
+element.openModal({
+  width: '80%',
+  maxWidth: '900px'
+});
+```
+
+## Configuration
+
+
+### Input Parameters
+
+The following parameters can be passed in the `config` object:
+
+```typescript
+interface InputSchema {
+  /**
+   * Unique identifier for the session
+   * @required
+   */
+  sessionSid: string;
+
+  /**
+   * Unique identifier for the exam
+   * @required
+   */
+  examSid: string;
+
+  /**
+   * Unique identifier for the installation
+   */
+  installSid?: string;
+
+  /**
+   * Room ID for the LiveKit session (defaults to sessionSid if not provided)
+   */
+  roomId?: string;
+
+  /**
+   * Base URL for the proctoring API
+   */
+  apiUrl?: string;
+
+  /**
+   * Authentication token for the API
+   */
+  token?: string;
+
+  /**
+   * Identity of the current user (e.g., 'instructor', 'proctor')
+   */
+  identity?: string;
+
+  /**
+   * WebSocket URL for LiveKit connection
+   */
+  websocketUrl?: string;
+
+  /**
+   * JWT token containing all necessary data (alternative to individual props)
+   */
+  data?: string;
+
+}
+```
+
+
+
+
+
+
+## Examples
+
+### Basic Example
+
+```javascript
+const element = elements.create('proctoring/session-viewer', {
+  config: {
+    // Minimal configuration
+  }
+});
+
+element.mount('#container');
+```
+
+### Modal Example
+
+```javascript
+const element = elements.create('proctoring/session-viewer', {
+  config: {
+    // Your configuration
+  }
+});
+
+await element.openModal({
+  width: '90%',
+  maxWidth: '1000px',
+  dismissOnDocumentClick: false,
+  escapeClose: true
+});
+```
+
+## API Reference
+
+### Element Methods
+
+- `mount(selector)` - Mount element to DOM
+- `openModal(options)` - Open element in modal
+- `destroy()` - Clean up and destroy element
+- `postMessage(data)` - Send message to element
+- `on(event, callback)` - Listen for events
+- `off(event, callback)` - Remove event listener
+
+### Modal Options
+
+- `width` - Modal width (string or number)
+- `height` - Modal height (string or number)
+- `maxWidth` - Maximum width constraint
+- `maxHeight` - Maximum height constraint
+- `dismissOnDocumentClick` - Close on backdrop click
+- `escapeClose` - Close on Escape key
+- `zIndex` - Modal z-index value
+
+---
+
+*This documentation was auto-generated from the element schema.*

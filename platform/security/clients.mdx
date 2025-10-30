@@ -1,0 +1,653 @@
+---
+title: "Client Libraries"
+description: "Available IAM client libraries for different platforms and languages"
+---
+
+# Client Libraries
+
+The SmarterServices IAM system provides client libraries for various platforms and programming languages to simplify integration with your applications.
+
+## Available Clients
+
+### Browser Client (JavaScript/TypeScript)
+
+The browser client is designed for client-side applications and provides seamless integration with modern web frameworks.
+
+#### Repository
+- **GitHub**: [iam-client](https://github.com/SmarterServices/iam-client)
+- **NPM**: `@smarterservices/iam-client`
+
+#### Features
+- ✅ **Framework Agnostic**: Works with any JavaScript framework
+- ✅ **TypeScript Support**: Full TypeScript definitions included
+- ✅ **Caching**: Built-in permission caching for performance
+- ✅ **React Integration**: Dedicated React components and hooks
+- ✅ **Vue Integration**: Vue.js directives and composables
+- ✅ **Angular Integration**: Angular services and guards
+
+#### Installation
+```bash
+npm install @smarterservices/iam-client
+```
+
+#### Basic Usage
+```javascript
+import { IamClient } from '@smarterservices/iam-client';
+
+const iam = new IamClient({
+  apiUrl: 'https://iam.smarterservices.com',
+  token: 'your-auth-token'
+});
+
+// Check single permission
+const canDelete = await iam.authorize(
+  'sp:DeleteSession',
+  'ssrn:ss:sp::578:session/ES123456'
+);
+
+// Check multiple permissions
+const permissions = await iam.authorizeMultiple([
+  { action: 'sp:ReadSession', resource: 'ssrn:ss:sp::578:session/ES123456' },
+  { action: 'sp:UpdateSession', resource: 'ssrn:ss:sp::578:session/ES123456' }
+]);
+```
+
+#### Configuration Options
+```javascript
+const iam = new IamClient({
+  apiUrl: 'https://iam.smarterservices.com',
+  token: 'your-auth-token',
+  
+  // Caching configuration
+  cache: {
+    enabled: true,
+    ttl: 300, // 5 minutes
+    maxSize: 1000
+  },
+  
+  // Request configuration
+  timeout: 5000,
+  retries: 3,
+  
+  // Debug mode
+  debug: process.env.NODE_ENV === 'development'
+});
+```
+
+### Server Client (Node.js)
+
+The server client is optimized for server-side applications and provides additional features for service-to-service authentication.
+
+#### Repository
+- **GitHub**: [iam](https://github.com/SmarterServices/IAM)
+- **NPM**: `@smarterservices/iam-node`
+
+#### Features
+- ✅ **Service Authentication**: Service-to-service authentication
+- ✅ **Middleware Support**: Express.js, Koa, and other framework middleware
+- ✅ **Bulk Operations**: Batch permission checks
+- ✅ **Policy Management**: Create and manage policies programmatically
+- ✅ **Audit Logging**: Built-in audit trail functionality
+- ✅ **High Performance**: Optimized for server workloads
+
+#### Installation
+```bash
+npm install @smarterservices/iam-node
+```
+
+#### Basic Usage
+```javascript
+const { IamService } = require('@smarterservices/iam-node');
+
+const iam = new IamService({
+  apiUrl: 'https://iam.smarterservices.com',
+  serviceKey: 'your-service-key'
+});
+
+// Authorize user action
+const authorized = await iam.authorize(
+  'user-token',
+  'sp:ReadSession',
+  'ssrn:ss:sp::578:session/ES123456'
+);
+
+// Service-to-service authorization
+const serviceAuthorized = await iam.authorizeService(
+  'sm:CreateUser',
+  'ssrn:ss:sm::578:user/new'
+);
+```
+
+## Framework Integrations
+
+### React Integration
+
+#### Installation
+```bash
+npm install @smarterservices/iam-react
+```
+
+#### Provider Setup
+```jsx
+import { IamProvider } from '@smarterservices/iam-react';
+
+function App() {
+  return (
+    <IamProvider
+      apiUrl="https://iam.smarterservices.com"
+      token={authToken}
+    >
+      <YourApp />
+    </IamProvider>
+  );
+}
+```
+
+#### Component Protection
+```jsx
+import { IamProtected } from '@smarterservices/iam-react';
+
+function DeleteButton({ sessionId }) {
+  return (
+    <IamProtected 
+      action="sp:DeleteSession" 
+      resource={`ssrn:ss:sp::578:session/${sessionId}`}
+      fallback={<div>Access denied</div>}
+    >
+      <button onClick={handleDelete}>
+        Delete Session
+      </button>
+    </IamProtected>
+  );
+}
+```
+
+#### Hooks
+```jsx
+import { usePermission, useIam } from '@smarterservices/iam-react';
+
+function SessionActions({ sessionId }) {
+  const { hasPermission, loading } = usePermission(
+    'sp:DeleteSession',
+    `ssrn:ss:sp::578:session/${sessionId}`
+  );
+  
+  const iam = useIam();
+
+  const handleBulkCheck = async () => {
+    const permissions = await iam.authorizeMultiple([
+      { action: 'sp:ReadSession', resource: `ssrn:ss:sp::578:session/${sessionId}` },
+      { action: 'sp:UpdateSession', resource: `ssrn:ss:sp::578:session/${sessionId}` }
+    ]);
+  };
+
+  if (loading) return <div>Loading...</div>;
+
+  return (
+    <div>
+      {hasPermission && (
+        <button onClick={handleDelete}>Delete</button>
+      )}
+    </div>
+  );
+}
+```
+
+### Vue.js Integration
+
+#### Installation
+```bash
+npm install @smarterservices/iam-vue
+```
+
+#### Plugin Setup
+```javascript
+import { createApp } from 'vue';
+import { IamPlugin } from '@smarterservices/iam-vue';
+
+const app = createApp(App);
+
+app.use(IamPlugin, {
+  apiUrl: 'https://iam.smarterservices.com',
+  token: () => store.getters.authToken
+});
+```
+
+#### Directive Usage
+```vue
+<template>
+  <div>
+    <button 
+      v-iam="{ action: 'sp:DeleteSession', resource: sessionResource }"
+      @click="deleteSession"
+    >
+      Delete Session
+    </button>
+  </div>
+</template>
+
+<script>
+export default {
+  computed: {
+    sessionResource() {
+      return `ssrn:ss:sp::578:session/${this.sessionId}`;
+    }
+  }
+};
+</script>
+```
+
+#### Composition API
+```vue
+<script setup>
+import { usePermission } from '@smarterservices/iam-vue';
+
+const props = defineProps(['sessionId']);
+
+const { hasPermission, loading } = usePermission(
+  'sp:DeleteSession',
+  `ssrn:ss:sp::578:session/${props.sessionId}`
+);
+</script>
+
+<template>
+  <div>
+    <div v-if="loading">Loading...</div>
+    <button v-else-if="hasPermission" @click="deleteSession">
+      Delete Session
+    </button>
+  </div>
+</template>
+```
+
+### Angular Integration
+
+#### Installation
+```bash
+npm install @smarterservices/iam-angular
+```
+
+#### Module Setup
+```typescript
+import { NgModule } from '@angular/core';
+import { IamModule } from '@smarterservices/iam-angular';
+
+@NgModule({
+  imports: [
+    IamModule.forRoot({
+      apiUrl: 'https://iam.smarterservices.com',
+      tokenProvider: () => this.authService.getToken()
+    })
+  ]
+})
+export class AppModule { }
+```
+
+#### Service Usage
+```typescript
+import { Injectable } from '@angular/core';
+import { IamService } from '@smarterservices/iam-angular';
+
+@Injectable()
+export class SessionService {
+  constructor(private iam: IamService) {}
+
+  async deleteSession(sessionId: string) {
+    const canDelete = await this.iam.authorize(
+      'sp:DeleteSession',
+      `ssrn:ss:sp::578:session/${sessionId}`
+    );
+
+    if (canDelete) {
+      // Proceed with deletion
+    } else {
+      throw new Error('Access denied');
+    }
+  }
+}
+```
+
+#### Guard Usage
+```typescript
+import { Injectable } from '@angular/core';
+import { CanActivate, ActivatedRouteSnapshot } from '@angular/router';
+import { IamGuard } from '@smarterservices/iam-angular';
+
+@Injectable()
+export class SessionGuard extends IamGuard implements CanActivate {
+  protected getPermission(route: ActivatedRouteSnapshot) {
+    return {
+      action: 'sp:ReadSession',
+      resource: `ssrn:ss:sp::578:session/${route.params.id}`
+    };
+  }
+}
+```
+
+#### Directive Usage
+```html
+<div *iamAllow="'sp:DeleteSession'; resource: sessionResource">
+  <button (click)="deleteSession()">Delete Session</button>
+</div>
+
+<div *iamDeny="'sp:DeleteSession'; resource: sessionResource">
+  <p>You don't have permission to delete this session.</p>
+</div>
+```
+
+## Server-Side Integrations
+
+### Express.js Middleware
+
+```javascript
+const { createIamMiddleware } = require('@smarterservices/iam-express');
+
+const iamMiddleware = createIamMiddleware({
+  apiUrl: 'https://iam.smarterservices.com',
+  serviceKey: 'your-service-key'
+});
+
+// Apply to specific routes
+app.get('/api/sessions/:id',
+  iamMiddleware.require('sp:ReadSession', 'ssrn:ss:sp::{accountId}:session/{id}'),
+  getSession
+);
+
+// Apply to route groups
+app.use('/api/admin',
+  iamMiddleware.requireAny(['platform:AdminAccess', 'platform:SuperUser']),
+  adminRoutes
+);
+```
+
+### Koa.js Middleware
+
+```javascript
+const { createIamKoaMiddleware } = require('@smarterservices/iam-koa');
+
+const iam = createIamKoaMiddleware({
+  apiUrl: 'https://iam.smarterservices.com',
+  serviceKey: 'your-service-key'
+});
+
+router.get('/sessions/:id',
+  iam.require('sp:ReadSession', 'ssrn:ss:sp::{accountId}:session/{id}'),
+  getSession
+);
+```
+
+### FastAPI (Python)
+
+```python
+from fastapi import FastAPI, Depends
+from smarterservices_iam.fastapi import IamDependency
+
+app = FastAPI()
+
+iam = IamDependency(
+    api_url="https://iam.smarterservices.com",
+    service_key="your-service-key"
+)
+
+@app.get("/sessions/{session_id}")
+async def get_session(
+    session_id: str,
+    authorized: bool = Depends(
+        iam.require("sp:ReadSession", "ssrn:ss:sp::{account_id}:session/{session_id}")
+    )
+):
+    return get_session_data(session_id)
+```
+
+### Django (Python)
+
+```python
+from django.contrib.auth.decorators import login_required
+from smarterservices_iam.django import require_permission
+
+@login_required
+@require_permission('sp:ReadSession', 'ssrn:ss:sp::{account_id}:session/{session_id}')
+def get_session(request, session_id):
+    return JsonResponse(get_session_data(session_id))
+
+# Class-based views
+from smarterservices_iam.django import IamPermissionMixin
+
+class SessionDetailView(IamPermissionMixin, DetailView):
+    model = Session
+    iam_action = 'sp:ReadSession'
+    iam_resource_template = 'ssrn:ss:sp::{account_id}:session/{pk}'
+```
+
+### Spring Boot (Java)
+
+```java
+@RestController
+@RequestMapping("/api/sessions")
+public class SessionController {
+    
+    @Autowired
+    private IamService iamService;
+    
+    @GetMapping("/{id}")
+    @RequirePermission(action = "sp:ReadSession", resource = "ssrn:ss:sp::{accountId}:session/{id}")
+    public ResponseEntity<Session> getSession(@PathVariable String id) {
+        return ResponseEntity.ok(sessionService.getSession(id));
+    }
+}
+```
+
+## Mobile Clients
+
+### iOS (Swift)
+
+#### Installation
+```swift
+// Package.swift
+dependencies: [
+    .package(url: "https://github.com/SmarterServices/iam-ios", from: "1.0.0")
+]
+```
+
+#### Usage
+```swift
+import SmarterServicesIAM
+
+let iam = IamClient(
+    apiUrl: "https://iam.smarterservices.com",
+    token: authToken
+)
+
+// Check permission
+let authorized = try await iam.authorize(
+    action: "sp:ReadSession",
+    resource: "ssrn:ss:sp::578:session/ES123456"
+)
+
+if authorized {
+    // User has permission
+    showSessionDetails()
+} else {
+    // Show access denied
+    showAccessDenied()
+}
+```
+
+### Android (Kotlin)
+
+#### Installation
+```kotlin
+// build.gradle
+implementation 'com.smarterservices:iam-android:1.0.0'
+```
+
+#### Usage
+```kotlin
+import com.smarterservices.iam.IamClient
+
+val iam = IamClient(
+    apiUrl = "https://iam.smarterservices.com",
+    token = authToken
+)
+
+// Check permission
+lifecycleScope.launch {
+    val authorized = iam.authorize(
+        action = "sp:ReadSession",
+        resource = "ssrn:ss:sp::578:session/ES123456"
+    )
+    
+    if (authorized) {
+        // User has permission
+        showSessionDetails()
+    } else {
+        // Show access denied
+        showAccessDenied()
+    }
+}
+```
+
+## Configuration
+
+### Environment-Based Configuration
+
+```javascript
+// config/iam.js
+module.exports = {
+  development: {
+    apiUrl: 'https://iam-dev.smarterservices.com',
+    serviceKey: process.env.IAM_DEV_SERVICE_KEY,
+    cache: { enabled: false },
+    debug: true
+  },
+  staging: {
+    apiUrl: 'https://iam-staging.smarterservices.com',
+    serviceKey: process.env.IAM_STAGING_SERVICE_KEY,
+    cache: { enabled: true, ttl: 60 },
+    debug: false
+  },
+  production: {
+    apiUrl: 'https://iam.smarterservices.com',
+    serviceKey: process.env.IAM_PRODUCTION_SERVICE_KEY,
+    cache: { enabled: true, ttl: 300 },
+    debug: false
+  }
+};
+```
+
+### Dynamic Configuration
+
+```javascript
+const iam = new IamClient({
+  apiUrl: 'https://iam.smarterservices.com',
+  tokenProvider: async () => {
+    // Refresh token if needed
+    return await authService.getValidToken();
+  },
+  onUnauthorized: () => {
+    // Handle token expiration
+    authService.redirectToLogin();
+  },
+  onError: (error) => {
+    // Handle IAM service errors
+    errorService.log(error);
+  }
+});
+```
+
+## Best Practices
+
+### 1. Token Management
+```javascript
+// Good: Use token provider for automatic refresh
+const iam = new IamClient({
+  tokenProvider: () => authService.getToken(),
+  onTokenExpired: () => authService.refreshToken()
+});
+
+// Avoid: Hard-coded tokens
+const iam = new IamClient({
+  token: 'hard-coded-token' // Don't do this
+});
+```
+
+### 2. Error Handling
+```javascript
+try {
+  const authorized = await iam.authorize(action, resource);
+  if (authorized) {
+    // Proceed
+  } else {
+    // Handle access denied gracefully
+    showAccessDeniedMessage();
+  }
+} catch (error) {
+  // Handle service errors
+  if (error.code === 'NETWORK_ERROR') {
+    showOfflineMessage();
+  } else {
+    showGenericError();
+  }
+}
+```
+
+### 3. Caching Strategy
+```javascript
+const iam = new IamClient({
+  cache: {
+    enabled: true,
+    ttl: 300, // 5 minutes for most permissions
+    customTtl: {
+      'sp:DeleteSession': 60, // 1 minute for sensitive actions
+      'sm:ReadUser': 600      // 10 minutes for read-only actions
+    }
+  }
+});
+```
+
+### 4. Batch Operations
+```javascript
+// Good: Batch multiple permission checks
+const permissions = await iam.authorizeMultiple([
+  { action: 'sp:ReadSession', resource: 'ssrn:ss:sp::578:session/ES123' },
+  { action: 'sp:UpdateSession', resource: 'ssrn:ss:sp::578:session/ES123' },
+  { action: 'sp:DeleteSession', resource: 'ssrn:ss:sp::578:session/ES123' }
+]);
+
+// Avoid: Multiple individual calls
+const canRead = await iam.authorize('sp:ReadSession', 'ssrn:ss:sp::578:session/ES123');
+const canUpdate = await iam.authorize('sp:UpdateSession', 'ssrn:ss:sp::578:session/ES123');
+const canDelete = await iam.authorize('sp:DeleteSession', 'ssrn:ss:sp::578:session/ES123');
+```
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Token Expiration**: Implement automatic token refresh
+2. **Network Timeouts**: Configure appropriate timeout values
+3. **Cache Inconsistency**: Use appropriate cache TTL values
+4. **Resource Format Errors**: Validate SSRN format
+5. **Permission Lag**: Account for eventual consistency
+
+### Debug Mode
+
+```javascript
+const iam = new IamClient({
+  debug: true, // Enable debug logging
+  onDebug: (message, data) => {
+    console.log(`IAM Debug: ${message}`, data);
+  }
+});
+```
+
+### Health Checks
+
+```javascript
+// Check IAM service health
+const isHealthy = await iam.healthCheck();
+if (!isHealthy) {
+  // Handle service unavailability
+  enableOfflineMode();
+}
+```

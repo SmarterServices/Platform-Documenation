@@ -1,0 +1,320 @@
+---
+title: "Quick Start"
+description: "Get up and running with SmarterServices IAM in minutes"
+---
+
+# Quick Start Guide
+
+Get started with the SmarterServices IAM system in just a few steps. This guide will have you checking permissions in your application within minutes.
+
+## 1. Choose Your Client Library
+
+Select the appropriate client library for your platform:
+
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
+  <div className="border rounded-lg p-4">
+    <h3 className="font-semibold">Web Applications</h3>
+    <code className="text-sm">@smarterservices/iam-client</code>
+  </div>
+  <div className="border rounded-lg p-4">
+    <h3 className="font-semibold">Node.js Services</h3>
+    <code className="text-sm">@smarterservices/iam-node</code>
+  </div>
+  <div className="border rounded-lg p-4">
+    <h3 className="font-semibold">React Applications</h3>
+    <code className="text-sm">@smarterservices/iam-react</code>
+  </div>
+  <div className="border rounded-lg p-4">
+    <h3 className="font-semibold">Vue.js Applications</h3>
+    <code className="text-sm">@smarterservices/iam-vue</code>
+  </div>
+</div>
+
+## 2. Install the Library
+
+```bash
+# For web applications
+npm install @smarterservices/iam-client
+
+# For React applications
+npm install @smarterservices/iam-react
+
+# For Node.js services
+npm install @smarterservices/iam-node
+```
+
+## 3. Initialize the Client
+
+### Web/JavaScript
+```javascript
+import { IamClient } from '@smarterservices/iam-client';
+
+const iam = new IamClient({
+  apiUrl: 'https://iam.smarterservices.com',
+  token: 'your-auth-token'
+});
+```
+
+### React
+```jsx
+import { IamProvider } from '@smarterservices/iam-react';
+
+function App() {
+  return (
+    <IamProvider
+      apiUrl="https://iam.smarterservices.com"
+      token={authToken}
+    >
+      <YourApp />
+    </IamProvider>
+  );
+}
+```
+
+### Node.js
+```javascript
+const { IamService } = require('@smarterservices/iam-node');
+
+const iam = new IamService({
+  apiUrl: 'https://iam.smarterservices.com',
+  serviceKey: 'your-service-key'
+});
+```
+
+## 4. Check Permissions
+
+### Basic Permission Check
+```javascript
+const canDelete = await iam.authorize(
+  'sp:DeleteSession',
+  'ssrn:ss:sp::578:session/ES123456'
+);
+
+if (canDelete) {
+  // User has permission to delete the session
+  deleteSession();
+} else {
+  // Show access denied message
+  showAccessDenied();
+}
+```
+
+### React Component Protection
+```jsx
+import { IamProtected } from '@smarterservices/iam-react';
+
+function DeleteButton({ sessionId }) {
+  return (
+    <IamProtected 
+      action="sp:DeleteSession" 
+      resource={`ssrn:ss:sp::578:session/${sessionId}`}
+    >
+      <button onClick={handleDelete}>
+        Delete Session
+      </button>
+    </IamProtected>
+  );
+}
+```
+
+### Multiple Permission Checks
+```javascript
+const permissions = await iam.authorizeMultiple([
+  { action: 'sp:ReadSession', resource: 'ssrn:ss:sp::578:session/ES123456' },
+  { action: 'sp:UpdateSession', resource: 'ssrn:ss:sp::578:session/ES123456' },
+  { action: 'sp:DeleteSession', resource: 'ssrn:ss:sp::578:session/ES123456' }
+]);
+
+const { canRead, canUpdate, canDelete } = permissions;
+```
+
+## 5. Common Examples
+
+### Student Access
+```javascript
+// Check if student can take an assessment
+const canTakeAssessment = await iam.authorize(
+  'sm:TakeAssessment',
+  'ssrn:ss:sm::578:assessment/AS123456'
+);
+```
+
+### Instructor Access
+```javascript
+// Check if instructor can view student results
+const canViewResults = await iam.authorize(
+  'sm:ViewResults',
+  'ssrn:ss:sm::578:user/student123/results'
+);
+```
+
+### Proctor Access
+```javascript
+// Check if proctor can monitor a session
+const canMonitor = await iam.authorize(
+  'sp:MonitorSession',
+  'ssrn:ss:sp::578:session/ES123456'
+);
+```
+
+### Admin Access
+```javascript
+// Check if user has admin privileges
+const isAdmin = await iam.authorize(
+  'platform:AdminAccess',
+  'ssrn:ss:platform::578:admin'
+);
+```
+
+## 6. Error Handling
+
+Always handle errors gracefully:
+
+```javascript
+try {
+  const authorized = await iam.authorize(action, resource);
+  
+  if (authorized) {
+    // Proceed with action
+    performAction();
+  } else {
+    // Show user-friendly message
+    showMessage('You do not have permission to perform this action');
+  }
+} catch (error) {
+  if (error.code === 'NETWORK_ERROR') {
+    showMessage('Unable to verify permissions. Please try again.');
+  } else if (error.code === 'INVALID_TOKEN') {
+    // Redirect to login
+    redirectToLogin();
+  } else {
+    console.error('IAM error:', error);
+    showMessage('Permission check failed');
+  }
+}
+```
+
+## 7. Configuration Options
+
+### Caching (Recommended)
+```javascript
+const iam = new IamClient({
+  apiUrl: 'https://iam.smarterservices.com',
+  token: 'your-auth-token',
+  cache: {
+    enabled: true,
+    ttl: 300, // 5 minutes
+    maxSize: 1000
+  }
+});
+```
+
+### Timeouts and Retries
+```javascript
+const iam = new IamClient({
+  apiUrl: 'https://iam.smarterservices.com',
+  token: 'your-auth-token',
+  timeout: 5000, // 5 seconds
+  retries: 3
+});
+```
+
+## Next Steps
+
+Now that you have IAM working in your application, explore these advanced topics:
+
+### 📚 **Learn Core Concepts**
+- [Resources (SSRN)](./resources) - Understanding resource naming
+- [Actions](./actions) - Action patterns and wildcards
+- [Policies](./policies) - Policy structure and examples
+
+### 🎯 **Advanced Features**
+- [Conditions](./conditions) - Conditional access controls
+- [Client Libraries](./clients) - Platform-specific integrations
+
+### 🛠️ **Implementation**
+- [Implementation Guide](./implementation) - Production deployment
+- Server middleware and framework integration
+- Performance optimization and monitoring
+
+## Common Patterns
+
+### Resource String Building
+```javascript
+// Helper function for building resource strings
+const buildSessionResource = (accountId, sessionId) => {
+  return `ssrn:ss:sp::${accountId}:session/${sessionId}`;
+};
+
+// Usage
+const resource = buildSessionResource('578', 'ES123456');
+const canRead = await iam.authorize('sp:ReadSession', resource);
+```
+
+### Permission Caching
+```javascript
+// Cache permissions for better performance
+const permissionCache = new Map();
+
+async function checkCachedPermission(action, resource) {
+  const key = `${action}:${resource}`;
+  
+  if (permissionCache.has(key)) {
+    return permissionCache.get(key);
+  }
+  
+  const result = await iam.authorize(action, resource);
+  permissionCache.set(key, result);
+  
+  // Clear cache after 5 minutes
+  setTimeout(() => permissionCache.delete(key), 300000);
+  
+  return result;
+}
+```
+
+### Bulk Permission Loading
+```javascript
+// Load all permissions for a user session at once
+async function loadUserPermissions(userId, accountId) {
+  const permissions = await iam.authorizeMultiple([
+    { action: 'sm:ReadUser', resource: `ssrn:ss:sm::${accountId}:user/${userId}` },
+    { action: 'sm:UpdateUser', resource: `ssrn:ss:sm::${accountId}:user/${userId}` },
+    { action: 'sm:TakeAssessment', resource: `ssrn:ss:sm::${accountId}:assessment/*` },
+    { action: 'sp:ViewSessions', resource: `ssrn:ss:sp::${accountId}:session/*` }
+  ]);
+  
+  return permissions;
+}
+```
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Invalid Token**: Ensure your authentication token is valid and not expired
+2. **Wrong Resource Format**: Verify SSRN format: `ssrn:service:partition::account:resource`
+3. **Network Issues**: Check connectivity to IAM service
+4. **Cache Issues**: Clear cache if permissions seem outdated
+
+### Debug Mode
+```javascript
+const iam = new IamClient({
+  apiUrl: 'https://iam.smarterservices.com',
+  token: 'your-auth-token',
+  debug: true // Enable debug logging
+});
+```
+
+### Health Check
+```javascript
+// Verify IAM service is available
+const isHealthy = await iam.healthCheck();
+if (!isHealthy) {
+  console.warn('IAM service is unavailable');
+}
+```
+
+---
+
+🎉 **Congratulations!** You now have IAM integrated into your application. For more advanced features and production deployment guidance, continue with the [Implementation Guide](./implementation).

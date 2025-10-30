@@ -1,0 +1,466 @@
+---
+title: "API Reference"
+description: "Complete API documentation for SmarterElements"
+---
+
+# API Reference
+
+Complete reference for SmarterElements JavaScript API with iframe isolation, modal system, and automatic resizing.
+
+## CDN Version Management
+
+### unpkg.com Integration
+
+SmarterElements is available via unpkg.com CDN with flexible versioning options:
+
+#### Version Formats
+
+| Format | Example | Description | Use Case |
+|--------|---------|-------------|----------|
+| `@latest` | `@smarterservices/smarter-elements@latest` | Always gets the newest version | Development, testing |
+| `@x.y.z` | `@smarterservices/smarter-elements@1.2.3` | Specific version lock | Production (recommended) |
+| `@^x.y.z` | `@smarterservices/smarter-elements@^1.2.0` | Compatible minor/patch updates | Flexible production |
+| `@~x.y.z` | `@smarterservices/smarter-elements@~1.2.0` | Patch updates only | Conservative updates |
+
+#### Version Selection Strategy
+
+```html
+<!-- Development: Always get latest features -->
+<script src="https://unpkg.com/@smarterservices/smarter-elements@latest/dist/browser.js"></script>
+
+<!-- Production: Lock to tested version -->
+<script src="https://unpkg.com/@smarterservices/smarter-elements@1.0.24/dist/browser.js"></script>
+
+<!-- Auto-updates: Patch fixes only -->
+<script src="https://unpkg.com/@smarterservices/smarter-elements@~1.0.0/dist/browser.js"></script>
+```
+
+## SmarterElements Class
+
+### Constructor
+
+```javascript
+import { SmarterElements } from '@smarterservices/smarter-elements';
+const elements = new SmarterElements(options);
+```
+
+#### Options
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `baseUrl` | `string` | `'/elements'` | Base URL for element endpoints |
+| `environment` | `string` | `'production'` | Environment: 'development', 'production', 'stage', 'local' |
+| `defaultConstraints` | `object` | `{}` | Default size constraints for all elements |
+
+#### Example
+
+```javascript
+const elements = new SmarterElements({
+  baseUrl: '/elements',
+  environment: 'development',
+  defaultConstraints: {
+    maxWidth: 1200,
+    maxHeight: 800
+  }
+});
+```
+
+## Element Creation
+
+### `elements.create(type, options)`
+
+Creates a new element instance.
+
+#### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `type` | `string` | Element type (e.g., 'blockkit/renderer') |
+| `options` | `object` | Element configuration options |
+
+#### Options Object
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `config` | `object` | Configuration data passed to element |
+| `constraints` | `object` | Size constraints (minWidth, maxWidth, minHeight, maxHeight) |
+| `autoResize` | `boolean` | Enable automatic resizing (default: true) |
+| `onReady` | `function` | Callback when element is ready |
+| `onResize` | `function` | Callback when element resizes |
+| `onError` | `function` | Callback for errors |
+| `onEvent` | `function` | Callback for custom events |
+
+#### Example
+
+```javascript
+const element = elements.create('blockkit/renderer', {
+  config: {
+    blocksJson: JSON.stringify([
+      { type: "heading", level: 1, text: "Hello World" }
+    ])
+  },
+  constraints: {
+    minWidth: 300,
+    maxWidth: 800,
+    minHeight: 200
+  },
+  onReady: () => console.log('Element ready'),
+  onResize: ({ height, width, elementId }) => {
+    console.log(`Resized: ${width}x${height}`);
+  },
+  onError: (error) => console.error('Error:', error)
+});
+```
+
+## Element Instance Methods
+
+### `element.mount(selector)`
+
+Mounts element to DOM container.
+
+**Parameters:**
+- `selector` (string | HTMLElement) - Target container
+
+```javascript
+// Mount to element with ID
+element.mount('#container');
+
+// Mount to first element with class  
+element.mount('.element-container');
+
+// Mount to DOM element reference
+const container = document.getElementById('container');
+element.mount(container);
+```
+
+### `element.openModal(options)`
+
+Opens element in modal overlay with automatic resizing and focus management.
+
+**Parameters:**
+- `options` (object) - Modal configuration options
+
+**Returns:** `Promise<void>`
+
+#### Modal Options
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `width` | `string \| number` | `'90%'` | Modal width (supports px, %, vw, etc.) |
+| `height` | `string \| number` | `auto` | Modal height (auto-sizes by default) |
+| `maxWidth` | `string \| number` | `'800px'` | Maximum width constraint |
+| `maxHeight` | `string \| number` | `'90vh'` | Maximum height constraint |
+| `dismissOnDocumentClick` | `boolean` | `false` | Close modal on backdrop click |
+| `escapeClose` | `boolean` | `true` | Close modal on ESC key press |
+| `zIndex` | `number` | `9999` | Modal z-index value |
+| `padding` | `string` | `'10px'` | Internal modal padding |
+
+#### Modal Examples
+
+```javascript
+// Basic modal
+await element.openModal();
+
+// Responsive modal with constraints
+await element.openModal({
+  width: '80%',
+  maxWidth: '1000px',
+  maxHeight: '90vh'
+});
+
+// Dismissible modal
+await element.openModal({
+  width: '600px',
+  dismissOnDocumentClick: true,
+  escapeClose: true
+});
+
+// Fixed size modal
+await element.openModal({
+  width: '800px',
+  height: '600px'
+});
+```
+
+### `element.closeModal()`
+
+Closes the modal if element is displayed as modal.
+
+```javascript
+element.closeModal();
+```
+
+### `element.updateConfig(newConfig)`
+
+Updates element configuration.
+
+**Parameters:**
+- `newConfig` (object) - New configuration data
+
+```javascript
+element.updateConfig({
+  blocksJson: JSON.stringify([
+    { type: "heading", level: 2, text: "Updated Content" }
+  ])
+});
+```
+
+### `element.updateConstraints(newConstraints)`
+
+Updates size constraints for mounted elements.
+
+**Parameters:**
+- `newConstraints` (object) - New constraint values
+
+```javascript
+element.updateConstraints({
+  maxWidth: 1000,
+  maxHeight: 600
+});
+```
+
+### `element.sendMessage(type, data)`
+
+Sends custom message to element.
+
+**Parameters:**
+- `type` (string) - Message type
+- `data` (any) - Message data
+
+```javascript
+element.sendMessage('custom-event', {
+  action: 'update',
+  value: 'new-data'
+});
+```
+
+### `element.destroy()`
+
+Destroys element and cleans up resources.
+
+```javascript
+element.destroy();
+```
+
+## React Integration
+
+### `useSmarterElements(options)`
+
+React hook for managing SmarterElements.
+
+**Parameters:**
+- `options` (object) - Same as SmarterElements constructor options
+
+**Returns:** SmarterElements instance
+
+```javascript
+import { useSmarterElements } from '@smarterservices/smarter-elements';
+
+function MyComponent() {
+  const elements = useSmarterElements({
+    baseUrl: '/elements',
+    environment: 'development'
+  });
+  
+  const openModal = async () => {
+    const element = elements.create('blockkit/renderer', {
+      config: { /* ... */ }
+    });
+    
+    await element.openModal({
+      width: '80%',
+      maxWidth: '900px'
+    });
+  };
+  
+  return <button onClick={openModal}>Open Element</button>;
+}
+```
+
+### `<SmarterElement>` Component
+
+React component for declarative element usage.
+
+```javascript
+import { SmarterElement } from '@smarterservices/smarter-elements';
+
+function MyComponent() {
+  return (
+    <SmarterElement
+      type="blockkit/renderer"
+      config={{
+        blocksJson: JSON.stringify([
+          { type: "text", text: "Hello from React!" }
+        ])
+      }}
+      constraints={{
+        maxWidth: 800,
+        maxHeight: 600
+      }}
+      onReady={() => console.log('Element ready')}
+      onResize={({ height, width }) => console.log('Resized:', { height, width })}
+      style={{ border: '1px solid #ccc' }}
+    />
+  );
+}
+```
+
+## Size Constraints
+
+Elements support flexible size constraints with CSS units:
+
+```javascript
+const element = elements.create('blockkit/renderer', {
+  constraints: {
+    minWidth: 300,        // Pixels
+    maxWidth: '80%',      // Percentage  
+    minHeight: '20vh',    // Viewport height
+    maxHeight: '600px'    // Pixels
+  }
+});
+```
+
+### Supported Units
+
+- **Pixels**: `300` or `'300px'`
+- **Percentages**: `'80%'` (of parent container)
+- **Viewport units**: `'50vw'`, `'30vh'`
+- **Relative units**: `'20rem'`, `'15em'`
+
+## Event System
+
+### Element Events
+
+```javascript
+const element = elements.create('blockkit/renderer', {
+  onReady: () => console.log('Element ready'),
+  onResize: ({ height, width, elementId }) => {
+    console.log(`Element ${elementId} resized: ${width}x${height}`);
+  },
+  onError: (error) => console.error('Element error:', error),
+  onEvent: (eventType, data) => {
+    console.log('Custom event:', eventType, data);
+  }
+});
+```
+
+### Standard Events
+
+| Event | Data | Description |
+|-------|------|-------------|
+| `ready` | `{ elementId }` | Element loaded and ready |
+| `resize` | `{ width, height, elementId }` | Element dimensions changed |
+| `error` | `{ error, elementId }` | Element encountered error |
+| `destroyed` | `{ elementId }` | Element was destroyed |
+
+## Utility Functions
+
+### `debounce(func, wait, immediate?)`
+
+Delays function execution until after wait milliseconds have elapsed since the last time it was invoked.
+
+**Parameters:**
+- `func` (function) - The function to debounce
+- `wait` (number) - The number of milliseconds to delay
+- `immediate` (boolean, optional) - If true, trigger on leading edge
+
+**Returns:** Debounced function with `cancel()` and `flush()` methods
+
+```javascript
+import { debounce } from '@smarterservices/smarter-elements';
+
+// Debounce resize handler
+const debouncedResize = debounce(() => {
+  element.recalculateSize();
+}, 300);
+
+window.addEventListener('resize', debouncedResize);
+
+// Cancel pending execution
+debouncedResize.cancel();
+
+// Execute immediately
+debouncedResize.flush();
+```
+
+### `throttle(func, wait, options?)`
+
+Limits function execution to at most once per wait milliseconds.
+
+**Parameters:**
+- `func` (function) - The function to throttle
+- `wait` (number) - The number of milliseconds to throttle to
+- `options` (object, optional) - `{ leading?: boolean, trailing?: boolean }`
+
+**Returns:** Throttled function with `cancel()` and `flush()` methods
+
+```javascript
+import { throttle } from '@smarterservices/smarter-elements';
+
+// Throttle scroll handler
+const throttledScroll = throttle(() => {
+  console.log('Scroll event');
+}, 100);
+
+window.addEventListener('scroll', throttledScroll);
+```
+
+### CDN Usage
+
+```html
+<script src="https://unpkg.com/@smarterservices/smarter-elements@latest/dist/browser.js"></script>
+<script>
+  const { debounce, throttle } = SmarterElements;
+  
+  const debouncedResize = debounce(() => {
+    element.recalculateSize();
+  }, 300);
+  
+  window.addEventListener('resize', debouncedResize);
+</script>
+```
+
+## TypeScript Support
+
+Full TypeScript definitions included:
+
+```typescript
+import { 
+  SmarterElements, 
+  SmarterElementInstance,
+  ModalOptions,
+  SmarterElementConstraints,
+  debounce,
+  throttle,
+  DebouncedFunction
+} from '@smarterservices/smarter-elements';
+
+const elements = new SmarterElements({ baseUrl: '/elements' });
+
+const element: SmarterElementInstance = elements.create('blockkit/renderer', {
+  config: {
+    blocksJson: string
+  },
+  constraints: {
+    maxWidth: 800,
+    maxHeight: 600
+  } as SmarterElementConstraints
+});
+
+// Debounced function with type safety
+const debouncedResize: DebouncedFunction<() => void> = debounce(() => {
+  element.recalculateSize();
+}, 300);
+
+const modalOptions: ModalOptions = {
+  width: '80%',
+  maxWidth: '1000px',
+  dismissOnDocumentClick: true
+};
+
+await element.openModal(modalOptions);
+```
+
+---
+
+*For more examples and use cases, see the [Examples](/smarter-elements/examples) section.*

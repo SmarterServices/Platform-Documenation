@@ -1,0 +1,234 @@
+---
+title: "Renderer"
+description: "Renders BlockKit JSON structures into interactive UI components with support for dynamic content, replacements, and event handling"
+---
+
+# Renderer
+
+Renders BlockKit JSON structures into interactive UI components with support for dynamic content, replacements, and event handling
+
+## Element Type
+
+`blockkit/renderer`
+
+## Usage
+
+### React Integration
+
+```jsx
+import { useSmarterElements } from '@smarterservices/smarter-elements';
+
+function MyComponent() {
+  const elements = useSmarterElements();
+  
+  const handleCreateElement = async () => {
+    const element = elements.create('blockkit/renderer', {
+      config: {
+        // Add your configuration here
+      },
+      onReady: () => {
+        console.log('Element is ready');
+      },
+      onError: (error) => {
+        console.error('Element error:', error);
+      }
+    });
+    
+    // Mount the element
+    element.mount('#element-container');
+    
+    // Or open as modal
+    await element.openModal({
+      width: '80%',
+      maxWidth: '900px'
+    });
+  };
+  
+  return (
+    <div>
+      <button onClick={handleCreateElement}>
+        Create Renderer
+      </button>
+      <div id="element-container"></div>
+    </div>
+  );
+}
+```
+
+### JavaScript Integration
+
+```javascript
+// Load SmarterElements
+import { SmarterElements } from '@smarterservices/smarter-elements';
+
+// Initialize
+const elements = new SmarterElements({
+  baseUrl: '/elements'
+});
+
+// Create element
+const element = elements.create('blockkit/renderer', {
+  config: {
+    // Add your configuration here
+  },
+  onReady: () => {
+    console.log('Element is ready');
+  },
+  onError: (error) => {
+    console.error('Element error:', error);
+  }
+});
+
+// Mount to DOM element
+element.mount('#element-container');
+
+// Or open as modal
+element.openModal({
+  width: '80%',
+  maxWidth: '900px'
+});
+```
+
+## Configuration
+
+
+### Input Parameters
+
+The following parameters can be passed in the `config` object:
+
+```typescript
+interface InputSchema {
+    /**
+     * Array of BlockKit elements to render
+     * @optional - Either blocks or blocksJson must be provided
+     */
+    blocks?: Array<{
+        type: string;
+        [key: string]: any;
+    
+}
+```
+
+
+
+## Output
+
+This element provides the following output interface:
+
+```typescript
+interface OutputSchema {
+    /**
+     * The rendered BlockKit content as HTML
+     */
+    renderedContent: string;
+
+    /**
+     * Parsed and validated BlockKit elements
+     */
+    parsedBlocks: Array<{
+        type: string;
+        [key: string]: any;
+    
+}
+```
+
+
+
+## Events
+
+This element emits the following events:
+
+```typescript
+interface EventsSchema {
+    /**
+     * Fired when BlockKit content is successfully rendered
+     */
+    'content-rendered': {
+        /**
+         * Number of blocks rendered
+         */
+        blockCount: number;
+
+        /**
+         * Rendering time in milliseconds
+         */
+        renderTime: number;
+
+        /**
+         * Whether any replacements were applied
+         */
+        hasReplacements: boolean;
+    
+}
+```
+
+### Event Handling
+
+```javascript
+const element = elements.create('blockkit/renderer', {
+  onEvent: (eventType, data) => {
+    switch (eventType) {
+      case 'eventName':
+        console.log('Event received:', data);
+        break;
+    }
+  }
+});
+```
+
+
+## Examples
+
+### Basic Example
+
+```javascript
+const element = elements.create('blockkit/renderer', {
+  config: {
+    // Minimal configuration
+  }
+});
+
+element.mount('#container');
+```
+
+### Modal Example
+
+```javascript
+const element = elements.create('blockkit/renderer', {
+  config: {
+    // Your configuration
+  }
+});
+
+await element.openModal({
+  width: '90%',
+  maxWidth: '1000px',
+  dismissOnDocumentClick: false,
+  escapeClose: true
+});
+```
+
+## API Reference
+
+### Element Methods
+
+- `mount(selector)` - Mount element to DOM
+- `openModal(options)` - Open element in modal
+- `destroy()` - Clean up and destroy element
+- `postMessage(data)` - Send message to element
+- `on(event, callback)` - Listen for events
+- `off(event, callback)` - Remove event listener
+
+### Modal Options
+
+- `width` - Modal width (string or number)
+- `height` - Modal height (string or number)
+- `maxWidth` - Maximum width constraint
+- `maxHeight` - Maximum height constraint
+- `dismissOnDocumentClick` - Close on backdrop click
+- `escapeClose` - Close on Escape key
+- `zIndex` - Modal z-index value
+
+---
+
+*This documentation was auto-generated from the element schema.*

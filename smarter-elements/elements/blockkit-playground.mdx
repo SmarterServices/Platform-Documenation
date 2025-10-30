@@ -1,0 +1,288 @@
+---
+title: "Playground"
+description: "Interactive editor for creating, testing, and previewing BlockKit JSON structures with real-time rendering and validation"
+---
+
+# Playground
+
+Interactive editor for creating, testing, and previewing BlockKit JSON structures with real-time rendering and validation
+
+## Element Type
+
+`blockkit/playground`
+
+## Usage
+
+### React Integration
+
+```jsx
+import { useSmarterElements } from '@smarterservices/smarter-elements';
+
+function MyComponent() {
+  const elements = useSmarterElements();
+  
+  const handleCreateElement = async () => {
+    const element = elements.create('blockkit/playground', {
+      config: {
+        // Add your configuration here
+      },
+      onReady: () => {
+        console.log('Element is ready');
+      },
+      onError: (error) => {
+        console.error('Element error:', error);
+      }
+    });
+    
+    // Mount the element
+    element.mount('#element-container');
+    
+    // Or open as modal
+    await element.openModal({
+      width: '80%',
+      maxWidth: '900px'
+    });
+  };
+  
+  return (
+    <div>
+      <button onClick={handleCreateElement}>
+        Create Playground
+      </button>
+      <div id="element-container"></div>
+    </div>
+  );
+}
+```
+
+### JavaScript Integration
+
+```javascript
+// Load SmarterElements
+import { SmarterElements } from '@smarterservices/smarter-elements';
+
+// Initialize
+const elements = new SmarterElements({
+  baseUrl: '/elements'
+});
+
+// Create element
+const element = elements.create('blockkit/playground', {
+  config: {
+    // Add your configuration here
+  },
+  onReady: () => {
+    console.log('Element is ready');
+  },
+  onError: (error) => {
+    console.error('Element error:', error);
+  }
+});
+
+// Mount to DOM element
+element.mount('#element-container');
+
+// Or open as modal
+element.openModal({
+  width: '80%',
+  maxWidth: '900px'
+});
+```
+
+## Configuration
+
+
+### Input Parameters
+
+The following parameters can be passed in the `config` object:
+
+```typescript
+interface InputSchema {
+  /**
+   * Initial BlockKit JSON to load in the editor
+   * @optional
+   */
+  initialJson?: string;
+
+  /**
+   * Initial replacements object for dynamic content
+   * @optional
+   */
+  initialReplacements?: Record<string, any>;
+
+  /**
+   * Editor configuration options
+   * @optional
+   */
+  editorConfig?: {
+    /**
+     * Whether to show line numbers in the editor
+     * @default true
+     */
+    showLineNumbers?: boolean;
+
+    /**
+     * Whether to enable syntax highlighting
+     * @default true
+     */
+    syntaxHighlighting?: boolean;
+
+    /**
+     * Whether to enable auto-completion
+     * @default true
+     */
+    autoComplete?: boolean;
+
+    /**
+     * Editor theme
+     * @default "light"
+     */
+    theme?: 'light' | 'dark';
+
+    /**
+     * Font size for the editor
+     * @default 14
+     */
+    fontSize?: number;
+
+    /**
+     * Whether to wrap long lines
+     * @default true
+     */
+    wordWrap?: boolean;
+  
+}
+```
+
+
+
+## Output
+
+This element provides the following output interface:
+
+```typescript
+interface OutputSchema {
+  /**
+   * Current BlockKit JSON in the editor
+   */
+  currentJson: string;
+
+  /**
+   * Current replacements object
+   */
+  currentReplacements: Record<string, any>;
+
+  /**
+   * Parsed BlockKit elements
+   */
+  parsedBlocks: Array<{
+    type: string;
+    [key: string]: any;
+  
+}
+```
+
+
+
+## Events
+
+This element emits the following events:
+
+```typescript
+interface EventsSchema {
+  /**
+   * Fired when the JSON content changes in the editor
+   */
+  'json-changed': {
+    /**
+     * New JSON content
+     */
+    json: string;
+
+    /**
+     * Whether the change was made by the user
+     */
+    userInitiated: boolean;
+
+    /**
+     * Change details
+     */
+    changeInfo: {
+      linesAdded: number;
+      linesRemoved: number;
+      charactersAdded: number;
+      charactersRemoved: number;
+    
+}
+```
+
+### Event Handling
+
+```javascript
+const element = elements.create('blockkit/playground', {
+  onEvent: (eventType, data) => {
+    switch (eventType) {
+      case 'eventName':
+        console.log('Event received:', data);
+        break;
+    }
+  }
+});
+```
+
+
+## Examples
+
+### Basic Example
+
+```javascript
+const element = elements.create('blockkit/playground', {
+  config: {
+    // Minimal configuration
+  }
+});
+
+element.mount('#container');
+```
+
+### Modal Example
+
+```javascript
+const element = elements.create('blockkit/playground', {
+  config: {
+    // Your configuration
+  }
+});
+
+await element.openModal({
+  width: '90%',
+  maxWidth: '1000px',
+  dismissOnDocumentClick: false,
+  escapeClose: true
+});
+```
+
+## API Reference
+
+### Element Methods
+
+- `mount(selector)` - Mount element to DOM
+- `openModal(options)` - Open element in modal
+- `destroy()` - Clean up and destroy element
+- `postMessage(data)` - Send message to element
+- `on(event, callback)` - Listen for events
+- `off(event, callback)` - Remove event listener
+
+### Modal Options
+
+- `width` - Modal width (string or number)
+- `height` - Modal height (string or number)
+- `maxWidth` - Maximum width constraint
+- `maxHeight` - Maximum height constraint
+- `dismissOnDocumentClick` - Close on backdrop click
+- `escapeClose` - Close on Escape key
+- `zIndex` - Modal z-index value
+
+---
+
+*This documentation was auto-generated from the element schema.*

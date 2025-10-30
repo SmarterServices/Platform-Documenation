@@ -1,0 +1,1596 @@
+---
+title: "Examples"
+description: "Practical examples and use cases for SmarterElements"
+---
+
+# Examples
+
+Real-world examples showing how to use SmarterElements in different scenarios.
+
+## CDN Version Examples
+
+### Different Version Strategies
+
+Here are examples showing different approaches to CDN versioning:
+
+#### Development Version (Always Latest)
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Development Example</title>
+</head>
+<body>
+    <!-- Always gets the latest version - good for development -->
+    <script src="https://unpkg.com/@smarterservices/smarter-elements@latest/dist/browser.js"></script>
+    
+    <div id="container"></div>
+    <script>
+        const elements = new SmarterElements({ baseUrl: '/elements' });
+        // Your code here...
+    </script>
+</body>
+</html>
+```
+
+#### Production Version (Specific Version)
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Production Example</title>
+</head>
+<body>
+    <!-- Locked to specific version - recommended for production -->
+    <script src="https://unpkg.com/@smarterservices/smarter-elements@1.2.3/dist/smarter-elements.umd.js"></script>
+    
+    <div id="container"></div>
+    <script>
+        const elements = new SmarterElements({ baseUrl: '/elements' });
+        // Your code here...
+    </script>
+</body>
+</html>
+```
+
+#### Auto-Update Version (Patch Updates Only)
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Auto-Update Example</title>
+</head>
+<body>
+    <!-- Gets patch updates automatically (1.2.x) -->
+    <script src="https://unpkg.com/@smarterservices/smarter-elements@~1.2.0/dist/smarter-elements.umd.js"></script>
+    
+    <div id="container"></div>
+    <script>
+        const elements = new SmarterElements({ baseUrl: '/elements' });
+        // Your code here...
+    </script>
+</body>
+</html>
+```
+
+## Basic Usage
+
+### Simple Element Mount (NPM)
+
+```javascript
+import { SmarterElements } from '@smarterservices/smarter-elements';
+
+const elements = new SmarterElements({ baseUrl: '/elements' });
+
+// Create and mount a basic element
+const element = elements.create('blockkit/renderer', {
+  config: {
+    blocksJson: JSON.stringify([
+      {
+        type: "heading",
+        level: 1,
+        text: "Welcome to SmarterElements"
+      },
+      {
+        type: "text",
+        text: "This is a basic example of mounting an element to the DOM."
+      }
+    ])
+  },
+  onReady: () => console.log('Element ready'),
+  onResize: ({ height, width }) => console.log('Resized:', { height, width })
+});
+
+element.mount('#container');
+
+// Or open as modal
+await element.openModal({
+  width: '80%',
+  maxWidth: '800px'
+});
+```
+
+### Simple Element Mount (CDN/Script Tag)
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Basic SmarterElements Example</title>
+</head>
+<body>
+    <h1>My Website</h1>
+    <div id="container" style="border: 1px solid #ccc; padding: 20px; margin: 20px 0;"></div>
+    <button onclick="loadElement()">Load Element</button>
+
+    <!-- Include SmarterElements from CDN -->
+    <script src="https://unpkg.com/@smarterservices/smarter-elements@latest/dist/browser.js"></script>
+    
+    <script>
+        // Initialize SmarterElements
+        const elements = new SmarterElements({ 
+            baseUrl: '/elements' 
+        });
+
+        function loadElement() {
+            // Create and mount a basic element
+            const element = elements.create('blockkit/renderer', {
+                config: {
+                    blocksJson: JSON.stringify([
+                        {
+                            type: "heading",
+                            level: 1,
+                            text: "Welcome to SmarterElements"
+                        },
+                        {
+                            type: "text",
+                            text: "This element was loaded via CDN!"
+                        },
+                        {
+                            type: "callout",
+                            variant: "success",
+                            title: "CDN Integration",
+                            elements: [{
+                                type: "text",
+                                text: "No build tools required • Works with any website • Easy to integrate"
+                            }]
+                        }
+                    ])
+                },
+                onReady: function() {
+                    console.log('Element loaded successfully!');
+                },
+                onError: function(error) {
+                    console.error('Element failed to load:', error);
+                    document.getElementById('container').innerHTML = 
+                        '<p style="color: red;">Failed to load element: ' + error.message + '</p>';
+                }
+            });
+
+            element.mount('#container');
+        }
+    </script>
+</body>
+</html>
+```
+
+### Modal Display (NPM)
+
+```javascript
+// Open element in modal
+const element = elements.create('blockkit/renderer', {
+  config: {
+    blocksJson: JSON.stringify([
+      {
+        type: "heading",
+        level: 2,
+        text: "Modal Example"
+      },
+      {
+        type: "callout",
+        variant: "info",
+        title: "Modal Features",
+        elements: [{
+          type: "text",
+          text: "• Auto-resizing\n• Smooth animations\n• Keyboard navigation\n• Backdrop dismiss"
+        }]
+      }
+    ])
+  }
+});
+
+await element.openModal({
+  width: '600px',
+  maxWidth: '90%',
+  dismissOnDocumentClick: true,
+  escapeClose: true
+});
+```
+
+### Modal Display (CDN/Script Tag)
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Modal SmarterElements Example</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .demo-buttons { margin: 20px 0; }
+        .demo-buttons button { 
+            margin: 5px; 
+            padding: 10px 20px; 
+            background: #007bff; 
+            color: white; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+        }
+        .demo-buttons button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>SmarterElements Modal Examples</h1>
+    <p>Click the buttons below to open different types of modals:</p>
+    
+    <div class="demo-buttons">
+        <button onclick="openBasicModal()">Basic Modal</button>
+        <button onclick="openLargeModal()">Large Modal</button>
+        <button onclick="openFixedSizeModal()">Fixed Size Modal</button>
+    </div>
+
+    <!-- Include SmarterElements from CDN -->
+    <script src="https://unpkg.com/@smarterservices/smarter-elements@latest/dist/browser.js"></script>
+    
+    <script>
+        // Initialize SmarterElements
+        const elements = new SmarterElements({ 
+            baseUrl: '/elements' 
+        });
+
+        function openBasicModal() {
+            const element = elements.create('blockkit/renderer', {
+                config: {
+                    blocksJson: JSON.stringify([
+                        {
+                            type: "heading",
+                            level: 2,
+                            text: "Basic Modal Example"
+                        },
+                        {
+                            type: "text",
+                            text: "This modal automatically sizes to its content and includes smooth animations."
+                        },
+                        {
+                            type: "callout",
+                            variant: "info",
+                            title: "Modal Features",
+                            elements: [{
+                                type: "text",
+                                text: "• Auto-resizing\n• Smooth animations\n• Keyboard navigation\n• Backdrop dismiss"
+                            }]
+                        }
+                    ])
+                }
+            });
+
+            element.openModal({
+                width: '600px',
+                maxWidth: '90%',
+                dismissOnDocumentClick: true,
+                escapeClose: true
+            });
+        }
+
+        function openLargeModal() {
+            const element = elements.create('blockkit/renderer', {
+                config: {
+                    blocksJson: JSON.stringify([
+                        {
+                            type: "heading",
+                            level: 1,
+                            text: "Large Content Modal"
+                        },
+                        {
+                            type: "text",
+                            text: "This modal demonstrates how SmarterElements handles large amounts of content with automatic scrolling and sizing."
+                        },
+                        {
+                            type: "callout",
+                            variant: "warning",
+                            title: "Content Handling",
+                            elements: [{
+                                type: "text",
+                                text: "When content exceeds the maximum height, the modal becomes scrollable while maintaining performance."
+                            }]
+                        },
+                        // Add more content blocks
+                        ...Array.from({length: 5}, (_, i) => ({
+                            type: "text",
+                            text: `Content block ${i + 1}: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.`
+                        }))
+                    ])
+                }
+            });
+
+            element.openModal({
+                width: '80%',
+                maxWidth: '900px',
+                maxHeight: '80vh'
+            });
+        }
+
+        function openFixedSizeModal() {
+            const element = elements.create('blockkit/renderer', {
+                config: {
+                    blocksJson: JSON.stringify([
+                        {
+                            type: "heading",
+                            level: 2,
+                            text: "Fixed Size Modal"
+                        },
+                        {
+                            type: "text",
+                            text: "This modal has fixed dimensions and will scroll if content exceeds the size."
+                        },
+                        {
+                            type: "callout",
+                            variant: "success",
+                            title: "Fixed Dimensions",
+                            elements: [{
+                                type: "text",
+                                text: "Width: 500px\nHeight: 400px\nContent scrolls if needed"
+                            }]
+                        }
+                    ])
+                }
+            });
+
+            element.openModal({
+                width: '500px',
+                height: '400px',
+                dismissOnDocumentClick: false,
+                escapeClose: true
+            });
+        }
+    </script>
+</body>
+</html>
+```
+
+## Size Constraints Examples
+
+### Basic Constraints
+
+Control element dimensions with min/max width and height:
+
+```javascript
+import { SmarterElements } from '@smarterservices/smarter-elements';
+
+const elements = new SmarterElements({ baseUrl: '/elements' });
+
+// Create element with size constraints
+const element = elements.create('blockkit/renderer', {
+  config: {
+    blocksJson: JSON.stringify([
+      { type: "heading", level: 1, text: "Constrained Element" },
+      { type: "text", text: "This element has size constraints applied." }
+    ])
+  },
+  constraints: {
+    minWidth: 300,      // Minimum 300px wide
+    maxWidth: 800,      // Maximum 800px wide  
+    minHeight: 200,     // Minimum 200px tall
+    maxHeight: 400      // Maximum 400px tall
+  }
+});
+
+element.mount('#constrained-container');
+```
+
+### Responsive Constraints with CSS Units
+
+Use CSS units for responsive behavior:
+
+```javascript
+const responsiveElement = elements.create('blockkit/renderer', {
+  config: { /* ... */ },
+  constraints: {
+    minWidth: '20rem',      // Minimum 20rem (320px at default font size)
+    maxWidth: '80%',        // Maximum 80% of parent container
+    minHeight: '15vh',      // Minimum 15% of viewport height
+    maxHeight: '50vh'       // Maximum 50% of viewport height
+  }
+});
+
+responsiveElement.mount('#responsive-container');
+```
+
+### Dynamic Constraint Updates
+
+Update constraints after element is mounted:
+
+```javascript
+const element = elements.create('blockkit/renderer', {
+  config: { /* ... */ },
+  constraints: {
+    maxHeight: 300
+  }
+});
+
+element.mount('#dynamic-container');
+
+// Update constraints based on user interaction
+document.getElementById('expand-btn').addEventListener('click', () => {
+  element.updateConstraints({
+    maxHeight: 600,
+    maxWidth: 1000
+  });
+});
+
+document.getElementById('compact-btn').addEventListener('click', () => {
+  element.updateConstraints({
+    maxHeight: 200,
+    maxWidth: 400
+  });
+});
+```
+
+### Container-Aware Constraints
+
+Elements respect parent container boundaries:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Container-Aware Constraints</title>
+    <style>
+        .padded-container {
+            width: 600px;
+            padding: 20px;
+            border: 2px solid #ccc;
+            margin: 20px auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="padded-container">
+        <div id="element-container"></div>
+    </div>
+
+    <script src="https://unpkg.com/@smarterservices/smarter-elements@latest/dist/browser.js"></script>
+    <script>
+        const elements = new SmarterElements({ baseUrl: '/elements' });
+        
+        // Even though maxWidth is 800px, element will be limited by container
+        const element = elements.create('blockkit/renderer', {
+            config: {
+                blocksJson: JSON.stringify([
+                    { type: "text", text: "This element respects container padding!" }
+                ])
+            },
+            constraints: {
+                maxWidth: 800  // Will be limited to ~556px (600px - 40px padding - 4px border)
+            }
+        });
+        
+        element.mount('#element-container');
+    </script>
+</body>
+</html>
+```
+
+### Auto-Resize vs Constrained Behavior
+
+Compare auto-resize with constrained behavior:
+
+```javascript
+// Auto-resize element (no constraints)
+const autoElement = elements.create('blockkit/renderer', {
+  config: {
+    blocksJson: JSON.stringify([
+      { type: "text", text: "I auto-resize to fit my content exactly!" }
+    ])
+  }
+  // No constraints - element sizes to content
+});
+
+// Constrained element
+const constrainedElement = elements.create('blockkit/renderer', {
+  config: {
+    blocksJson: JSON.stringify([
+      { type: "text", text: "I'm constrained and may show scrollbars!" }
+    ])
+  },
+  constraints: {
+    maxHeight: 100  // Will show scrollbars if content is taller
+  }
+});
+
+autoElement.mount('#auto-container');
+constrainedElement.mount('#constrained-container');
+```
+
+## React Integration
+
+### Basic React Component
+
+```jsx
+import React, { useState } from 'react';
+import { useSmarterElements } from '@smarterservices/smarter-elements';
+
+function ElementDemo() {
+  const elements = useSmarterElements();
+  const [currentElement, setCurrentElement] = useState(null);
+
+  const createBlockKitElement = async () => {
+    // Clean up previous element
+    if (currentElement) {
+      currentElement.destroy();
+    }
+
+    const element = elements.create('blockkit/renderer', {
+      config: {
+        blocksJson: JSON.stringify([
+          {
+            type: "heading",
+            level: 1,
+            text: "React Integration Example"
+          },
+          {
+            type: "text",
+            text: "This element was created from a React component!"
+          }
+        ])
+      },
+      onReady: () => {
+        console.log('Element is ready');
+      },
+      onError: (error) => {
+        console.error('Element error:', error);
+      }
+    });
+
+    setCurrentElement(element);
+    element.mount('#element-container');
+  };
+
+  const openModalElement = async () => {
+    const element = elements.create('blockkit/renderer', {
+      config: {
+        blocksJson: JSON.stringify([
+          {
+            type: "heading",
+            level: 2,
+            text: "Modal from React"
+          },
+          {
+            type: "callout",
+            variant: "success",
+            title: "Success!",
+            elements: [{
+              type: "text",
+              text: "You've successfully opened a modal element from React."
+            }]
+          }
+        ])
+      }
+    });
+
+    await element.openModal({
+      width: '70%',
+      maxWidth: '800px'
+    });
+  };
+
+  return (
+    <div>
+      <h2>SmarterElements React Demo</h2>
+      
+      <div style={{ marginBottom: '20px' }}>
+        <button onClick={createBlockKitElement}>
+          Create Element
+        </button>
+        <button onClick={openModalElement} style={{ marginLeft: '10px' }}>
+          Open Modal
+        </button>
+      </div>
+
+      <div 
+        id="element-container" 
+        style={{ 
+          border: '1px solid #ccc', 
+          minHeight: '200px',
+          padding: '10px'
+        }}
+      />
+    </div>
+  );
+}
+
+export default ElementDemo;
+```
+
+### React Hook with Cleanup
+
+```jsx
+import React, { useEffect, useRef } from 'react';
+import { useSmarterElements } from '@smarterservices/smarter-elements';
+
+function AutoCleanupElement({ elementType, config }) {
+  const elements = useSmarterElements();
+  const elementRef = useRef(null);
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    // Create element when component mounts
+    const element = elements.create(elementType, {
+      config,
+      onReady: () => {
+        console.log(`${elementType} is ready`);
+      },
+      onError: (error) => {
+        console.error(`${elementType} error:`, error);
+      }
+    });
+
+    elementRef.current = element;
+    
+    if (containerRef.current) {
+      element.mount(containerRef.current);
+    }
+
+    // Cleanup when component unmounts
+    return () => {
+      if (elementRef.current) {
+        elementRef.current.destroy();
+      }
+    };
+  }, [elementType, config, elements]);
+
+  return (
+    <div 
+      ref={containerRef}
+      style={{ 
+        border: '1px solid #ddd',
+        borderRadius: '4px',
+        padding: '16px',
+        minHeight: '100px'
+      }}
+    />
+  );
+}
+
+// Usage
+function App() {
+  return (
+    <AutoCleanupElement
+      elementType="blockkit/renderer"
+      config={{
+        blocksJson: JSON.stringify([
+          { type: "text", text: "Auto-managed element" }
+        ])
+      }}
+    />
+  );
+}
+```
+
+## Vanilla JavaScript Patterns
+
+### Multiple Elements Management
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Multiple Elements Example</title>
+    <style>
+        .element-container { 
+            border: 1px solid #ddd; 
+            margin: 10px 0; 
+            padding: 20px; 
+            border-radius: 4px; 
+        }
+        .controls { margin: 20px 0; }
+        .controls button { 
+            margin: 5px; 
+            padding: 8px 16px; 
+            background: #28a745; 
+            color: white; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+        }
+    </style>
+</head>
+<body>
+    <h1>Multiple Elements Demo</h1>
+    
+    <div class="controls">
+        <button onclick="createChart()">Create Chart</button>
+        <button onclick="createTable()">Create Table</button>
+        <button onclick="createForm()">Create Form</button>
+        <button onclick="destroyAll()">Destroy All</button>
+    </div>
+
+    <div id="chart-container" class="element-container"></div>
+    <div id="table-container" class="element-container"></div>
+    <div id="form-container" class="element-container"></div>
+
+    <script src="https://unpkg.com/@smarterservices/smarter-elements@latest/dist/browser.js"></script>
+    
+    <script>
+        const elements = new SmarterElements({ baseUrl: '/elements' });
+        const activeElements = [];
+
+        function createChart() {
+            const element = elements.create('analytics/chart', {
+                config: {
+                    type: 'bar',
+                    data: [10, 20, 30, 40, 50]
+                },
+                onReady: function() {
+                    console.log('Chart element ready');
+                }
+            });
+
+            element.mount('#chart-container');
+            activeElements.push(element);
+        }
+
+        function createTable() {
+            const element = elements.create('data/table', {
+                config: {
+                    columns: ['Name', 'Age', 'City'],
+                    data: [
+                        ['John', 25, 'New York'],
+                        ['Jane', 30, 'Los Angeles'],
+                        ['Bob', 35, 'Chicago']
+                    ]
+                }
+            });
+
+            element.mount('#table-container');
+            activeElements.push(element);
+        }
+
+        function createForm() {
+            const element = elements.create('input/form', {
+                config: {
+                    fields: [
+                        { name: 'name', type: 'text', label: 'Name', required: true },
+                        { name: 'email', type: 'email', label: 'Email', required: true },
+                        { name: 'message', type: 'textarea', label: 'Message' }
+                    ]
+                },
+                onEvent: function(eventType, data) {
+                    if (eventType === 'form-submit') {
+                        alert('Form submitted: ' + JSON.stringify(data));
+                    }
+                }
+            });
+
+            element.mount('#form-container');
+            activeElements.push(element);
+        }
+
+        function destroyAll() {
+            activeElements.forEach(function(element) {
+                element.destroy();
+            });
+            activeElements.length = 0; // Clear array
+            
+            // Clear containers
+            document.getElementById('chart-container').innerHTML = '';
+            document.getElementById('table-container').innerHTML = '';
+            document.getElementById('form-container').innerHTML = '';
+        }
+    </script>
+</body>
+</html>
+```
+
+### Error Handling and Fallbacks
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Error Handling Example</title>
+    <style>
+        .error { color: red; padding: 10px; background: #ffe6e6; border-radius: 4px; }
+        .loading { color: #666; padding: 10px; background: #f0f0f0; border-radius: 4px; }
+        .success { color: green; padding: 10px; background: #e6ffe6; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>Error Handling Demo</h1>
+    <button onclick="loadElementWithRetry()">Load Element (with retry)</button>
+    <button onclick="loadElementWithFallback()">Load Element (with fallback)</button>
+    
+    <div id="status"></div>
+    <div id="container"></div>
+
+    <script src="https://unpkg.com/@smarterservices/smarter-elements@latest/dist/browser.js"></script>
+    
+    <script>
+        const elements = new SmarterElements({ baseUrl: '/elements' });
+
+        function showStatus(message, type) {
+            const statusEl = document.getElementById('status');
+            statusEl.innerHTML = '<div class="' + type + '">' + message + '</div>';
+        }
+
+        function loadElementWithRetry() {
+            const maxRetries = 3;
+            let attempts = 0;
+
+            function attemptLoad() {
+                attempts++;
+                showStatus('Attempt ' + attempts + ' of ' + maxRetries + '...', 'loading');
+
+                const element = elements.create('blockkit/renderer', {
+                    config: {
+                        blocksJson: JSON.stringify([
+                            {
+                                type: "heading",
+                                level: 2,
+                                text: "Retry Example"
+                            },
+                            {
+                                type: "text",
+                                text: "This element was loaded after " + attempts + " attempt(s)."
+                            }
+                        ])
+                    },
+                    onReady: function() {
+                        showStatus('Element loaded successfully on attempt ' + attempts, 'success');
+                    },
+                    onError: function(error) {
+                        console.error('Attempt ' + attempts + ' failed:', error);
+                        
+                        if (attempts < maxRetries) {
+                            setTimeout(attemptLoad, 2000); // Retry after 2 seconds
+                        } else {
+                            showStatus('Failed to load element after ' + maxRetries + ' attempts: ' + error.message, 'error');
+                        }
+                    }
+                });
+
+                element.mount('#container');
+            }
+
+            attemptLoad();
+        }
+
+        function loadElementWithFallback() {
+            showStatus('Loading element...', 'loading');
+
+            const element = elements.create('complex/element', {
+                config: { complexData: true },
+                onReady: function() {
+                    showStatus('Complex element loaded successfully', 'success');
+                },
+                onError: function(error) {
+                    console.error('Complex element failed:', error);
+                    showStatus('Complex element failed, showing fallback', 'error');
+                    
+                    // Show fallback content
+                    document.getElementById('container').innerHTML = 
+                        '<div style="padding: 20px; border: 1px solid #ccc; background: #f9f9f9;">' +
+                        '<h3>Feature Temporarily Unavailable</h3>' +
+                        '<p>We\'re sorry, but this feature is currently unavailable. Please try again later.</p>' +
+                        '<button onclick="location.reload()">Refresh Page</button>' +
+                        '</div>';
+                }
+            });
+
+            element.mount('#container');
+        }
+    </script>
+</body>
+</html>
+```
+
+### Event Handling and Communication
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Element Communication Example</title>
+    <style>
+        .event-log { 
+            background: #f8f9fa; 
+            border: 1px solid #dee2e6; 
+            padding: 10px; 
+            height: 200px; 
+            overflow-y: auto; 
+            font-family: monospace; 
+            font-size: 12px; 
+        }
+    </style>
+</head>
+<body>
+    <h1>Element Communication Demo</h1>
+    
+    <div id="element-container"></div>
+    
+    <h3>Event Log</h3>
+    <div id="event-log" class="event-log"></div>
+    <button onclick="clearLog()">Clear Log</button>
+    <button onclick="sendMessage()">Send Message to Element</button>
+
+    <script src="https://unpkg.com/@smarterservices/smarter-elements@latest/dist/browser.js"></script>
+    
+    <script>
+        const elements = new SmarterElements({ baseUrl: '/elements' });
+        let currentElement = null;
+
+        function logEvent(message) {
+            const logEl = document.getElementById('event-log');
+            const timestamp = new Date().toLocaleTimeString();
+            logEl.innerHTML += '[' + timestamp + '] ' + message + '\n';
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('event-log').innerHTML = '';
+        }
+
+        function sendMessage() {
+            if (currentElement) {
+                currentElement.postMessage({
+                    type: 'external-command',
+                    data: { action: 'highlight', color: 'yellow' }
+                });
+                logEvent('Sent message to element');
+            } else {
+                logEvent('No element available to send message to');
+            }
+        }
+
+        // Create an interactive element
+        currentElement = elements.create('interactive/demo', {
+            config: {
+                title: 'Interactive Element',
+                features: ['click-tracking', 'form-input', 'data-updates']
+            },
+            onReady: function() {
+                logEvent('Element ready and interactive');
+            },
+            onEvent: function(eventType, data) {
+                logEvent('Event received: ' + eventType + ' - ' + JSON.stringify(data));
+                
+                // Handle specific events
+                switch(eventType) {
+                    case 'user-click':
+                        logEvent('User clicked on: ' + data.target);
+                        break;
+                    case 'form-input':
+                        logEvent('Form input changed: ' + data.field + ' = ' + data.value);
+                        break;
+                    case 'data-update':
+                        logEvent('Data updated: ' + JSON.stringify(data.changes));
+                        break;
+                }
+            },
+            onError: function(error) {
+                logEvent('ERROR: ' + error.message);
+            }
+        });
+
+        currentElement.mount('#element-container');
+        logEvent('Element created and mounted');
+    </script>
+</body>
+</html>
+```
+
+## Advanced Patterns
+
+### Element Communication
+
+```javascript
+// Parent-child element communication
+const parentElement = elements.create('parent/element', {
+  config: { mode: 'parent' },
+  onEvent: (eventType, data) => {
+    if (eventType === 'request-child') {
+      // Create child element in response to parent event
+      createChildElement(data.childConfig);
+    }
+  }
+});
+
+function createChildElement(config) {
+  const childElement = elements.create('child/element', {
+    config,
+    onEvent: (eventType, data) => {
+      if (eventType === 'child-ready') {
+        // Notify parent that child is ready
+        parentElement.postMessage({
+          type: 'child-created',
+          childId: data.elementId
+        });
+      }
+    }
+  });
+
+  return childElement;
+}
+```
+
+### Dynamic Element Loading
+
+```javascript
+// Load elements based on user selection
+const elementTypes = {
+  'chart': 'analytics/chart',
+  'table': 'data/table',
+  'form': 'input/form'
+};
+
+async function loadElementByType(type, container, config) {
+  const elementType = elementTypes[type];
+  
+  if (!elementType) {
+    throw new Error(`Unknown element type: ${type}`);
+  }
+
+  const element = elements.create(elementType, {
+    config,
+    onReady: () => {
+      console.log(`${type} element loaded successfully`);
+    },
+    onError: (error) => {
+      console.error(`Failed to load ${type} element:`, error);
+      // Show fallback UI
+      showFallbackUI(container, type);
+    }
+  });
+
+  element.mount(container);
+  return element;
+}
+
+function showFallbackUI(container, type) {
+  container.innerHTML = `
+    <div style="padding: 20px; text-align: center; color: #666;">
+      <p>Unable to load ${type} element</p>
+      <button onclick="retry()">Retry</button>
+    </div>
+  `;
+}
+```
+
+### Modal Management
+
+```javascript
+// Advanced modal management with stacking
+class ModalManager {
+  constructor(elements) {
+    this.elements = elements;
+    this.modalStack = [];
+    this.baseZIndex = 1000;
+  }
+
+  async openModal(elementType, config, modalOptions = {}) {
+    const zIndex = this.baseZIndex + this.modalStack.length * 10;
+    
+    const element = this.elements.create(elementType, {
+      config,
+      onEvent: (eventType, data) => {
+        if (eventType === 'request-close') {
+          this.closeModal(element.elementId);
+        }
+      }
+    });
+
+    const modalId = await element.openModal({
+      ...modalOptions,
+      zIndex
+    });
+
+    this.modalStack.push({
+      elementId: element.elementId,
+      modalId,
+      element
+    });
+
+    return { element, modalId };
+  }
+
+  closeModal(elementId) {
+    const index = this.modalStack.findIndex(
+      modal => modal.elementId === elementId
+    );
+    
+    if (index !== -1) {
+      const modal = this.modalStack[index];
+      modal.element.destroy();
+      this.modalStack.splice(index, 1);
+    }
+  }
+
+  closeAllModals() {
+    this.modalStack.forEach(modal => {
+      modal.element.destroy();
+    });
+    this.modalStack = [];
+  }
+}
+
+// Usage
+const modalManager = new ModalManager(elements);
+
+// Open stacked modals
+await modalManager.openModal('form/input', { fields: [] });
+await modalManager.openModal('help/panel', { topic: 'forms' });
+```
+
+## Error Handling Patterns
+
+### Graceful Degradation
+
+```javascript
+async function createElementWithFallback(elementType, config, fallbackHtml) {
+  try {
+    const element = elements.create(elementType, {
+      config,
+      onError: (error) => {
+        console.error('Element runtime error:', error);
+        showFallback();
+      }
+    });
+
+    await element.mount('#container');
+    return element;
+    
+  } catch (error) {
+    console.error('Element creation failed:', error);
+    showFallback();
+    return null;
+  }
+
+  function showFallback() {
+    document.getElementById('container').innerHTML = fallbackHtml;
+  }
+}
+
+// Usage
+await createElementWithFallback(
+  'complex/element',
+  { data: complexData },
+  '<div>Sorry, this feature is temporarily unavailable.</div>'
+);
+```
+
+### Retry Logic
+
+```javascript
+async function createElementWithRetry(elementType, config, maxRetries = 3) {
+  let lastError;
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const element = elements.create(elementType, {
+        config,
+        onReady: () => {
+          console.log(`Element created successfully on attempt ${attempt}`);
+        }
+      });
+      
+      return element;
+      
+    } catch (error) {
+      lastError = error;
+      console.warn(`Attempt ${attempt} failed:`, error.message);
+      
+      if (attempt < maxRetries) {
+        // Wait before retrying (exponential backoff)
+        await new Promise(resolve => 
+          setTimeout(resolve, Math.pow(2, attempt) * 1000)
+        );
+      }
+    }
+  }
+  
+  throw new Error(`Failed to create element after ${maxRetries} attempts: ${lastError.message}`);
+}
+```
+
+## Performance Optimization
+
+### Element Pooling
+
+```javascript
+// Reuse elements for better performance
+class ElementPool {
+  constructor(elements, elementType, poolSize = 5) {
+    this.elements = elements;
+    this.elementType = elementType;
+    this.pool = [];
+    this.active = new Set();
+    
+    // Pre-create pool
+    for (let i = 0; i < poolSize; i++) {
+      this.createPooledElement();
+    }
+  }
+
+  createPooledElement() {
+    const element = this.elements.create(this.elementType, {
+      config: {},
+      onReady: () => {
+        // Element is ready for use
+      }
+    });
+    
+    this.pool.push(element);
+    return element;
+  }
+
+  acquire(config) {
+    let element = this.pool.pop();
+    
+    if (!element) {
+      element = this.createPooledElement();
+    }
+    
+    // Update element config
+    element.postMessage({
+      type: 'update-config',
+      config
+    });
+    
+    this.active.add(element);
+    return element;
+  }
+
+  release(element) {
+    if (this.active.has(element)) {
+      this.active.delete(element);
+      
+      // Reset element state
+      element.postMessage({
+        type: 'reset'
+      });
+      
+      this.pool.push(element);
+    }
+  }
+
+  destroy() {
+    [...this.pool, ...this.active].forEach(element => {
+      element.destroy();
+    });
+    this.pool = [];
+    this.active.clear();
+  }
+}
+```
+
+### Lazy Loading
+
+```javascript
+// Lazy load elements when they come into view
+class LazyElementLoader {
+  constructor(elements) {
+    this.elements = elements;
+    this.observer = new IntersectionObserver(
+      this.handleIntersection.bind(this),
+      { threshold: 0.1 }
+    );
+  }
+
+  observe(container, elementType, config) {
+    container.dataset.elementType = elementType;
+    container.dataset.elementConfig = JSON.stringify(config);
+    this.observer.observe(container);
+  }
+
+  handleIntersection(entries) {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        this.loadElement(entry.target);
+        this.observer.unobserve(entry.target);
+      }
+    });
+  }
+
+  async loadElement(container) {
+    const elementType = container.dataset.elementType;
+    const config = JSON.parse(container.dataset.elementConfig);
+    
+    // Show loading state
+    container.innerHTML = '<div>Loading...</div>';
+    
+    try {
+      const element = this.elements.create(elementType, { config });
+      await element.mount(container);
+    } catch (error) {
+      container.innerHTML = '<div>Failed to load element</div>';
+      console.error('Lazy loading failed:', error);
+    }
+  }
+}
+
+// Usage
+const lazyLoader = new LazyElementLoader(elements);
+
+// Set up lazy loading for multiple elements
+document.querySelectorAll('.lazy-element').forEach(container => {
+  lazyLoader.observe(container, 'chart/analytics', {
+    data: container.dataset.chartData
+  });
+});
+```
+
+## Testing
+
+### Unit Testing Elements
+
+```javascript
+// Jest test example
+import { SmarterElements } from '@smarterservices/smarter-elements';
+
+describe('SmarterElements', () => {
+  let elements;
+
+  beforeEach(() => {
+    elements = new SmarterElements({ 
+      baseUrl: '/test-elements',
+      debug: true 
+    });
+  });
+
+  afterEach(() => {
+    elements.destroyAll();
+  });
+
+  test('creates element successfully', async () => {
+    const element = elements.create('test/element', {
+      config: { testParam: 'value' }
+    });
+
+    expect(element).toBeDefined();
+    expect(element.type).toBe('test/element');
+    expect(element.config.testParam).toBe('value');
+  });
+
+  test('handles element errors gracefully', async () => {
+    const errorHandler = jest.fn();
+    
+    const element = elements.create('invalid/element', {
+      config: {},
+      onError: errorHandler
+    });
+
+    // Simulate error
+    element.postMessage({ type: 'trigger-error' });
+    
+    expect(errorHandler).toHaveBeenCalled();
+  });
+});
+```
+
+### Integration Testing
+
+```javascript
+// Cypress test example
+describe('Element Integration', () => {
+  it('should load and display element correctly', () => {
+    cy.visit('/element-demo');
+    
+    // Click button to create element
+    cy.get('[data-testid="create-element"]').click();
+    
+    // Wait for element to load
+    cy.get('[data-testid="element-container"]')
+      .should('contain', 'Element loaded successfully');
+    
+    // Test element interaction
+    cy.get('[data-testid="element-container"] button')
+      .click();
+      
+    // Verify element response
+    cy.get('[data-testid="element-output"]')
+      .should('contain', 'Button clicked');
+  });
+
+  it('should open modal element', () => {
+    cy.visit('/modal-demo');
+    
+    cy.get('[data-testid="open-modal"]').click();
+    
+    // Modal should be visible
+    cy.get('[data-testid="modal-overlay"]')
+      .should('be.visible');
+      
+    // Element should be loaded in modal
+    cy.get('[data-testid="modal-content"]')
+      .should('contain', 'Modal element content');
+      
+    // Close modal with escape key
+    cy.get('body').type('{esc}');
+    
+    // Modal should be closed
+    cy.get('[data-testid="modal-overlay"]')
+      .should('not.exist');
+  });
+});
+```
+
+## Utility Functions
+
+### Debounced Window Resize
+
+Handle window resize events efficiently with debouncing:
+
+```javascript
+import { SmarterElements, debounce } from '@smarterservices/smarter-elements';
+
+const elements = new SmarterElements({ baseUrl: '/elements' });
+const element = elements.create('blockkit/renderer', {
+  config: {
+    blocksJson: JSON.stringify([
+      { type: "heading", level: 1, text: "Responsive Element" },
+      { type: "text", text: "This element resizes with the window." }
+    ])
+  }
+});
+
+element.mount('#responsive-container');
+
+// Debounce resize handler to avoid excessive calls
+const debouncedResize = debounce(() => {
+  // Update constraints based on new window size
+  const newMaxHeight = window.innerHeight - 200;
+  element.updateConstraints({ maxHeight: newMaxHeight });
+  element.recalculateSize();
+}, 300);
+
+window.addEventListener('resize', debouncedResize);
+
+// Cleanup when done
+window.removeEventListener('resize', debouncedResize);
+```
+
+### Throttled Scroll Events
+
+Handle scroll events with throttling:
+
+```javascript
+import { throttle } from '@smarterservices/smarter-elements';
+
+const throttledScroll = throttle(() => {
+  const scrollPercent = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+  console.log(`Scroll progress: ${scrollPercent.toFixed(1)}%`);
+}, 100);
+
+window.addEventListener('scroll', throttledScroll);
+```
+
+### CDN Usage with Utilities
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SmarterElements with Utilities</title>
+</head>
+<body>
+    <div id="element-container"></div>
+    
+    <script src="https://unpkg.com/@smarterservices/smarter-elements@latest/dist/browser.js"></script>
+    <script>
+        const { debounce, throttle } = SmarterElements;
+        
+        // Create element
+        const elements = new SmarterElements({ baseUrl: '/elements' });
+        const element = elements.create('blockkit/renderer', {
+          config: {
+            blocksJson: JSON.stringify([
+              { type: "text", text: "Responsive element with debounced resize" }
+            ])
+          }
+        });
+        
+        element.mount('#element-container');
+        
+        // Debounced resize handler
+        const handleResize = debounce(() => {
+          const containerWidth = document.getElementById('element-container').offsetWidth;
+          element.updateConstraints({ 
+            maxWidth: containerWidth - 40 // Account for padding
+          });
+        }, 250);
+        
+        window.addEventListener('resize', handleResize);
+        
+        // Throttled scroll handler
+        const handleScroll = throttle(() => {
+          // Update element based on scroll position
+          const scrollTop = window.pageYOffset;
+          if (scrollTop > 100) {
+            element.updateConstraints({ maxHeight: 300 });
+          } else {
+            element.updateConstraints({ maxHeight: 500 });
+          }
+        }, 100);
+        
+        window.addEventListener('scroll', handleScroll);
+    </script>
+</body>
+</html>
+```
+
+### React with Debounced Resize
+
+```javascript
+import React, { useEffect, useRef } from 'react';
+import { useSmarterElements, debounce } from '@smarterservices/smarter-elements';
+
+function ResponsiveElement() {
+  const elements = useSmarterElements();
+  const containerRef = useRef(null);
+  const elementRef = useRef(null);
+  
+  useEffect(() => {
+    if (!containerRef.current) return;
+    
+    // Create element
+    const element = elements.create('blockkit/renderer', {
+      config: {
+        blocksJson: JSON.stringify([
+          { type: "heading", level: 2, text: "Responsive React Element" }
+        ])
+      }
+    });
+    
+    element.mount(containerRef.current);
+    elementRef.current = element;
+    
+    // Debounced resize handler
+    const handleResize = debounce(() => {
+      if (elementRef.current && containerRef.current) {
+        const containerWidth = containerRef.current.offsetWidth;
+        elementRef.current.updateConstraints({
+          maxWidth: containerWidth,
+          maxHeight: window.innerHeight * 0.6
+        });
+      }
+    }, 300);
+    
+    window.addEventListener('resize', handleResize);
+    
+    // Cleanup
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      handleResize.cancel(); // Cancel any pending debounced calls
+      if (elementRef.current) {
+        elementRef.current.destroy();
+      }
+    };
+  }, [elements]);
+  
+  return (
+    <div 
+      ref={containerRef}
+      style={{ 
+        width: '100%', 
+        minHeight: '200px',
+        border: '1px solid #ccc',
+        borderRadius: '4px'
+      }}
+    />
+  );
+}
+```
+
+---
+
+*For more specific examples, check the documentation for individual elements in the [Elements Reference](/smarter-elements/elements).*

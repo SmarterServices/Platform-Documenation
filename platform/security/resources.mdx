@@ -1,0 +1,175 @@
+---
+title: "Resource Naming (SSRN)"
+description: "SmarterServices Resource Name format for identifying protected resources"
+---
+
+# Resource Naming (SSRN)
+
+Resources in the SmarterServices IAM system use a standardized naming convention called **SmarterServices Resource Name (SSRN)**. This format is inspired by Amazon Resource Naming (ARN) but tailored for our platform.
+
+## SSRN Format
+
+```
+ssrn:partition:service:region:account:resource
+```
+
+### Components
+
+| Component | Description | Example | Required |
+|-----------|-------------|---------|----------|
+| **partition** | Always `ss` for SmarterServices | `ss` | ✅ |
+| **service** | Service identifier (`sm` = SmarterMeasure, `sp` = SmarterProctoring) | `sp` | ✅ |
+| **region** | Geographic region (can be blank for global access) | `us-east-1` | ❌ |
+| **account** | Account ID with no hyphens | `578` | ✅ |
+| **resource** | Specific resource identifier | `user/8539699` | ✅ |
+
+## Examples
+
+### Basic User Resource
+```
+ssrn:ss:sm::578:user/8539699
+```
+- **Service**: SmarterMeasure (`sm`)
+- **Account**: 578
+- **Resource**: User with ID 8539699
+
+### Proctoring Session
+```
+ssrn:ss:sp:us-east-1:578:session/ES123456
+```
+- **Service**: SmarterProctoring (`sp`)
+- **Region**: US East 1
+- **Account**: 578
+- **Resource**: Session with ID ES123456
+
+### Assessment Resource
+```
+ssrn:ss:sm::578:assessment/AS789012
+```
+- **Service**: SmarterMeasure (`sm`)
+- **Account**: 578
+- **Resource**: Assessment with ID AS789012
+
+## Wildcards
+
+Resources support wildcard patterns for flexible access control:
+
+### All Users in Account
+```
+ssrn:ss:sm::578:user/*
+```
+Grants access to all users under account 578.
+
+### All Resources in Account
+```
+ssrn:ss:sm::578:*
+```
+Grants access to all resources under account 578.
+
+### Service-Wide Access
+```
+ssrn:ss:sp::*:*
+```
+Grants access to all SmarterProctoring resources across all accounts.
+
+## Resource Hierarchy
+
+Resources can have hierarchical structures using forward slashes:
+
+### Nested Resources
+```
+ssrn:ss:sp::578:session/ES123456/annotation/AN789
+```
+- **Base Resource**: Session ES123456
+- **Sub-Resource**: Annotation AN789 within that session
+
+### Department Structure
+```
+ssrn:ss:sm::578:department/math/user/8539699
+```
+- **Department**: math
+- **Resource**: User 8539699 within the math department
+
+## Best Practices
+
+### 1. Use Meaningful Identifiers
+```bash
+# Good
+ssrn:ss:sp::578:session/ES123456
+
+# Avoid
+ssrn:ss:sp::578:resource/123456
+```
+
+### 2. Consistent Naming Conventions
+- Use lowercase for resource types
+- Use descriptive names for resource categories
+- Include version numbers when applicable
+
+### 3. Hierarchical Organization
+```bash
+# Organize related resources hierarchically
+ssrn:ss:sm::578:course/CS101/assignment/HW1
+ssrn:ss:sm::578:course/CS101/assignment/HW2
+ssrn:ss:sm::578:course/CS101/exam/MIDTERM
+```
+
+### 4. Region Considerations
+```bash
+# Global access (no region specified)
+ssrn:ss:sp::578:user/8539699
+
+# Region-specific access
+ssrn:ss:sp:us-east-1:578:session/ES123456
+```
+
+## Common Resource Types
+
+### SmarterMeasure (sm)
+- `user/{id}` - User accounts
+- `assessment/{id}` - Assessments
+- `course/{id}` - Courses
+- `department/{id}` - Departments
+- `report/{id}` - Reports
+
+### SmarterProctoring (sp)
+- `session/{id}` - Proctoring sessions
+- `exam/{id}` - Exams
+- `proctor/{id}` - Proctor accounts
+- `annotation/{id}` - Session annotations
+- `recording/{id}` - Session recordings
+
+## Validation Rules
+
+1. **Required Components**: partition, service, account, and resource must be present
+2. **Character Restrictions**: Use alphanumeric characters, hyphens, and underscores
+3. **Case Sensitivity**: Resource names are case-sensitive
+4. **Length Limits**: Maximum 1024 characters per SSRN
+5. **Reserved Characters**: Avoid using `:` and `*` except for their designated purposes
+
+## Integration Examples
+
+### JavaScript/TypeScript
+```javascript
+// Generate SSRN for a user
+const generateUserSSRN = (accountId, userId) => {
+  return `ssrn:ss:sm::${accountId}:user/${userId}`;
+};
+
+// Generate SSRN for a proctoring session
+const generateSessionSSRN = (accountId, sessionId) => {
+  return `ssrn:ss:sp::${accountId}:session/${sessionId}`;
+};
+```
+
+### Policy Usage
+```json
+{
+  "Effect": "Allow",
+  "Action": ["sp:ReadSession", "sp:WriteAnnotation"],
+  "Resource": [
+    "ssrn:ss:sp::578:session/ES123456",
+    "ssrn:ss:sp::578:session/ES123456/annotation/*"
+  ]
+}
+```

@@ -1,0 +1,321 @@
+---
+title: "Actions"
+description: "IAM action naming conventions and wildcard patterns"
+---
+
+# Actions
+
+Actions define what operations can be performed on resources. The SmarterServices IAM system uses a structured naming convention to create meaningful and consistent action identifiers.
+
+## Action Format
+
+Actions follow the pattern: `service:ActionName`
+
+```
+sm:DeleteUser
+sp:ReadSession
+sm:CreateAssessment
+```
+
+### Service Prefixes
+
+| Service | Prefix | Description |
+|---------|--------|-------------|
+| **SmarterMeasure** | `sm:` | Assessment and learning analytics |
+| **SmarterProctoring** | `sp:` | Proctoring and exam monitoring |
+| **Platform** | `platform:` | Cross-service platform operations |
+
+## Common Action Patterns
+
+### CRUD Operations
+
+#### Create Actions
+- `sm:CreateUser`
+- `sm:CreateAssessment`
+- `sp:CreateSession`
+- `sp:CreateExam`
+
+#### Read Actions
+- `sm:ReadUser`
+- `sm:ReadAssessment`
+- `sp:ReadSession`
+- `sp:ViewRecording`
+
+#### Update Actions
+- `sm:UpdateUser`
+- `sm:ModifyAssessment`
+- `sp:UpdateSession`
+- `sp:EditAnnotation`
+
+#### Delete Actions
+- `sm:DeleteUser`
+- `sm:RemoveAssessment`
+- `sp:DeleteSession`
+- `sp:RemoveAnnotation`
+
+### Administrative Actions
+- `sm:ManageUsers`
+- `sm:ConfigureSettings`
+- `sp:ManageProctors`
+- `sp:SystemConfiguration`
+
+### Reporting Actions
+- `sm:GenerateReport`
+- `sm:ExportData`
+- `sp:ViewAnalytics`
+- `sp:ExportSessionData`
+
+## Wildcards
+
+Actions support powerful wildcard patterns for flexible permission management.
+
+### Service-Wide Wildcards
+
+#### All Actions for a Service
+```json
+{
+  "Effect": "Allow",
+  "Action": ["sm:*"],
+  "Resource": ["ssrn:ss:sm::578:*"]
+}
+```
+Grants all SmarterMeasure actions.
+
+#### All Actions Across Services
+```json
+{
+  "Effect": "Allow",
+  "Action": ["*"],
+  "Resource": ["ssrn:ss:*::578:*"]
+}
+```
+Grants all actions across all services (use with caution).
+
+### Pattern-Based Wildcards
+
+#### Actions Starting with Pattern
+```json
+{
+  "Effect": "Allow",
+  "Action": ["sm:Delete*"],
+  "Resource": ["ssrn:ss:sm::578:*"]
+}
+```
+Grants all delete actions: `sm:DeleteUser`, `sm:DeleteAssessment`, etc.
+
+#### Actions Ending with Pattern
+```json
+{
+  "Effect": "Allow",
+  "Action": ["sm:*User"],
+  "Resource": ["ssrn:ss:sm::578:user/*"]
+}
+```
+Grants all user-related actions: `sm:CreateUser`, `sm:ReadUser`, `sm:UpdateUser`, `sm:DeleteUser`.
+
+#### Complex Patterns
+```json
+{
+  "Effect": "Allow",
+  "Action": ["sp:*Session*"],
+  "Resource": ["ssrn:ss:sp::578:session/*"]
+}
+```
+Grants all session-related actions: `sp:CreateSession`, `sp:ReadSession`, `sp:UpdateSession`, `sp:DeleteSession`, `sp:ManageSessionSettings`.
+
+## SmarterMeasure Actions
+
+### User Management
+- `sm:CreateUser` - Create new user accounts
+- `sm:ReadUser` - View user information
+- `sm:UpdateUser` - Modify user details
+- `sm:DeleteUser` - Remove user accounts
+- `sm:ManageUsers` - Administrative user management
+
+### Assessment Management
+- `sm:CreateAssessment` - Create new assessments
+- `sm:ReadAssessment` - View assessment content
+- `sm:UpdateAssessment` - Modify assessments
+- `sm:DeleteAssessment` - Remove assessments
+- `sm:PublishAssessment` - Make assessments available
+- `sm:ArchiveAssessment` - Archive old assessments
+
+### Course Management
+- `sm:CreateCourse` - Create new courses
+- `sm:ReadCourse` - View course information
+- `sm:UpdateCourse` - Modify course details
+- `sm:DeleteCourse` - Remove courses
+- `sm:EnrollUser` - Enroll users in courses
+- `sm:UnenrollUser` - Remove users from courses
+
+### Reporting
+- `sm:GenerateReport` - Create reports
+- `sm:ViewReport` - Access existing reports
+- `sm:ExportData` - Export assessment data
+- `sm:ViewAnalytics` - Access analytics dashboards
+
+## SmarterProctoring Actions
+
+### Session Management
+- `sp:CreateSession` - Create proctoring sessions
+- `sp:ReadSession` - View session details
+- `sp:UpdateSession` - Modify session settings
+- `sp:DeleteSession` - Remove sessions
+- `sp:StartSession` - Begin proctoring
+- `sp:EndSession` - Terminate proctoring
+
+### Exam Management
+- `sp:CreateExam` - Create new exams
+- `sp:ReadExam` - View exam details
+- `sp:UpdateExam` - Modify exam settings
+- `sp:DeleteExam` - Remove exams
+- `sp:ScheduleExam` - Schedule exam sessions
+
+### Proctor Management
+- `sp:CreateProctor` - Add new proctors
+- `sp:ReadProctor` - View proctor information
+- `sp:UpdateProctor` - Modify proctor details
+- `sp:DeleteProctor` - Remove proctors
+- `sp:AssignProctor` - Assign proctors to sessions
+
+### Recording & Annotations
+- `sp:ViewRecording` - Access session recordings
+- `sp:CreateAnnotation` - Add annotations to sessions
+- `sp:ReadAnnotation` - View existing annotations
+- `sp:UpdateAnnotation` - Modify annotations
+- `sp:DeleteAnnotation` - Remove annotations
+- `sp:ExportRecording` - Download recordings
+
+### Monitoring
+- `sp:MonitorSession` - Real-time session monitoring
+- `sp:ViewLiveStream` - Access live video feeds
+- `sp:ReceiveAlerts` - Get security alerts
+- `sp:ReviewFlags` - Review flagged activities
+
+## Platform Actions
+
+### System Administration
+- `platform:ManageSystem` - System-wide administration
+- `platform:ViewLogs` - Access system logs
+- `platform:ConfigureSettings` - Modify platform settings
+- `platform:ManageIntegrations` - Configure third-party integrations
+
+### Account Management
+- `platform:CreateAccount` - Create new accounts
+- `platform:ReadAccount` - View account information
+- `platform:UpdateAccount` - Modify account settings
+- `platform:DeleteAccount` - Remove accounts
+- `platform:BillingAccess` - Access billing information
+
+## Best Practices
+
+### 1. Use Descriptive Names
+```bash
+# Good
+sm:CreateAssessment
+sp:ViewRecording
+
+# Avoid
+sm:Action1
+sp:DoThing
+```
+
+### 2. Follow Consistent Patterns
+```bash
+# CRUD pattern
+sm:CreateUser
+sm:ReadUser
+sm:UpdateUser
+sm:DeleteUser
+
+# Management pattern
+sm:ManageUsers
+sp:ManageProctors
+```
+
+### 3. Group Related Actions
+```bash
+# Assessment lifecycle
+sm:CreateAssessment
+sm:PublishAssessment
+sm:ArchiveAssessment
+
+# Session workflow
+sp:CreateSession
+sp:StartSession
+sp:MonitorSession
+sp:EndSession
+```
+
+### 4. Use Appropriate Granularity
+```bash
+# Too granular (avoid)
+sm:ReadUserFirstName
+sm:ReadUserLastName
+sm:ReadUserEmail
+
+# Appropriate granularity
+sm:ReadUser
+sm:ReadUserProfile
+sm:ReadUserSettings
+```
+
+## Policy Examples
+
+### Read-Only Access
+```json
+{
+  "Effect": "Allow",
+  "Action": [
+    "sm:Read*",
+    "sp:Read*",
+    "sp:View*"
+  ],
+  "Resource": ["ssrn:ss:*::578:*"]
+}
+```
+
+### Assessment Manager
+```json
+{
+  "Effect": "Allow",
+  "Action": [
+    "sm:*Assessment*",
+    "sm:ReadUser",
+    "sm:ReadCourse"
+  ],
+  "Resource": [
+    "ssrn:ss:sm::578:assessment/*",
+    "ssrn:ss:sm::578:user/*",
+    "ssrn:ss:sm::578:course/*"
+  ]
+}
+```
+
+### Proctor Permissions
+```json
+{
+  "Effect": "Allow",
+  "Action": [
+    "sp:ReadSession",
+    "sp:MonitorSession",
+    "sp:CreateAnnotation",
+    "sp:UpdateAnnotation",
+    "sp:ViewRecording"
+  ],
+  "Resource": ["ssrn:ss:sp::578:session/*"]
+}
+```
+
+### Deny Dangerous Actions
+```json
+{
+  "Effect": "Deny",
+  "Action": [
+    "sm:Delete*",
+    "sp:Delete*",
+    "platform:DeleteAccount"
+  ],
+  "Resource": ["*"]
+}
+```

@@ -9,16 +9,43 @@
   },
   "favicon": "/favicon.png",
   "navigation": {
-    "dropdowns": [
+    "tabs": [
       {
-        "dropdown": "Platform",
-        "description": "General platform information",
+        "tab": "Platform",
         "icon": "layer-group",
         "groups": [
           {
             "group": "Getting Started",
             "pages": [
               "index"
+            ]
+          },
+          {
+            "group": "Security & Authorization",
+            "pages": [
+              "platform/security/index",
+              "platform/security/quickstart",
+              {
+                "group": "Core Concepts",
+                "pages": [
+                  "platform/security/resources",
+                  "platform/security/actions",
+                  "platform/security/policies"
+                ]
+              },
+              {
+                "group": "Advanced Features",
+                "pages": [
+                  "platform/security/conditions"
+                ]
+              },
+              {
+                "group": "Implementation",
+                "pages": [
+                  "platform/security/clients",
+                  "platform/security/implementation"
+                ]
+              }
             ]
           },
           {
@@ -48,8 +75,7 @@
         ]
       },
       {
-        "dropdown": "Assessment",
-        "description": "SmarterMeasure and other assessment solutions",
+        "tab": "Assessment",
         "icon": "pen-to-square",
         "groups": [
           {
@@ -85,8 +111,7 @@
         ]
       },
       {
-        "dropdown": "Proctoring",
-        "description": "SmarterProctoring and other proctoring solutions",
+        "tab": "Proctoring",
         "icon": "camera-security",
         "groups": [
           {
@@ -113,7 +138,47 @@
         ]
       },
       {
-        "dropdown": "Blog",
+        "tab": "SmarterElements",
+        "icon": "puzzle-piece",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "smarter-elements/overview",
+              "smarter-elements/getting-started"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "smarter-elements/examples",
+              "smarter-elements/api-reference",
+              "smarter-elements/troubleshooting"
+            ]
+          },
+          {
+            "group": "Element Reference",
+            "pages": [
+              "smarter-elements/elements",
+              {
+                "group": "BlockKit",
+                "pages": [
+                  "smarter-elements/elements/blockkit-playground",
+                  "smarter-elements/elements/blockkit-renderer"
+                ]
+              },
+              {
+                "group": "Proctoring",
+                "pages": [
+                  "smarter-elements/elements/proctoring-sessionviewer"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Blog",
         "icon": "book",
         "href": "https://www.smarterservices.com/blog"
       }
