@@ -145,6 +145,68 @@ interface InputSchema {
    */
   data?: string;
 
+  /**
+   * Default tab to show in SessionDetails panel
+   * Valid values: 'flags', 'checkin', 'chat', 'journey', 'info', 'computer', 'identity'
+   * @default 'flags'
+   */
+  defaultSessionDetailsTab?: string;
+
+  /**
+   * Enabled components configuration
+   * Controls which UI components are visible and active
+   */
+  enabledComponents?: {
+    /**
+     * Session details panel configuration
+     * Can be boolean or object for advanced configuration
+     * 
+     * Boolean: true to enable with defaults, false to disable
+     * 
+     * Object: {
+     *   defaultTab?: string - Initial tab to display
+     *   tabs?: Array<string | { id: string, title: string, url?: string }> - Tab configuration
+     * }
+     * 
+     * @example
+     * // Simple enable/disable
+     * sessionDetails: true
+     * 
+     * @example
+     * // With default tab
+     * sessionDetails: {
+     *   defaultTab: 'checkin',
+     *   tabs: ['flags', 'checkin', 'chat', 'journey']
+     * }
+     * 
+     * @example
+     * // With custom tabs
+     * sessionDetails: {
+     *   defaultTab: 'custom',
+     *   tabs: [
+     *     'flags',
+     *     'checkin',
+     *     { id: 'custom', title: 'Custom Tab', url: '/custom-content' }
+     *   ]
+     * }
+     */
+    sessionDetails?: boolean | {
+      defaultTab?: string;
+      tabs?: Array<string | {
+        id: string;
+        title: string;
+        url?: string;
+      }>;
+    };
+    
+    timeline?: boolean;
+    sessionHeader?: boolean;
+    chat?: boolean;
+    microphone?: boolean;
+    camera?: boolean;
+    settings?: boolean;
+  };
+
 }
 ```
 
@@ -184,6 +246,110 @@ await element.openModal({
 });
 ```
 
+### Default Tab Example
+
+```jsx
+// Open SessionViewer with check-in tab active by default
+<SessionViewer
+  sessionSid="session-123"
+  examSid="exam-456"
+  defaultSessionDetailsTab="checkin"
+  {...otherProps}
+/>
+
+// Or dynamically set based on context
+<SessionViewer
+  sessionSid="session-123"
+  examSid="exam-456"
+  defaultSessionDetailsTab={isReviewMode ? "checkin" : "flags"}
+  {...otherProps}
+/>
+```
+
+### Session Details Configuration Examples
+
+```jsx
+// Simple boolean - enable with defaults
+<SessionViewer
+  sessionSid="session-123"
+  enabledComponents={{
+    sessionDetails: true,
+    chat: true
+  }}
+/>
+
+// Configure default tab and limit tabs
+<SessionViewer
+  sessionSid="session-123"
+  enabledComponents={{
+    sessionDetails: {
+      defaultTab: 'checkin',
+      tabs: ['flags', 'checkin', 'chat', 'journey']
+    }
+  }}
+/>
+
+// Add custom tabs with external content
+<SessionViewer
+  sessionSid="session-123"
+  enabledComponents={{
+    sessionDetails: {
+      defaultTab: 'custom',
+      tabs: [
+        'flags',
+        'checkin',
+        { 
+          id: 'custom', 
+          title: 'Custom Analytics', 
+          url: '/analytics/session-123' 
+        },
+        {
+          id: 'notes',
+          title: 'Proctor Notes',
+          url: '/notes/session-123'
+        }
+      ]
+    }
+  }}
+/>
+
+// Override tab titles
+<SessionViewer
+  sessionSid="session-123"
+  enabledComponents={{
+    sessionDetails: {
+      tabs: [
+        { id: 'flags', title: 'Annotations' },
+        { id: 'checkin', title: 'Verification' },
+        { id: 'chat', title: 'Messages' }
+      ]
+    }
+  }}
+/>
+```
+
+### Programmatic Control
+
+```jsx
+const sessionViewerRef = useRef(null);
+
+// Enable sessionDetails with configuration
+sessionViewerRef.current.enableComponents({
+  sessionDetails: {
+    defaultTab: 'checkin',
+    tabs: ['flags', 'checkin', 'chat']
+  }
+});
+
+// Change to simple boolean
+sessionViewerRef.current.enableComponents({
+  sessionDetails: true
+});
+
+// Disable
+sessionViewerRef.current.disableComponents(['sessionDetails']);
+```
+
 ## API Reference
 
 ### Element Methods
@@ -194,6 +360,68 @@ await element.openModal({
 - `postMessage(data)` - Send message to element
 - `on(event, callback)` - Listen for events
 - `off(event, callback)` - Remove event listener
+
+### Imperative API (via ref)
+
+When using the SessionViewer component directly (not through SmarterElements), you can access these methods via ref:
+
+#### Component Control
+
+- `enableComponents(components)` - Enable one or more components with optional properties
+- `disableComponents(componentNames)` - Disable one or more components
+- `clearComponents()` - Clear all enabled components (set all to false)
+- `getEnabledComponents()` - Get list of currently enabled components and their properties
+
+#### Session Details Tab Control
+
+- `setSessionDetailsTab(tab)` - Set the active tab in SessionDetails panel
+  - Valid tab values: `'flags'`, `'checkin'`, `'chat'`, `'journey'`, `'info'`, `'computer'`, `'identity'`
+- `getSessionDetailsTab()` - Get the currently active SessionDetails tab
+
+#### Session Journey
+
+- `updateSessionJourney(payload)` - Update the session journey with step and status information
+
+#### Session Control
+
+- `endSession()` - End the current session
+
+### Usage Example
+
+```jsx
+import { useRef } from 'react';
+import { SessionViewer } from '@smarterservices/session-viewer';
+
+function MyComponent() {
+  const sessionViewerRef = useRef(null);
+  
+  const handleEnableChat = () => {
+    sessionViewerRef.current.enableComponents({
+      chat: true,
+      sessionDetails: true
+    });
+  };
+  
+  const handleShowCheckin = () => {
+    // Switch to the check-in tab
+    sessionViewerRef.current.setSessionDetailsTab('checkin');
+  };
+  
+  return (
+    <div>
+      <button onClick={handleEnableChat}>Enable Chat</button>
+      <button onClick={handleShowCheckin}>Show Check-in</button>
+      
+      <SessionViewer
+        ref={sessionViewerRef}
+        sessionSid="session-123"
+        defaultSessionDetailsTab="flags"
+        {...otherProps}
+      />
+    </div>
+  );
+}
+```
 
 ### Modal Options
 

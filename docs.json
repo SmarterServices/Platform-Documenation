@@ -60,6 +60,7 @@
                   "platform/blockkit/bulletlist",
                   "platform/blockkit/callout",
                   "platform/blockkit/heading",
+                  "platform/blockkit/icon",
                   "platform/blockkit/listitem",
                   "platform/blockkit/orderedlist",
                   "platform/blockkit/section",

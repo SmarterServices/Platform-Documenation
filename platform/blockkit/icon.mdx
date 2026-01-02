@@ -1,0 +1,95 @@
+---
+title: "Icon"
+description: "A block that displays an icon with optional color and alignment"
+---
+
+## Basic Example
+
+```json
+{
+  "type": "icon",
+  "name": "sample-name",
+  "size": "medium",
+  "align": "inline",
+  "color": "primary",
+  "margin": "none"
+}
+```
+
+## Live Example
+
+<iframe 
+  src="http://localhost:4000/elements/blockkit/renderer?data=eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJibG9ja3NKc29uIjoiW3tcInR5cGVcIjpcImljb25cIixcIm5hbWVcIjpcIkljb25Ib21lTGluZVwiLFwic2l6ZVwiOlwibWVkaXVtXCIsXCJhbGlnblwiOlwiaW5saW5lXCJ9LHtcInR5cGVcIjpcImljb25cIixcIm5hbWVcIjpcIkljb25DaGVja0xpbmVcIixcInNpemVcIjpcImxhcmdlXCIsXCJhbGlnblwiOlwiY2VudGVyXCIsXCJjb2xvclwiOlwic3VjY2Vzc1wifSx7XCJ0eXBlXCI6XCJpY29uXCIsXCJuYW1lXCI6XCJJY29uV2FybmluZ0xpbmVcIixcInNpemVcIjpcInNtYWxsXCIsXCJhbGlnblwiOlwic3RhcnRcIixcImNvbG9yXCI6XCJ3YXJuaW5nXCJ9XSJ9."
+  width="100%" 
+  height="200"
+  class="elements-example"
+></iframe>
+
+```json Example Code expandable
+[
+  {
+    "type": "icon",
+    "name": "IconHomeLine",
+    "size": "medium",
+    "align": "inline"
+  },
+  {
+    "type": "icon",
+    "name": "IconCheckLine",
+    "size": "large",
+    "align": "center",
+    "color": "success"
+  },
+  {
+    "type": "icon",
+    "name": "IconWarningLine",
+    "size": "small",
+    "align": "start",
+    "color": "warning"
+  }
+]
+```
+
+## Properties
+
+<ParamField path="type" type="string" required="true" >
+  Identifies this as an icon block
+
+Must be <code>icon</code>
+</ParamField>
+
+<ParamField path="name" type="string" required="true" >
+  The name of the icon to display (e.g., 'IconHomeLine', 'IconUserLine')
+</ParamField>
+
+<ParamField path="size" type="string" required="false" default="medium">
+  The size of the icon
+
+**Allowed values:** `x-small`, `small`, `medium`, `large`
+</ParamField>
+
+<ParamField path="align" type="string" required="false" default="inline">
+  Alignment of the icon. Use 'inline' for inline display with text, or 'start'/'center'/'end' for block-level alignment
+
+**Allowed values:** `start`, `end`, `center`, `inline`
+</ParamField>
+
+<ParamField path="color" type="string" required="false" >
+  Color of the icon. When specified, the icon will be wrapped in a Text element to apply the color
+
+**Allowed values:** `primary`, `secondary`, `primary-inverse`, `secondary-inverse`, `success`, `brand`, `warning`, `danger`, `alert`
+</ParamField>
+
+<ParamField path="margin" type="string" required="false" default="none">
+  Margin spacing around the icon block
+
+**Allowed values:** `none`, `auto`, `xxx-small`, `xx-small`, `x-small`, `small`, `medium`, `large`, `x-large`, `xx-large`
+</ParamField>
+
+
+## Usage Notes
+
+- This element is part of the BlockKit system for building dynamic user interfaces
+- All properties marked as **(required)** must be included in your JSON structure
+- Optional properties can be omitted and will use their default values when applicable
+
