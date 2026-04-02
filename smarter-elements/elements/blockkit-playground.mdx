@@ -1,15 +1,15 @@
 ---
-title: "Playground"
+title: "Builder"
 description: "Interactive editor for creating, testing, and previewing BlockKit JSON structures with real-time rendering and validation"
 ---
 
-# Playground
+# Builder
 
 Interactive editor for creating, testing, and previewing BlockKit JSON structures with real-time rendering and validation
 
 ## Element Type
 
-`blockkit/playground`
+`blockkit/builder`
 
 ## Usage
 
@@ -22,7 +22,7 @@ function MyComponent() {
   const elements = useSmarterElements();
   
   const handleCreateElement = async () => {
-    const element = elements.create('blockkit/playground', {
+    const element = elements.create('blockkit/builder', {
       config: {
         // Add your configuration here
       },
@@ -47,7 +47,7 @@ function MyComponent() {
   return (
     <div>
       <button onClick={handleCreateElement}>
-        Create Playground
+        Create Builder
       </button>
       <div id="element-container"></div>
     </div>
@@ -67,7 +67,7 @@ const elements = new SmarterElements({
 });
 
 // Create element
-const element = elements.create('blockkit/playground', {
+const element = elements.create('blockkit/builder', {
   config: {
     // Add your configuration here
   },
@@ -150,7 +150,126 @@ interface InputSchema {
      * @default true
      */
     wordWrap?: boolean;
-  
+  };
+
+  /**
+   * Preview configuration options
+   * @optional
+   */
+  previewConfig?: {
+    /**
+     * Whether to show the preview panel by default
+     * @default true
+     */
+    showPreview?: boolean;
+
+    /**
+     * Whether to auto-render on JSON changes
+     * @default true
+     */
+    autoRender?: boolean;
+
+    /**
+     * Debounce delay for auto-rendering (in milliseconds)
+     * @default 500
+     */
+    renderDelay?: number;
+
+    /**
+     * Theme for the preview
+     * @default "light"
+     */
+    previewTheme?: 'light' | 'dark';
+  };
+
+  /**
+   * Available element templates to show in the playground
+   * @optional
+   */
+  elementTemplates?: Array<{
+    /**
+     * Template name
+     */
+    name: string;
+
+    /**
+     * Template description
+     */
+    description: string;
+
+    /**
+     * Template category
+     */
+    category: string;
+
+    /**
+     * BlockKit JSON template
+     */
+    json: string;
+
+    /**
+     * Optional replacements for the template
+     */
+    replacements?: Record<string, any>;
+  }>;
+
+  /**
+   * Validation configuration
+   * @optional
+   */
+  validation?: {
+    /**
+     * Whether to enable real-time validation
+     * @default true
+     */
+    enabled?: boolean;
+
+    /**
+     * Whether to show validation errors inline
+     * @default true
+     */
+    showInlineErrors?: boolean;
+
+    /**
+     * Whether to show validation warnings
+     * @default true
+     */
+    showWarnings?: boolean;
+
+    /**
+     * Custom validation rules
+     */
+    customRules?: Array<{
+      name: string;
+      description: string;
+      validator: string; // Function as string
+    }>;
+  };
+
+  /**
+   * Export/Import configuration
+   * @optional
+   */
+  exportConfig?: {
+    /**
+     * Available export formats
+     * @default ["json", "javascript", "typescript"]
+     */
+    formats?: Array<'json' | 'javascript' | 'typescript' | 'html'>;
+
+    /**
+     * Whether to include replacements in exports
+     * @default true
+     */
+    includeReplacements?: boolean;
+
+    /**
+     * Whether to enable import functionality
+     * @default true
+     */
+    enableImport?: boolean;
+  };
+
 }
 ```
 
@@ -178,7 +297,61 @@ interface OutputSchema {
   parsedBlocks: Array<{
     type: string;
     [key: string]: any;
-  
+  }>;
+
+  /**
+   * Validation results
+   */
+  validationResults: {
+    /**
+     * Whether the JSON is valid
+     */
+    isValid: boolean;
+
+    /**
+     * Validation errors
+     */
+    errors: Array<{
+      line: number;
+      column: number;
+      message: string;
+      severity: 'error' | 'warning';
+    }>;
+
+    /**
+     * Block-level validation results
+     */
+    blockValidation: Array<{
+      blockIndex: number;
+      isValid: boolean;
+      errors: string[];
+      warnings: string[];
+    }>;
+  };
+
+  /**
+   * Editor state information
+   */
+  editorState: {
+    /**
+     * Current cursor position
+     */
+    cursorPosition: {
+      line: number;
+      column: number;
+    };
+
+    /**
+     * Whether the content has been modified
+     */
+    isDirty: boolean;
+
+    /**
+     * Last save timestamp
+     */
+    lastSaved?: string;
+  };
+
 }
 ```
 
@@ -212,14 +385,191 @@ interface EventsSchema {
       linesRemoved: number;
       charactersAdded: number;
       charactersRemoved: number;
-    
+    };
+  };
+
+  /**
+   * Fired when replacements are updated
+   */
+  'replacements-changed': {
+    /**
+     * New replacements object
+     */
+    replacements: Record<string, any>;
+
+    /**
+     * Previous replacements object
+     */
+    previousReplacements: Record<string, any>;
+
+    /**
+     * Keys that were added, modified, or removed
+     */
+    changes: {
+      added: string[];
+      modified: string[];
+      removed: string[];
+    };
+  };
+
+  /**
+   * Fired when content is rendered in the preview
+   */
+  'content-rendered': {
+    /**
+     * Number of blocks rendered
+     */
+    blockCount: number;
+
+    /**
+     * Rendering time in milliseconds
+     */
+    renderTime: number;
+
+    /**
+     * Whether rendering was successful
+     */
+    success: boolean;
+
+    /**
+     * Render errors, if any
+     */
+    errors?: string[];
+  };
+
+  /**
+   * Fired when validation is performed
+   */
+  'validation-completed': {
+    /**
+     * Whether validation passed
+     */
+    isValid: boolean;
+
+    /**
+     * Number of errors found
+     */
+    errorCount: number;
+
+    /**
+     * Number of warnings found
+     */
+    warningCount: number;
+
+    /**
+     * Validation results
+     */
+    results: {
+      errors: Array<{
+        line: number;
+        column: number;
+        message: string;
+      }>;
+      warnings: Array<{
+        line: number;
+        column: number;
+        message: string;
+      }>;
+    };
+  };
+
+  /**
+   * Fired when a template is loaded
+   */
+  'template-loaded': {
+    /**
+     * Template name
+     */
+    templateName: string;
+
+    /**
+     * Template category
+     */
+    category: string;
+
+    /**
+     * Whether replacements were included
+     */
+    hasReplacements: boolean;
+  };
+
+  /**
+   * Fired when content is exported
+   */
+  'content-exported': {
+    /**
+     * Export format used
+     */
+    format: 'json' | 'javascript' | 'typescript' | 'html';
+
+    /**
+     * Size of exported content in bytes
+     */
+    size: number;
+
+    /**
+     * Whether replacements were included
+     */
+    includeReplacements: boolean;
+  };
+
+  /**
+   * Fired when content is imported
+   */
+  'content-imported': {
+    /**
+     * Import source
+     */
+    source: 'file' | 'paste' | 'url';
+
+    /**
+     * Size of imported content in bytes
+     */
+    size: number;
+
+    /**
+     * Whether import was successful
+     */
+    success: boolean;
+
+    /**
+     * Import errors, if any
+     */
+    errors?: string[];
+  };
+
+  /**
+   * Fired when user interacts with the preview
+   */
+  'preview-interaction': {
+    /**
+     * Type of interaction
+     */
+    interactionType: 'click' | 'hover' | 'focus';
+
+    /**
+     * Block that was interacted with
+     */
+    blockIndex: number;
+
+    /**
+     * Element type that was interacted with
+     */
+    elementType: string;
+
+    /**
+     * Additional interaction data
+     */
+    data?: Record<string, any>;
+  };
+
 }
 ```
 
 ### Event Handling
 
 ```javascript
-const element = elements.create('blockkit/playground', {
+const element = elements.create('blockkit/builder', {
   onEvent: (eventType, data) => {
     switch (eventType) {
       case 'eventName':
@@ -236,7 +586,7 @@ const element = elements.create('blockkit/playground', {
 ### Basic Example
 
 ```javascript
-const element = elements.create('blockkit/playground', {
+const element = elements.create('blockkit/builder', {
   config: {
     // Minimal configuration
   }
@@ -248,7 +598,7 @@ element.mount('#container');
 ### Modal Example
 
 ```javascript
-const element = elements.create('blockkit/playground', {
+const element = elements.create('blockkit/builder', {
   config: {
     // Your configuration
   }

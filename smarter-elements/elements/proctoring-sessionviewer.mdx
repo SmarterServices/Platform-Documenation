@@ -146,67 +146,236 @@ interface InputSchema {
   data?: string;
 
   /**
-   * Default tab to show in SessionDetails panel
-   * Valid values: 'flags', 'checkin', 'chat', 'journey', 'info', 'computer', 'identity'
+   * User type — determines permissions and UI layout
+   * @default 'proctor'
+   */
+  type?: 'proctor' | 'student';
+
+  /**
+   * Initial view mode for the session
+   * - 'live'     — real-time stream
+   * - 'recorded' — HLS playback of recorded session
+   */
+  viewMode?: 'live' | 'recorded';
+
+  /**
+   * Default tab to show in the SessionDetails panel
+   * Valid values: 'flags', 'checkin', 'chat', 'journey', 'info', 'computer', 'identity', 'incidentReport'
    * @default 'flags'
    */
   defaultSessionDetailsTab?: string;
 
   /**
-   * Enabled components configuration
-   * Controls which UI components are visible and active
+   * Controls which UI components are visible and active.
+   * See EnabledComponentsConfig for all available options.
    */
-  enabledComponents?: {
-    /**
-     * Session details panel configuration
-     * Can be boolean or object for advanced configuration
-     * 
-     * Boolean: true to enable with defaults, false to disable
-     * 
-     * Object: {
-     *   defaultTab?: string - Initial tab to display
-     *   tabs?: Array<string | { id: string, title: string, url?: string }> - Tab configuration
-     * }
-     * 
-     * @example
-     * // Simple enable/disable
-     * sessionDetails: true
-     * 
-     * @example
-     * // With default tab
-     * sessionDetails: {
-     *   defaultTab: 'checkin',
-     *   tabs: ['flags', 'checkin', 'chat', 'journey']
-     * }
-     * 
-     * @example
-     * // With custom tabs
-     * sessionDetails: {
-     *   defaultTab: 'custom',
-     *   tabs: [
-     *     'flags',
-     *     'checkin',
-     *     { id: 'custom', title: 'Custom Tab', url: '/custom-content' }
-     *   ]
-     * }
-     */
-    sessionDetails?: boolean | {
-      defaultTab?: string;
-      tabs?: Array<string | {
-        id: string;
-        title: string;
-        url?: string;
-      }>;
-    };
-    
-    timeline?: boolean;
-    sessionHeader?: boolean;
-    chat?: boolean;
-    microphone?: boolean;
-    camera?: boolean;
-    settings?: boolean;
-  };
+  enabledComponents?: EnabledComponentsConfig;
 
+  /**
+   * Video source configuration
+   */
+  video?: VideoConfig;
+
+  /**
+   * Video magnification (hover-to-zoom) configuration
+   */
+  magnification?: MagnificationConfig;
+
+  /**
+   * Initial audio device settings
+   */
+  settings?: SettingsConfig;
+
+  /**
+   * Proctor room SID this session is attached to — used for
+   * transfer operations and multi-room scenarios
+   */
+  attachedToProctorRoomSid?: string;
+
+  /**
+   * Whether this mount is a reconnection attempt
+   */
+  isReconnect?: boolean;
+
+}
+```
+
+### Supporting Types
+
+The following types are referenced by the input parameters above:
+
+```typescript
+/**
+ * Custom tab configuration for sessionDetails
+ */
+interface SessionDetailsCustomTab {
+  /** Unique identifier for the tab */
+  id: string;
+  /** Display title for the tab */
+  title: string;
+  /** URL for the tab content (renders in an iframe within the tab) */
+  url?: string;
+}
+
+/**
+ * Advanced sessionDetails configuration
+ */
+interface SessionDetailsConfig {
+  /**
+   * Initial tab to display when sessionDetails opens
+   * Valid values: 'flags', 'checkin', 'chat', 'journey', 'info', 'computer', 'identity', 'incidentReport'
+   * @default 'flags'
+   */
+  defaultTab?: string;
+
+  /**
+   * Whether the session details panel starts collapsed
+   * @default true
+   */
+  defaultCollapsed?: boolean;
+
+  /**
+   * Tab configuration — controls which tabs are shown and their order.
+   * Each entry can be a built-in tab ID string or a custom tab object.
+   *
+   * Built-in tab IDs: 'flags', 'checkin', 'chat', 'journey', 'info', 'computer', 'identity', 'incidentReport'
+   */
+  tabs?: Array<string | SessionDetailsCustomTab>;
+}
+
+/**
+ * Controls which UI components are visible and active in the SessionViewer.
+ * Each key toggles a feature on/off. sessionDetails additionally accepts
+ * an object for advanced configuration.
+ */
+interface EnabledComponentsConfig {
+  /**
+   * Session details panel — shows session metadata, flags, chat, journey, etc.
+   *
+   * - `true`  — enable with all default tabs
+   * - `false` — disable entirely
+   * - `SessionDetailsConfig` object — enable with advanced configuration
+   *
+   * @default false
+   */
+  sessionDetails?: boolean | SessionDetailsConfig;
+
+  /**
+   * Timeline scrubber bar for recorded session playback
+   * @default false
+   */
+  timeline?: boolean;
+
+  /**
+   * Session header bar showing session status, student name, and controls
+   * @default true
+   */
+  sessionHeader?: boolean;
+
+  /**
+   * Allow the viewer to enter full-screen mode
+   * @default true
+   */
+  allowFullScreen?: boolean;
+
+  /**
+   * Microphone controls — enables the viewer to share their microphone audio
+   * @default false
+   */
+  microphone?: boolean;
+
+  /**
+   * Camera controls — enables the viewer to share their camera video
+   * @default false
+   */
+  camera?: boolean;
+
+  /**
+   * Chat interface for communicating with the test taker
+   * @default false
+   */
+  chat?: boolean;
+
+  /**
+   * Screen share controls — enables the viewer to share their screen
+   * @default false
+   */
+  screenShare?: boolean;
+
+  /**
+   * Settings panel for audio device selection and other preferences
+   * @default false
+   */
+  settings?: boolean;
+
+  /**
+   * Leave button — allows the viewer to disconnect from the session
+   * @default false
+   */
+  leave?: boolean;
+}
+
+/**
+ * Video source configuration
+ */
+interface VideoConfig {
+  /**
+   * Available video sources
+   * @example ['live', 'recorded']
+   */
+  sources?: Array<'live' | 'recorded'>;
+
+  /**
+   * Default video source to display
+   * @default 'recorded'
+   */
+  default?: 'live' | 'recorded';
+}
+
+/**
+ * Magnification (hover-to-zoom) configuration for video feeds
+ */
+interface MagnificationConfig {
+  /**
+   * Whether magnification is enabled
+   * @default false
+   */
+  enabled?: boolean;
+
+  /**
+   * Zoom level multiplier (e.g., 2 = 2× zoom)
+   * @default 2
+   */
+  level?: number;
+
+  /**
+   * Diameter of the magnification lens in pixels
+   * @default 200
+   */
+  lensSize?: number;
+}
+
+/**
+ * Audio device specification
+ */
+interface AudioDeviceConfig {
+  /** Device ID (use "default" for system default) */
+  deviceId: string;
+  /** Human-readable device label */
+  label: string;
+}
+
+/**
+ * Initial settings configuration passed to the SessionViewer
+ */
+interface SettingsConfig {
+  /** Audio device settings */
+  audio?: {
+    /** Microphone input device */
+    input?: AudioDeviceConfig;
+    /** Speaker output device */
+    output?: AudioDeviceConfig;
+  };
 }
 ```
 
@@ -246,110 +415,6 @@ await element.openModal({
 });
 ```
 
-### Default Tab Example
-
-```jsx
-// Open SessionViewer with check-in tab active by default
-<SessionViewer
-  sessionSid="session-123"
-  examSid="exam-456"
-  defaultSessionDetailsTab="checkin"
-  {...otherProps}
-/>
-
-// Or dynamically set based on context
-<SessionViewer
-  sessionSid="session-123"
-  examSid="exam-456"
-  defaultSessionDetailsTab={isReviewMode ? "checkin" : "flags"}
-  {...otherProps}
-/>
-```
-
-### Session Details Configuration Examples
-
-```jsx
-// Simple boolean - enable with defaults
-<SessionViewer
-  sessionSid="session-123"
-  enabledComponents={{
-    sessionDetails: true,
-    chat: true
-  }}
-/>
-
-// Configure default tab and limit tabs
-<SessionViewer
-  sessionSid="session-123"
-  enabledComponents={{
-    sessionDetails: {
-      defaultTab: 'checkin',
-      tabs: ['flags', 'checkin', 'chat', 'journey']
-    }
-  }}
-/>
-
-// Add custom tabs with external content
-<SessionViewer
-  sessionSid="session-123"
-  enabledComponents={{
-    sessionDetails: {
-      defaultTab: 'custom',
-      tabs: [
-        'flags',
-        'checkin',
-        { 
-          id: 'custom', 
-          title: 'Custom Analytics', 
-          url: '/analytics/session-123' 
-        },
-        {
-          id: 'notes',
-          title: 'Proctor Notes',
-          url: '/notes/session-123'
-        }
-      ]
-    }
-  }}
-/>
-
-// Override tab titles
-<SessionViewer
-  sessionSid="session-123"
-  enabledComponents={{
-    sessionDetails: {
-      tabs: [
-        { id: 'flags', title: 'Annotations' },
-        { id: 'checkin', title: 'Verification' },
-        { id: 'chat', title: 'Messages' }
-      ]
-    }
-  }}
-/>
-```
-
-### Programmatic Control
-
-```jsx
-const sessionViewerRef = useRef(null);
-
-// Enable sessionDetails with configuration
-sessionViewerRef.current.enableComponents({
-  sessionDetails: {
-    defaultTab: 'checkin',
-    tabs: ['flags', 'checkin', 'chat']
-  }
-});
-
-// Change to simple boolean
-sessionViewerRef.current.enableComponents({
-  sessionDetails: true
-});
-
-// Disable
-sessionViewerRef.current.disableComponents(['sessionDetails']);
-```
-
 ## API Reference
 
 ### Element Methods
@@ -360,68 +425,6 @@ sessionViewerRef.current.disableComponents(['sessionDetails']);
 - `postMessage(data)` - Send message to element
 - `on(event, callback)` - Listen for events
 - `off(event, callback)` - Remove event listener
-
-### Imperative API (via ref)
-
-When using the SessionViewer component directly (not through SmarterElements), you can access these methods via ref:
-
-#### Component Control
-
-- `enableComponents(components)` - Enable one or more components with optional properties
-- `disableComponents(componentNames)` - Disable one or more components
-- `clearComponents()` - Clear all enabled components (set all to false)
-- `getEnabledComponents()` - Get list of currently enabled components and their properties
-
-#### Session Details Tab Control
-
-- `setSessionDetailsTab(tab)` - Set the active tab in SessionDetails panel
-  - Valid tab values: `'flags'`, `'checkin'`, `'chat'`, `'journey'`, `'info'`, `'computer'`, `'identity'`
-- `getSessionDetailsTab()` - Get the currently active SessionDetails tab
-
-#### Session Journey
-
-- `updateSessionJourney(payload)` - Update the session journey with step and status information
-
-#### Session Control
-
-- `endSession()` - End the current session
-
-### Usage Example
-
-```jsx
-import { useRef } from 'react';
-import { SessionViewer } from '@smarterservices/session-viewer';
-
-function MyComponent() {
-  const sessionViewerRef = useRef(null);
-  
-  const handleEnableChat = () => {
-    sessionViewerRef.current.enableComponents({
-      chat: true,
-      sessionDetails: true
-    });
-  };
-  
-  const handleShowCheckin = () => {
-    // Switch to the check-in tab
-    sessionViewerRef.current.setSessionDetailsTab('checkin');
-  };
-  
-  return (
-    <div>
-      <button onClick={handleEnableChat}>Enable Chat</button>
-      <button onClick={handleShowCheckin}>Show Check-in</button>
-      
-      <SessionViewer
-        ref={sessionViewerRef}
-        sessionSid="session-123"
-        defaultSessionDetailsTab="flags"
-        {...otherProps}
-      />
-    </div>
-  );
-}
-```
 
 ### Modal Options
 

@@ -105,7 +105,67 @@ interface InputSchema {
     blocks?: Array<{
         type: string;
         [key: string]: any;
-    
+    }>;
+
+    /**
+     * JSON string containing BlockKit elements
+     * @optional - Either blocks or blocksJson must be provided
+     */
+    blocksJson?: string;
+
+    /**
+     * Key-value pairs for dynamic content replacement
+     * @optional
+     * @example { "courseName": "React Fundamentals", "instructor": "John Doe" }
+     */
+    replacements?: Record<string, any>;
+
+    /**
+     * Theme configuration for the rendered content
+     * @optional
+     */
+    theme?: {
+        /**
+         * Primary color scheme
+         * @default "blue"
+         */
+        primaryColor?: 'blue' | 'green' | 'red' | 'purple' | 'orange' | 'gray';
+
+        /**
+         * Component size variant
+         * @default "medium"
+         */
+        size?: 'small' | 'medium' | 'large';
+
+        /**
+         * Border radius style
+         * @default "medium"
+         */
+        borderRadius?: 'none' | 'small' | 'medium' | 'large';
+    };
+
+    /**
+     * Accessibility configuration
+     * @optional
+     */
+    accessibility?: {
+        /**
+         * ARIA label for the rendered content
+         */
+        ariaLabel?: string;
+
+        /**
+         * ARIA description for the rendered content
+         */
+        ariaDescription?: string;
+
+        /**
+         * Whether to announce content changes to screen readers
+         * @default true
+         */
+        announceChanges?: boolean;
+    };
+
 }
 ```
 
@@ -128,7 +188,26 @@ interface OutputSchema {
     parsedBlocks: Array<{
         type: string;
         [key: string]: any;
-    
+    }>;
+
+    /**
+     * Current theme configuration
+     */
+    currentTheme: {
+        primaryColor: string;
+        size: string;
+        borderRadius: string;
+    };
+
+    /**
+     * Validation errors, if any
+     */
+    validationErrors: Array<{
+        blockIndex: number;
+        field: string;
+        message: string;
+    }>;
+
 }
 ```
 
@@ -158,7 +237,91 @@ interface EventsSchema {
          * Whether any replacements were applied
          */
         hasReplacements: boolean;
-    
+    };
+
+    /**
+     * Fired when there's an error rendering BlockKit content
+     */
+    'render-error': {
+        /**
+         * Error message
+         */
+        message: string;
+
+        /**
+         * Error code
+         */
+        code: 'INVALID_JSON' | 'VALIDATION_ERROR' | 'RENDER_ERROR';
+
+        /**
+         * Block index where error occurred (if applicable)
+         */
+        blockIndex?: number;
+    };
+
+    /**
+     * Fired when user interacts with rendered content
+     */
+    'content-interaction': {
+        /**
+         * Type of interaction
+         */
+        interactionType: 'click' | 'focus' | 'hover' | 'input';
+
+        /**
+         * Element that was interacted with
+         */
+        elementType: string;
+
+        /**
+         * Additional data about the interaction
+         */
+        data?: Record<string, any>;
+    };
+
+    /**
+     * Fired when content is updated with new blocks or replacements
+     */
+    'content-updated': {
+        /**
+         * Previous block count
+         */
+        previousBlockCount: number;
+
+        /**
+         * New block count
+         */
+        newBlockCount: number;
+
+        /**
+         * Whether replacements changed
+         */
+        replacementsChanged: boolean;
+    };
+
+    /**
+     * Fired when theme is changed
+     */
+    'theme-changed': {
+        /**
+         * Previous theme configuration
+         */
+        previousTheme: {
+            primaryColor: string;
+            size: string;
+            borderRadius: string;
+        };
+
+        /**
+         * New theme configuration
+         */
+        newTheme: {
+            primaryColor: string;
+            size: string;
+            borderRadius: string;
+        };
+    };
+
 }
 ```
 
