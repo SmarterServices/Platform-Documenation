@@ -110,11 +110,19 @@
         "groups": [
           {
             "group": "Getting Started",
-            "pages": ["proctoring/introduction", "proctoring/datamodel"]
+            "pages": [
+              "proctoring/introduction",
+              "proctoring/datamodel",
+              "proctoring/api/authentication",
+              "proctoring/api/resource-identifiers"
+            ]
           },
           {
-            "group": "API Reference",
-            "pages": ["proctoring/api/authentication", "proctoring/api/resource-identifiers"]
+            "group": "Common Integrations",
+            "pages": [
+              "proctoring/common-integrations/exam-platform",
+              "proctoring/common-integrations/reporting"
+            ]
           },
           {
             "group": "Endpoints",
