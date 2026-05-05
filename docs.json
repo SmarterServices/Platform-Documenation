@@ -16,9 +16,7 @@
         "groups": [
           {
             "group": "Getting Started",
-            "pages": [
-              "index"
-            ]
+            "pages": ["index"]
           },
           {
             "group": "Security & Authorization",
@@ -35,16 +33,11 @@
               },
               {
                 "group": "Advanced Features",
-                "pages": [
-                  "platform/security/conditions"
-                ]
+                "pages": ["platform/security/conditions"]
               },
               {
                 "group": "Implementation",
-                "pages": [
-                  "platform/security/clients",
-                  "platform/security/implementation"
-                ]
+                "pages": ["platform/security/clients", "platform/security/implementation"]
               }
             ]
           },
@@ -117,24 +110,15 @@
         "groups": [
           {
             "group": "Getting Started",
-            "pages": [
-              "proctoring/introduction",
-              "proctoring/datamodel"
-            ]
+            "pages": ["proctoring/introduction", "proctoring/datamodel"]
           },
           {
             "group": "API Reference",
-            "pages": [
-              "proctoring/api/authentication",
-              "proctoring/api/resource-identifiers",
-              {
-                "group": "Provisioning",
-                "icon": "building",
-                "pages": [
-                  "proctoring/api/exams/provision"
-                ]
-              }
-            ]
+            "pages": ["proctoring/api/authentication", "proctoring/api/resource-identifiers"]
+          },
+          {
+            "group": "Endpoints",
+            "openapi": "https://api.dev.smarterproctoring.com/openapi.json"
           }
         ]
       },
@@ -144,10 +128,7 @@
         "groups": [
           {
             "group": "Getting Started",
-            "pages": [
-              "smarter-elements/overview",
-              "smarter-elements/getting-started"
-            ]
+            "pages": ["smarter-elements/overview", "smarter-elements/getting-started"]
           },
           {
             "group": "Guides",
@@ -170,9 +151,7 @@
               },
               {
                 "group": "Proctoring",
-                "pages": [
-                  "smarter-elements/elements/proctoring-sessionviewer"
-                ]
+                "pages": ["smarter-elements/elements/proctoring-sessionviewer"]
               }
             ]
           }
@@ -186,10 +165,7 @@
     ]
   },
   "api": {
-    "openapi": [
-      "proctoring/api/openapi.json",
-      "assessment/api/openapi.json"
-    ]
+    "openapi": ["https://api.dev.smarterproctoring.com/openapi.json", "assessment/api/openapi.json"]
   },
   "logo": {
     "light": "https://cdn.prod.website-files.com/650b016f7e13a7d9de337f22/6629053ca1393100c09aa484_SmarterServices%20Logo.png",
