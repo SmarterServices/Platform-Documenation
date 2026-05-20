@@ -173,7 +173,7 @@
     ]
   },
   "api": {
-    "openapi": ["https://api.dev.smarterproctoring.com/openapi.json", "assessment/api/openapi.json"]
+    "openapi": ["https://api.smarterproctoring.com/openapi.json", "assessment/api/openapi.json"]
   },
   "logo": {
     "light": "https://cdn.prod.website-files.com/650b016f7e13a7d9de337f22/6629053ca1393100c09aa484_SmarterServices%20Logo.png",
