@@ -1,0 +1,58 @@
+---
+title: "Getting Started"
+description: "Introduction to SmarterMeasure webhooks"
+icon: "rocket"
+---
+
+# Getting Started with Webhooks
+
+Webhooks allow you to collect information about events as they happen in near real-time. Provide a URL, select when and where you want the URL to receive data about events, and we'll send it to you as the events take place.
+
+For more information about webhooks in general, visit [https://en.wikipedia.org/wiki/Webhook](https://en.wikipedia.org/wiki/Webhook).
+
+## How Webhooks Work
+
+1. **Registration**: You register a URL endpoint on your server to receive webhook notifications
+2. **Event Triggers**: When specific events occur in SmarterMeasure (e.g., assessment completion), our system sends an HTTP POST request to your registered endpoint
+3. **Processing**: Your application receives and processes the webhook payload, taking appropriate actions based on the event type
+
+## Configuring Webhooks
+
+Currently, webhooks must be configured by contacting our team at [developers@smartermeasure.com](mailto:developers@smartermeasure.com). Please provide:
+
+1. The URL endpoint where you want to receive webhook notifications
+2. The specific events you want to subscribe to
+3. The format you prefer (JSON or XML)
+
+## Securing Webhooks
+
+We support both HTTP and HTTPS URLs, so you can have added security by using SSL-enabled URLs (and we suggest this). Keep in mind your endpoint will remain wide open to the Internet, and you might not want to allow others to submit random data to your systems.
+
+### Verification Key
+
+As an added layer of security, we provide a verification key in each request you can use to validate the request. The verification key is assigned when your webhooks are provisioned and applies to all webhook events.
+
+#### Header Method
+
+The verification key is always sent in the header of the request as the parameter `X-SmarterMeasure-Verification-Key`.
+
+```
+X-SmarterMeasure-Verification-Key = 1b6ea66ad36c11e291fef23c91aec05e
+```
+
+#### URL Method
+
+Some integrations do not support access to the header data. In this case, you can include the key in the URL. To do this, append `VerificationKey={VerificationKey}` to your endpoint URL. The SmarterMeasure system will replace the `{VerificationKey}` value with your actual verification key at run-time.
+
+```
+// If your endpoint URL when configuring your webhook looks like this:
+https://mydomain.com/smartermeasure-webhooks?verificationkey={verificationkey}
+
+// The URL that is requested will look like this:
+https://mydomain.com/smartermeasure-webhooks?verificationkey=1b6ea66ad36c11e291fef23c91aec05e
+```
+
+## Next Steps
+
+- Learn about [Events & Payloads](/assessment/webhooks/events-and-payloads) to understand what data you'll receive
+- Review [Testing & Troubleshooting](/assessment/webhooks/testing-and-troubleshooting) for best practices

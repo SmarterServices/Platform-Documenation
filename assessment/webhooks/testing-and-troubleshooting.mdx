@@ -1,0 +1,65 @@
+---
+title: "Testing & Troubleshooting"
+description: "Testing webhooks and best practices"
+icon: "bug"
+---
+
+# Testing & Troubleshooting
+
+## Testing Webhooks
+
+Before implementing webhook handlers in production, you can test webhook delivery using tools like:
+
+- [RequestBin](https://requestbin.com/) - Creates temporary endpoints to inspect webhook payloads
+- [Webhook.site](https://webhook.site/) - Provides instant webhook URLs for testing
+- [Ngrok](https://ngrok.com/) - Exposes your local development server to the internet for webhook testing
+
+These tools let you see the exact payloads that will be sent, so you can verify your parsing logic before going live.
+
+## Retry Policy
+
+When an event occurs that you have turned on, we will send an HTTP POST request to the URL specified for the given event. If we receive an HTTP Response code of 200, we deem the request as being successful; anything else will be considered a failure.
+
+If the request is considered a failure, the URL is unavailable, or the request takes too long to respond (more than 10 seconds), we'll cancel the request and try again later:
+
+- Retries occur at 15-minute intervals
+- Retries continue for up to 48 hours (192 attempts total)
+- After 48 hours, failed webhooks are discarded
+
+<Warning>
+It cannot be assumed that webhook callbacks are sent in the proper order. Your application should check the request timestamp and act appropriately.
+</Warning>
+
+## Best Practices
+
+1. **Respond quickly**: Return a 2xx status code as soon as possible, even before processing the webhook. This prevents timeouts and unnecessary retries.
+
+2. **Process asynchronously**: Handle time-consuming operations outside the request-response cycle. Queue the webhook for background processing and respond immediately.
+
+3. **Verify the verification key**: Always validate the `X-SmarterMeasure-Verification-Key` (or URL parameter) to ensure the request is authentic.
+
+4. **Check timestamps**: Don't assume webhooks arrive in order; use the timestamp fields in the payload to process events correctly.
+
+5. **Handle retries**: Be prepared for duplicate deliveries due to the retry mechanism. Use the `callback_id` to track which webhooks you've already processed.
+
+6. **Log everything**: Keep detailed logs of webhook receipts, processing, and responses to help debug issues.
+
+## Common Issues
+
+### Not receiving webhooks
+
+- Verify your URL is publicly accessible and not behind a firewall
+- Check that your endpoint returns a 200 status code
+- Ensure your server responds within 10 seconds
+
+### Duplicate webhooks
+
+- This is expected due to the retry mechanism
+- Use the `callback_id` to deduplicate on your end
+
+### Out of order webhooks
+
+- Webhooks may not arrive in chronological order
+- Always use timestamps from the payload, not the request time
+
+For assistance with webhook implementation or troubleshooting, please contact our team at [developers@smartermeasure.com](mailto:developers@smartermeasure.com).

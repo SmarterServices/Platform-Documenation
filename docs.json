@@ -101,6 +101,14 @@
                 ]
               }
             ]
+          },
+          {
+            "group": "Webhooks",
+            "pages": [
+              "assessment/webhooks/getting-started",
+              "assessment/webhooks/events-and-payloads",
+              "assessment/webhooks/testing-and-troubleshooting"
+            ]
           }
         ]
       },

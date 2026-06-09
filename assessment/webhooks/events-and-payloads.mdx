@@ -1,0 +1,442 @@
+---
+title: "Events & Payloads"
+description: "Webhook events and payload formats"
+icon: "code"
+---
+
+# Events & Payloads
+
+## Supported Events
+
+Our webhooks implementation allows for a basic set of assessment-based events that you can capture. We are open to adding more event types as they are required by our customers. If you have a need for a new event type, please contact [developers@smartermeasure.com](mailto:developers@smartermeasure.com) with your request.
+
+| Event | Fired when... |
+|-------|---------------|
+| `assessment.created` | An assessment is created. |
+| `assessment.section-start` | A section is started. This request will include the section that is being started. **Note:** This can be fired multiple times if the user leaves and returns to the assessment without submitting the answers. |
+| `assessment.section-complete` | A section is completed. This request will include the scoring details for the section completed. |
+| `assessment.completed` | The assessment is 100% complete. |
+| `assessment.stopped` | The user has chosen to stop taking the assessment for the current period. |
+
+## Event Formats
+
+When event data is sent back in the HTTP POST, it can be sent as either JSON or XML. This setting can be configured for each event type. The sample event data below includes both formats.
+
+## Event Data Structure
+
+When an event occurs that you have turned on, we will send an HTTP POST request to the URL specified for the given event. If we receive an HTTP Response code of 200, we deem the request as being successful; anything else will be considered a failure.
+
+If the request is considered a failure, the URL is unavailable, or the request takes too long to respond (more than 10 seconds), we'll cancel the request and try again later. Retries will be sent for the next 48 hours at 15 minute intervals — effectively 192 attempts.
+
+<Warning>
+It cannot be assumed that webhook callbacks are sent in the proper order. Your application should check the request timestamp and act appropriately.
+</Warning>
+
+Each event will contain a `callback_id` to help you track the actual ID of the callback in our system and an `event` field that will allow you to track the type of event that was fired.
+
+### assessment.created
+
+```json
+{
+  "callback_id": "6cec1a2a710b431f9c8a51cdc55854c2",
+  "callback_event": "assessment.created",
+  "user": {
+    "user_id": "8152142",
+    "internal_id": "",
+    "first_name": "Demo",
+    "last_name": "User",
+    "email": "demouser@smartermeasure.com",
+    "assessment_pin": "j8rScGZR",
+    "date_created": "2013-06-12T03:30:00Z",
+    "metadata": []
+  },
+  "rest_api_uris": {
+    "version": "3",
+    "user": "/users/8152142",
+    "user_results": "/users/8152142/results"
+  }
+}
+```
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<callback id="f0496ec7832b4998a02a3fd884a04c7d" event="assessment.created">
+  <user>
+    <user_id>8152143</user_id>
+    <internal_id></internal_id>
+    <first_name>Demo</first_name>
+    <last_name>User</last_name>
+    <email>demouser@smartermeasure.com</email>
+    <assessment_pin>gBsKbT54</assessment_pin>
+    <date_created>2013-06-12T03:54:38Z</date_created>
+    <metadata></metadata>
+  </user>
+  <rest_api_uris version="3">
+    <user>/users/8152143</user>
+    <user_results>/users/8152143/results</user_results>
+  </rest_api_uris>
+</callback>
+```
+
+### assessment.section-start
+
+```json
+{
+  "callback_event": "assessment.section-start",
+  "callback_id": "e5aee4250b8a431190d9d415c3604a46",
+  "rest_api_uris": {
+    "report_link": "/users/8152142/reportlink",
+    "user": "/users/8152142",
+    "version": "3"
+  },
+  "section": {
+    "code": "LifeFactors"
+  },
+  "user": {
+    "completion_percentage": "14",
+    "date_created": "2013-06-12T03:30:00Z",
+    "date_updated": "2013-06-12T03:32:59Z",
+    "email": "demouser@smartermeasure.com",
+    "first_name": "Demo",
+    "internal_id": "",
+    "last_name": "User",
+    "metadata": [],
+    "user_id": "8152142"
+  }
+}
+```
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<callback id="24483701a56e43e3b52cced121f2bc49" event="assessment.section-start">
+  <user>
+    <user_id>8152143</user_id>
+    <internal_id></internal_id>
+    <first_name>Demo</first_name>
+    <last_name>User</last_name>
+    <email>demouser@smartermeasure.com</email>
+    <completion_percentage>14</completion_percentage>
+    <date_created>2013-06-12T03:54:38Z</date_created>
+    <date_updated>2013-06-12T03:56:10Z</date_updated>
+    <metadata></metadata>
+  </user>
+  <section>
+    <code>LifeFactors</code>
+  </section>
+  <rest_api_uris version="3">
+    <user>/users/8152143</user>
+    <report_link>/users/8152143/reportlink</report_link>
+  </rest_api_uris>
+</callback>
+```
+
+### assessment.section-complete
+
+```json
+{
+  "callback_event": "assessment.section-complete",
+  "callback_id": "e5aee4250b8a431190d9d415c3604a46",
+  "rest_api_uris": {
+    "report_link": "/users/8152142/reportlink",
+    "user": "/users/8152142",
+    "version": "3"
+  },
+  "section": {
+    "code": "LifeFactors",
+    "completed": "true",
+    "date_scored": "2013-06-12T03:33:00Z",
+    "results": {
+      "readiness": "fail",
+      "scores": [
+        { "type": "possible", "units": "points", "value": "100" },
+        { "type": "earned", "units": "points", "value": "63" },
+        { "type": "calculated-percentage", "units": "percentage", "value": "63" }
+      ],
+      "subscales": [
+        { "code": "place", "scores": [
+          { "type": "possible", "units": "points", "value": "20" },
+          { "type": "earned", "units": "points", "value": "13" },
+          { "type": "calculated-percentage", "units": "percentage", "value": "65" }
+        ]},
+        { "code": "reason", "scores": [
+          { "type": "possible", "units": "points", "value": "20" },
+          { "type": "earned", "units": "points", "value": "11" },
+          { "type": "calculated-percentage", "units": "percentage", "value": "55" }
+        ]},
+        { "code": "resources", "scores": [
+          { "type": "possible", "units": "points", "value": "20" },
+          { "type": "earned", "units": "points", "value": "13" },
+          { "type": "calculated-percentage", "units": "percentage", "value": "65" }
+        ]},
+        { "code": "skills", "scores": [
+          { "type": "possible", "units": "points", "value": "20" },
+          { "type": "earned", "units": "points", "value": "9" },
+          { "type": "calculated-percentage", "units": "percentage", "value": "45" }
+        ]},
+        { "code": "time", "scores": [
+          { "type": "possible", "units": "points", "value": "20" },
+          { "type": "earned", "units": "points", "value": "17" },
+          { "type": "calculated-percentage", "units": "percentage", "value": "85" }
+        ]}
+      ]
+    }
+  },
+  "user": {
+    "completion_percentage": "14",
+    "date_created": "2013-06-12T03:30:00Z",
+    "date_updated": "2013-06-12T03:32:59Z",
+    "email": "demouser@smartermeasure.com",
+    "first_name": "Demo",
+    "internal_id": "",
+    "last_name": "User",
+    "metadata": [],
+    "user_id": "8152142"
+  }
+}
+```
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<callback id="24483701a56e43e3b52cced121f2bc49" event="assessment.section-complete">
+  <user>
+    <user_id>8152143</user_id>
+    <internal_id></internal_id>
+    <first_name>Demo</first_name>
+    <last_name>User</last_name>
+    <email>demouser@smartermeasure.com</email>
+    <completion_percentage>14</completion_percentage>
+    <date_created>2013-06-12T03:54:38Z</date_created>
+    <date_updated>2013-06-12T03:56:10Z</date_updated>
+    <metadata></metadata>
+  </user>
+  <section>
+    <code>LifeFactors</code>
+    <completed>true</completed>
+    <date_scored>2013-06-12T03:56:00Z</date_scored>
+    <results>
+      <readiness>fail</readiness>
+      <scores>
+        <score>
+          <value>100</value>
+          <units>points</units>
+          <type>possible</type>
+        </score>
+        <score>
+          <value>67</value>
+          <units>points</units>
+          <type>earned</type>
+        </score>
+        <score>
+          <value>67</value>
+          <units>percentage</units>
+          <type>calculated-percentage</type>
+        </score>
+      </scores>
+      <subscales>
+        <subscale code="place">
+          <score>
+            <value>20</value>
+            <units>points</units>
+            <type>possible</type>
+          </score>
+          <score>
+            <value>17</value>
+            <units>points</units>
+            <type>earned</type>
+          </score>
+          <score>
+            <value>85</value>
+            <units>percentage</units>
+            <type>calculated-percentage</type>
+          </score>
+        </subscale>
+        <subscale code="reason">
+          <score>
+            <value>20</value>
+            <units>points</units>
+            <type>possible</type>
+          </score>
+          <score>
+            <value>15</value>
+            <units>points</units>
+            <type>earned</type>
+          </score>
+          <score>
+            <value>75</value>
+            <units>percentage</units>
+            <type>calculated-percentage</type>
+          </score>
+        </subscale>
+        <subscale code="resources">
+          <score>
+            <value>20</value>
+            <units>points</units>
+            <type>possible</type>
+          </score>
+          <score>
+            <value>13</value>
+            <units>points</units>
+            <type>earned</type>
+          </score>
+          <score>
+            <value>65</value>
+            <units>percentage</units>
+            <type>calculated-percentage</type>
+          </score>
+        </subscale>
+        <subscale code="skills">
+          <score>
+            <value>20</value>
+            <units>points</units>
+            <type>possible</type>
+          </score>
+          <score>
+            <value>11</value>
+            <units>points</units>
+            <type>earned</type>
+          </score>
+          <score>
+            <value>55</value>
+            <units>percentage</units>
+            <type>calculated-percentage</type>
+          </score>
+        </subscale>
+        <subscale code="time">
+          <score>
+            <value>20</value>
+            <units>points</units>
+            <type>possible</type>
+          </score>
+          <score>
+            <value>11</value>
+            <units>points</units>
+            <type>earned</type>
+          </score>
+          <score>
+            <value>55</value>
+            <units>percentage</units>
+            <type>calculated-percentage</type>
+          </score>
+        </subscale>
+      </subscales>
+    </results>
+  </section>
+  <rest_api_uris version="3">
+    <user>/users/8152143</user>
+    <report_link>/users/8152143/reportlink</report_link>
+  </rest_api_uris>
+</callback>
+```
+
+### assessment.completed
+
+```json
+{
+  "callback_event": "assessment.completed",
+  "callback_id": "c79f74c88f134347b237fb3f0a0b11cb",
+  "rest_api_uris": {
+    "user": "/users/8152142",
+    "user_results": "/users/8152142/results",
+    "version": "3"
+  },
+  "user": {
+    "assessment_pin": "j8rScGZR",
+    "date_created": "2013-06-12T03:30:00Z",
+    "date_updated": "2013-06-12T03:32:59Z",
+    "email": "demouser@smartermeasure.com",
+    "first_name": "Demo",
+    "internal_id": "",
+    "last_name": "User",
+    "metadata": [],
+    "user_id": "8152142"
+  }
+}
+```
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<callback id="d979062a379741668a92bd85c7b08aab" event="assessment.completed">
+  <user>
+    <user_id>8152143</user_id>
+    <internal_id></internal_id>
+    <first_name>Demo</first_name>
+    <last_name>User</last_name>
+    <email>demouser@smartermeasure.com</email>
+    <assessment_pin>gBsKbT54</assessment_pin>
+    <date_created>2013-06-12T03:54:38Z</date_created>
+    <date_updated>2013-06-12T03:56:10Z</date_updated>
+    <metadata></metadata>
+  </user>
+  <rest_api_uris version="3">
+    <user>/users/8152143</user>
+    <user_results>/users/8152143/results</user_results>
+  </rest_api_uris>
+</callback>
+```
+
+### assessment.stopped
+
+```json
+{
+  "callback_event": "assessment.stopped",
+  "callback_id": "c79f74c88f134347b237fb3f0a0b11cb",
+  "rest_api_uris": {
+    "user": "/users/8152142",
+    "user_results": "/users/8152142/results",
+    "version": "3"
+  },
+  "user": {
+    "assessment_pin": "j8rScGZR",
+    "completion_percentage": "14",
+    "date_created": "2013-06-12T03:30:00Z",
+    "date_updated": "2013-06-12T03:32:59Z",
+    "email": "demouser@smartermeasure.com",
+    "first_name": "Demo",
+    "internal_id": "",
+    "last_name": "User",
+    "metadata": [],
+    "user_id": "8152142"
+  }
+}
+```
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<callback id="d979062a379741668a92bd85c7b08aab" event="assessment.stopped">
+  <user>
+    <user_id>8152143</user_id>
+    <internal_id></internal_id>
+    <first_name>Demo</first_name>
+    <last_name>User</last_name>
+    <email>demouser@smartermeasure.com</email>
+    <assessment_pin>gBsKbT54</assessment_pin>
+    <date_created>2013-06-12T03:54:38Z</date_created>
+    <date_updated>2013-06-12T03:56:10Z</date_updated>
+    <completion_percentage>14</completion_percentage>
+    <metadata></metadata>
+  </user>
+  <rest_api_uris version="3">
+    <user>/users/8152143</user>
+    <user_results>/users/8152143/results</user_results>
+  </rest_api_uris>
+</callback>
+```
+
+## Section Code Mappings
+
+Each section-specific payload will include a `code` key to let the target application know which section was started or completed.
+
+| Section Code | Assessment Section |
+|--------------|-------------------|
+| `PersonalAttributes` | Individual Attributes |
+| `LearnStyles` | Learning Styles |
+| `LifeFactors` | Life Factors |
+| `Math` | Math |
+| `PersonalInfo` | Personal Information |
+| `personalRating` | Personal Rating |
+| `Reading` | Reading Rate & Recall |
+| `student-svc-interest` | Student Services Interest |
+| `TechComp` | Technical Competency |
+| `TechKnowledge` | Technical Knowledge |
+| `Typing` | Typing Speed & Accuracy |
+| `writing` | Writing |

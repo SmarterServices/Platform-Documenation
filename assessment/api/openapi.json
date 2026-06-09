@@ -1,375 +1,1484 @@
 {
-    "openapi": "3.0.3",
-    "info": {
-      "title": "Multi-Server API",
-      "version": "1.0.0"
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Multi-Server API",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.defaultservice.com/v1",
+      "description": "Default service base URL"
+    }
+  ],
+  "security": [
+    {
+      "basicAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "basicAuth": {
+        "type": "http",
+        "scheme": "basic",
+        "description": "Basic authentication with username and password"
+      }
     },
-    "servers": [
-      {
-        "url": "https://api.defaultservice.com/v1",
-        "description": "Default service base URL"
-      }
-    ],
-    "security": [
-      {
-        "basicAuth": []
-      }
-    ],
-    "components": {
-      "securitySchemes": {
-        "basicAuth": {
-          "type": "http",
-          "scheme": "basic",
-          "description": "Basic authentication with username and password"
-        }
-      }
-    },
-    "paths": {
-      "/users": {
-        "servers": [
-          {
-            "url": "https://api.smartermeasure.com/v3",
-            "description": "SmarterMeasure User Service"
+    "schemas": {
+      "UserRecord": {
+        "type": "object",
+        "properties": {
+          "UserId": { "type": "string" },
+          "AssessmentKey": {
+            "type": "string",
+            "description": "The assessment key for the group the user belongs to."
+          },
+          "AdministrativeGroupKey": {
+            "type": "string",
+            "description": "The administrative group key for the user."
+          },
+          "FirstName": { "type": "string" },
+          "LastName": { "type": "string" },
+          "Email": { "type": "string", "format": "email" },
+          "InternalId": { "type": "string" },
+          "AccessCode": {
+            "type": "string",
+            "description": "The user's assessment access (PIN) code."
+          },
+          "CompletionPercentage": {
+            "type": "string",
+            "description": "Percentage of the assessment completed (0-100)."
+          },
+          "DateTimeStarted": { "type": "string", "format": "date-time" },
+          "DateTimeLastUpdated": {
+            "description": "Date the assessment was last updated. Empty array if not yet updated.",
+            "oneOf": [
+              { "type": "string", "format": "date-time" },
+              { "type": "array", "items": {} }
+            ]
+          },
+          "DateTimeCompleted": {
+            "description": "Date the assessment was completed. Empty array if not yet completed.",
+            "oneOf": [
+              { "type": "string", "format": "date-time" },
+              { "type": "array", "items": {} }
+            ]
+          },
+          "HowManyCourses": { "type": "array", "items": {} },
+          "AgeRange": { "type": "array", "items": {} },
+          "Gender": { "type": "array", "items": {} },
+          "Uri": {
+            "type": "string",
+            "description": "Relative URI to retrieve this user's details."
           }
-        ],
-        "get": {
-          "summary": "Returns all users.",
-          "parameters": [
-            { "in": "query", "name": "UserID", "schema": { "type": "string" }, "description": "Only show users with this UserID." },
-            { "in": "query", "name": "InternalID", "schema": { "type": "string" }, "description": "Only show users with this InternalID." },
-            { "in": "query", "name": "Email", "schema": { "type": "string" }, "description": "Only show users with this email address." },
-            { "in": "query", "name": "FirstName", "schema": { "type": "string" }, "description": "Only show users with this first name." },
-            { "in": "query", "name": "LastName", "schema": { "type": "string" }, "description": "Only show users with this last name." },
-            { "in": "query", "name": "AccessCode", "schema": { "type": "string" }, "description": "Only show users with this access code." },
-            { "in": "query", "name": "OrderBy", "schema": { "type": "string" }, "description": "How the results should be ordered." },
-            { "in": "query", "name": "ExcludeCustomQuestions", "schema": { "type": "boolean", "default": true }, "description": "Exclude custom questions from results." },
-            { "in": "query", "name": "limit", "schema": { "type": "integer", "default": 50, "maximum": 1000 }, "description": "Limit number of records returned." },
-            { "in": "query", "name": "offset", "schema": { "type": "integer", "default": 1 }, "description": "Offset of the first row." },
-            { "in": "query", "name": "AssessmentKey", "schema": { "type": "string" }, "description": "Comma delimited list of AssessmentKeys." },
-            { "in": "query", "name": "AdministrativeGroupKey", "schema": { "type": "string" }, "description": "Comma delimited list of AdministrativeGroupKeys." }
-          ],
-          "responses": {
-            "200": {
-              "description": "A list of users."
+        }
+      },
+      "UserDetail": {
+        "type": "object",
+        "properties": {
+          "UserId": { "type": "string" },
+          "FirstName": { "type": "string" },
+          "LastName": { "type": "string" },
+          "Email": { "type": "string", "format": "email" },
+          "InternalId": { "type": "string" },
+          "AccessCode": {
+            "type": "string",
+            "description": "The user's assessment access (PIN) code."
+          },
+          "CompletionPercentage": {
+            "type": "string",
+            "description": "Percentage of the assessment completed (0-100)."
+          },
+          "DateTimeStarted": { "type": "string", "format": "date-time" },
+          "DateTimeLastUpdated": {
+            "description": "Date the assessment was last updated. Empty array if not yet updated.",
+            "oneOf": [
+              { "type": "string", "format": "date-time" },
+              { "type": "array", "items": {} }
+            ]
+          },
+          "DateTimeCompleted": {
+            "description": "Date the assessment was completed. Empty array if not yet completed.",
+            "oneOf": [
+              { "type": "string", "format": "date-time" },
+              { "type": "array", "items": {} }
+            ]
+          },
+          "HowManyCourses": { "type": "array", "items": {} },
+          "AgeRange": { "type": "array", "items": {} },
+          "Gender": { "type": "array", "items": {} },
+          "Uri": { "type": "string", "description": "Relative URI for this user." },
+          "CustomData": {
+            "type": "array",
+            "description": "Custom question responses configured for the account.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "QuestionId": { "type": "string" },
+                "ParameterId": {
+                  "type": "string",
+                  "description": "The parameter name used when passing custom data into the system."
+                },
+                "Response": {
+                  "description": "The user's response. Empty array if no response has been recorded.",
+                  "oneOf": [{ "type": "string" }, { "type": "array", "items": {} }]
+                }
+              }
             }
           }
-        },
-        "post": {
-          "summary": "Create a new user.",
-          "requestBody": {
-            "required": true,
+        }
+      },
+      "UserResultSummary": {
+        "type": "object",
+        "properties": {
+          "RowNumber": { "type": "string" },
+          "UserId": { "type": "string" },
+          "InternalId": { "type": "string" },
+          "CompletionPercentage": {
+            "type": "string",
+            "description": "Percentage of the assessment completed (0-100)."
+          },
+          "DateTimeTaken": { "type": "string", "format": "date-time" },
+          "DateTimeLastUpdated": { "type": "string", "format": "date-time" },
+          "DateTimeCompleted": { "type": "string", "format": "date-time" },
+          "Account": {
+            "type": "object",
+            "properties": {
+              "Id": { "type": "string" },
+              "Name": { "type": "string" }
+            }
+          },
+          "FirstName": { "type": "string" },
+          "LastName": { "type": "string" },
+          "EmailAddress": { "type": "string", "format": "email" },
+          "AssessmentResults": {
+            "type": "array",
+            "description": "Completion status for each assessment section.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "Title": { "type": "string", "description": "Human-readable section name." },
+                "Code": {
+                  "type": "string",
+                  "description": "Section code identifier (e.g. LearnStyles, LifeFactors)."
+                },
+                "IsComplete": {
+                  "type": "string",
+                  "description": "Whether the section is complete. 1 = complete, 0 = incomplete."
+                },
+                "AttemptNumber": { "type": "string" },
+                "Percent": {
+                  "type": "string",
+                  "description": "Percentage score. Only present when IsComplete is 1."
+                },
+                "Readiness": {
+                  "type": "string",
+                  "description": "Readiness determination (pass, fail, question). Only present when IsComplete is 1."
+                },
+                "Primary": {
+                  "type": "string",
+                  "description": "Primary learning style(s). Only present for the LearnStyles section."
+                },
+                "DateTimeCompleted": { "type": "string", "format": "date-time" }
+              }
+            }
+          }
+        }
+      },
+      "UserResult": {
+        "type": "object",
+        "properties": {
+          "RowNumber": { "type": "string" },
+          "UserId": { "type": "string" },
+          "InternalId": { "type": "string" },
+          "CompletionPercentage": {
+            "type": "string",
+            "description": "Percentage of the assessment completed (0-100)."
+          },
+          "DateTimeTaken": { "type": "string", "format": "date-time" },
+          "DateTimeLastUpdated": { "type": "string", "format": "date-time" },
+          "DateTimeCompleted": { "type": "string", "format": "date-time" },
+          "Account": {
+            "type": "object",
+            "properties": {
+              "Id": { "type": "string" },
+              "Name": { "type": "string" }
+            }
+          },
+          "Assessment": {
+            "type": "object",
+            "properties": {
+              "AdminGroupId": { "type": "string" },
+              "AdminGroupName": { "type": "string" },
+              "TestTakerGroupID": { "type": "string" },
+              "TestTakerGroupName": { "type": "string" }
+            }
+          },
+          "FirstName": { "type": "string" },
+          "LastName": { "type": "string" },
+          "EmailAddress": { "type": "string", "format": "email" },
+          "CompositeScore": {
+            "description": "Overall composite score. Empty array when assessment is incomplete, string score when complete.",
+            "oneOf": [{ "type": "string" }, { "type": "array", "items": {} }]
+          },
+          "DemographicData": {
+            "type": "object",
+            "description": "Demographic data collected during assessment registration.",
+            "properties": {
+              "Gender": { "type": "array", "items": {} },
+              "AgeRange": { "type": "array", "items": {} },
+              "Ethnicity": { "type": "array", "items": {} },
+              "HowManyCourses": { "type": "array", "items": {} },
+              "RightSchoolForMe": { "type": "array", "items": {} },
+              "FirstGeneration": { "type": "array", "items": {} }
+            }
+          },
+          "AssessmentResults": {
+            "description": "Scores for each completed assessment section. Empty string when no sections have been completed.",
+            "oneOf": [
+              { "type": "string" },
+              {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "Title": { "type": "string", "description": "Human-readable section name." },
+                    "Code": {
+                      "type": "string",
+                      "description": "Section code identifier (e.g. LearnStyles, LifeFactors)."
+                    },
+                    "IsComplete": {
+                      "type": "string",
+                      "description": "Whether the section is complete. 1 = complete, 0 = incomplete."
+                    },
+                    "AttemptNumber": { "type": "string" },
+                    "Percent": {
+                      "type": "string",
+                      "description": "Percentage score for the section."
+                    },
+                    "PointsPossible": { "type": "string" },
+                    "PointsAccumulated": { "type": "string" },
+                    "SectionVersionID": { "type": "string" },
+                    "DateTimeCompleted": { "type": "string", "format": "date-time" },
+                    "Readiness": {
+                      "type": "string",
+                      "description": "Readiness determination. Typically 'pass' or 'fail'. Not present for all sections."
+                    },
+                    "Primary": {
+                      "type": "string",
+                      "description": "Primary learning style. Only present for the LearnStyles section."
+                    },
+                    "Wpm": {
+                      "type": "string",
+                      "description": "Words per minute. Only present for Reading and Typing sections."
+                    },
+                    "Accuracy": {
+                      "type": "string",
+                      "description": "Typing accuracy percentage. Only present for the Typing section."
+                    },
+                    "ExtendedData": {
+                      "type": "array",
+                      "description": "Detailed subscale scores. Only present for sections that support subscales.",
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "Code": {
+                              "type": "string",
+                              "description": "Subscale code identifier."
+                            },
+                            "Title": {
+                              "type": "string",
+                              "description": "Human-readable subscale name."
+                            },
+                            "PointsPossible": { "type": "string" },
+                            "PointsAccumulated": { "type": "string" }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/users": {
+      "servers": [
+        {
+          "url": "https://api.smartermeasure.com/v3",
+          "description": "SmarterMeasure User Service"
+        }
+      ],
+      "get": {
+        "summary": "Returns all users.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "UserID",
+            "schema": { "type": "string" },
+            "description": "Only show users with this UserID."
+          },
+          {
+            "in": "query",
+            "name": "InternalID",
+            "schema": { "type": "string" },
+            "description": "Only show users with this InternalID."
+          },
+          {
+            "in": "query",
+            "name": "Email",
+            "schema": { "type": "string" },
+            "description": "Only show users with this email address."
+          },
+          {
+            "in": "query",
+            "name": "FirstName",
+            "schema": { "type": "string" },
+            "description": "Only show users with this first name."
+          },
+          {
+            "in": "query",
+            "name": "LastName",
+            "schema": { "type": "string" },
+            "description": "Only show users with this last name."
+          },
+          {
+            "in": "query",
+            "name": "AccessCode",
+            "schema": { "type": "string" },
+            "description": "Only show users with this access code."
+          },
+          {
+            "in": "query",
+            "name": "OrderBy",
+            "schema": { "type": "string" },
+            "description": "How the results should be ordered."
+          },
+          {
+            "in": "query",
+            "name": "ExcludeCustomQuestions",
+            "schema": { "type": "boolean", "default": true },
+            "description": "Exclude custom questions from results."
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": { "type": "integer", "default": 50, "maximum": 1000 },
+            "description": "Limit number of records returned."
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "schema": { "type": "integer", "default": 1 },
+            "description": "Offset of the first row."
+          },
+          {
+            "in": "query",
+            "name": "AssessmentKey",
+            "schema": { "type": "string" },
+            "description": "Comma delimited list of AssessmentKeys."
+          },
+          {
+            "in": "query",
+            "name": "AdministrativeGroupKey",
+            "schema": { "type": "string" },
+            "description": "Comma delimited list of AdministrativeGroupKeys."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of users.",
             "content": {
               "application/json": {
+                "example": {
+                  "NumPages": "173",
+                  "Page": "1",
+                  "PageSize": "2",
+                  "Total": "345",
+                  "Start": "1",
+                  "End": "2",
+                  "FirstPageUri": "/v3/users?PageSize=2&PAGE=1",
+                  "LastPageUri": "/v3/users?PageSize=2&PAGE=173",
+                  "PreviousPageUri": "",
+                  "NextPageUri": "/v3/users?PageSize=2&PAGE=2",
+                  "User": [
+                    {
+                      "UserId": "10000001",
+                      "AssessmentKey": "sample-register-user",
+                      "AdministrativeGroupKey": "DACCD624-65C0-44E5-8515-E9EBA255B202",
+                      "FirstName": "Alice",
+                      "LastName": "Carter",
+                      "Email": "alice.carter@example.com",
+                      "InternalId": "STU-001",
+                      "AccessCode": "Xk9mPqRt",
+                      "HowManyCourses": [],
+                      "AgeRange": [],
+                      "Gender": [],
+                      "CompletionPercentage": "0",
+                      "DateTimeStarted": "2026-03-20T18:40:08Z",
+                      "DateTimeLastUpdated": [],
+                      "DateTimeCompleted": [],
+                      "Uri": "/users/10000001"
+                    },
+                    {
+                      "UserId": "10000002",
+                      "AssessmentKey": "sample-register-user",
+                      "AdministrativeGroupKey": "DACCD624-65C0-44E5-8515-E9EBA255B202",
+                      "FirstName": "Marcus",
+                      "LastName": "Webb",
+                      "Email": "marcus.webb@example.com",
+                      "InternalId": "STU-002",
+                      "AccessCode": "Tz4wNbVc",
+                      "HowManyCourses": [],
+                      "AgeRange": [],
+                      "Gender": [],
+                      "CompletionPercentage": "0",
+                      "DateTimeStarted": "2026-03-20T18:16:33Z",
+                      "DateTimeLastUpdated": [],
+                      "DateTimeCompleted": [],
+                      "Uri": "/users/10000002"
+                    }
+                  ]
+                },
                 "schema": {
                   "type": "object",
-                  "required": ["GroupKey", "FirstName", "LastName", "Email"],
                   "properties": {
-                    "GroupKey": { "type": "number" },
-                    "FirstName": { "type": "string" },
-                    "LastName": { "type": "string" },
-                    "Email": { "type": "string" },
-                    "InternalID": { "type": "string" },
-                    "Gender": { "type": "string", "enum": ["M", "F"] },
-                    "EthnicityID": { "type": "number" },
-                    "AgeRange": { "type": "string" },
-                    "HowManyCoursesTaken": { "type": "string" },
-                    "Custom": {
-                      "type": "object",
-                      "additionalProperties": { "type": "string" }
+                    "NumPages": { "type": "string", "description": "Total number of pages." },
+                    "Page": { "type": "string", "description": "Current page number." },
+                    "PageSize": { "type": "string", "description": "Number of records per page." },
+                    "Total": { "type": "string", "description": "Total number of records." },
+                    "Start": {
+                      "type": "string",
+                      "description": "Start record index for the current page."
+                    },
+                    "End": {
+                      "type": "string",
+                      "description": "End record index for the current page."
+                    },
+                    "FirstPageUri": { "type": "string" },
+                    "LastPageUri": { "type": "string" },
+                    "PreviousPageUri": {
+                      "type": "string",
+                      "description": "Empty string if on first page."
+                    },
+                    "NextPageUri": {
+                      "type": "string",
+                      "description": "Empty string if on last page."
+                    },
+                    "User": {
+                      "description": "One or more user records. Returns an object when there is a single result, or an array when there are multiple results.",
+                      "oneOf": [
+                        { "$ref": "#/components/schemas/UserRecord" },
+                        { "type": "array", "items": { "$ref": "#/components/schemas/UserRecord" } }
+                      ]
                     }
                   }
                 }
               }
             }
-          },
-          "responses": {
-            "201": {
-              "description": "User created."
-            }
           }
         }
       },
-      "/users/{userid}": {
-        "servers": [
-          {
-            "url": "https://api.smartermeasure.com/v3",
-            "description": "SmarterMeasure User Service"
-          }
-        ],
-        "get": {
-          "summary": "Returns details for a specific user.",
-          "parameters": [
-            {
-              "in": "path",
-              "name": "userid",
-              "required": true,
-              "schema": { "type": "number" },
-              "description": "User that should be returned."
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "User details."
-            }
-          }
-        },
-        "put": {
-          "summary": "Updates the meta data for a user.",
-          "parameters": [
-            {
-              "in": "path",
-              "name": "userid",
-              "required": true,
-              "schema": { "type": "number" },
-              "description": "User that should be updated."
-            }
-          ],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "FirstName": { "type": "string" },
-                    "LastName": { "type": "string" },
-                    "Email": { "type": "string" },
-                    "InternalID": { "type": "string" },
-                    "Gender": { "type": "string", "enum": ["M", "F"] },
-                    "EthnicityID": { "type": "number" },
-                    "AgeRange": { "type": "string" },
-                    "HowManyCoursesTaken": { "type": "string" }
+      "post": {
+        "summary": "Create a new user.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["GroupKey", "FirstName", "LastName", "Email"],
+                "properties": {
+                  "GroupKey": { "type": "number" },
+                  "FirstName": { "type": "string" },
+                  "LastName": { "type": "string" },
+                  "Email": { "type": "string" },
+                  "InternalID": { "type": "string" },
+                  "Gender": { "type": "string", "enum": ["M", "F"] },
+                  "EthnicityID": { "type": "number" },
+                  "AgeRange": { "type": "string" },
+                  "HowManyCoursesTaken": { "type": "string" },
+                  "Custom": {
+                    "type": "object",
+                    "additionalProperties": { "type": "string" }
                   }
                 }
               }
             }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User created."
+          }
+        }
+      }
+    },
+    "/users/{userid}": {
+      "servers": [
+        {
+          "url": "https://api.smartermeasure.com/v3",
+          "description": "SmarterMeasure User Service"
+        }
+      ],
+      "get": {
+        "summary": "Returns details for a specific user.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "userid",
+            "required": true,
+            "schema": { "type": "number" },
+            "description": "User that should be returned."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User details.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "UserId": "10000001",
+                  "FirstName": "Alice",
+                  "LastName": "Carter",
+                  "Email": "alice.carter@example.com",
+                  "InternalId": "STU-001",
+                  "AccessCode": "Xk9mPqRt",
+                  "HowManyCourses": [],
+                  "AgeRange": [],
+                  "Gender": [],
+                  "CompletionPercentage": "0",
+                  "DateTimeStarted": "2026-03-20T18:40:08Z",
+                  "DateTimeLastUpdated": [],
+                  "DateTimeCompleted": [],
+                  "Uri": "/users/10000001",
+                  "CustomData": [
+                    { "QuestionId": "611", "ParameterId": "coid", "Response": [] },
+                    { "QuestionId": "612", "ParameterId": "dcc", "Response": [] },
+                    {
+                      "QuestionId": "1972",
+                      "ParameterId": "custom_canvas_user_id",
+                      "Response": []
+                    },
+                    { "QuestionId": "2172", "ParameterId": "SessionSid", "Response": [] }
+                  ]
+                },
+                "schema": { "$ref": "#/components/schemas/UserDetail" }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Updates the meta data for a user.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "userid",
+            "required": true,
+            "schema": { "type": "number" },
+            "description": "User that should be updated."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "FirstName": { "type": "string" },
+                  "LastName": { "type": "string" },
+                  "Email": { "type": "string" },
+                  "InternalID": { "type": "string" },
+                  "Gender": { "type": "string", "enum": ["M", "F"] },
+                  "EthnicityID": { "type": "number" },
+                  "AgeRange": { "type": "string" },
+                  "HowManyCoursesTaken": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User metadata updated.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "UserId": "10000001",
+                  "FirstName": "Alice",
+                  "LastName": "Carter",
+                  "Email": "alice.carter@example.com",
+                  "InternalId": "STU-001",
+                  "AccessCode": "Xk9mPqRt",
+                  "HowManyCourses": [],
+                  "AgeRange": [],
+                  "Gender": [],
+                  "CompletionPercentage": "0",
+                  "DateTimeStarted": "2026-03-20T18:40:08Z",
+                  "DateTimeLastUpdated": "2026-06-09T20:47:42Z",
+                  "DateTimeCompleted": [],
+                  "Uri": "/users/10000001",
+                  "CustomData": [
+                    { "QuestionId": "611", "ParameterId": "coid", "Response": [] },
+                    { "QuestionId": "612", "ParameterId": "dcc", "Response": [] },
+                    {
+                      "QuestionId": "1972",
+                      "ParameterId": "custom_canvas_user_id",
+                      "Response": []
+                    },
+                    { "QuestionId": "2172", "ParameterId": "SessionSid", "Response": [] }
+                  ]
+                },
+                "schema": { "$ref": "#/components/schemas/UserDetail" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{userid}/results": {
+      "servers": [
+        {
+          "url": "https://api.smartermeasure.com/v3",
+          "description": "SmarterMeasure User Service"
+        }
+      ],
+      "get": {
+        "summary": "Returns results for a specific user.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "userid",
+            "required": true,
+            "schema": { "type": "number" },
+            "description": "User that should be returned."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User results.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "RowNumber": "1",
+                  "UserId": "10000001",
+                  "InternalId": "STU-001",
+                  "CompletionPercentage": "0",
+                  "DateTimeTaken": "2026-03-20T18:40:08Z",
+                  "Account": { "Id": "410", "Name": "DEMO - Integration School" },
+                  "FirstName": "Alice",
+                  "LastName": "Carter",
+                  "EmailAddress": "alice.carter@example.com",
+                  "AssessmentResults": [
+                    { "Code": "LifeFactors", "Title": "Life Factors", "IsComplete": "0" },
+                    { "Code": "LearnStyles", "Title": "Learning Styles", "IsComplete": "0" },
+                    {
+                      "Code": "PersonalAttributes",
+                      "Title": "Personal Attributes",
+                      "IsComplete": "0"
+                    },
+                    { "Code": "TechComp", "Title": "Technical Competency", "IsComplete": "0" },
+                    { "Code": "TechKnowledge", "Title": "Technical Knowledge", "IsComplete": "0" },
+                    { "Code": "Reading", "Title": "Reading Rate & Recall", "IsComplete": "0" },
+                    { "Code": "Typing", "Title": "Typing Speed & Accuracy", "IsComplete": "0" }
+                  ]
+                },
+                "schema": { "$ref": "#/components/schemas/UserResultSummary" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{userid}/signon": {
+      "servers": [
+        {
+          "url": "https://api.smartermeasure.com/v3",
+          "description": "SmarterMeasure User Service"
+        }
+      ],
+      "post": {
+        "summary": "Provides a URL that can be used to sign the user into the system.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "userid",
+            "required": true,
+            "schema": { "type": "number" },
+            "description": "User that should be returned."
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "UseSSL": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "If this is set to true, the redirect URL will be provided with https."
+                  },
+                  "IncludeSettings": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "If set to true, the custom settings supplied with the integration you are using will be applied."
+                  },
+                  "RedirectToSection": {
+                    "type": "string",
+                    "description": "This only applies to disaggregate mode. If supplied the user will be directed to this section of the assessment upon logging in. Use the section code (e.g. LearnStyles, LifeFactors)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sign-on URL for the user.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "RequestId": "c03a3436-4726-4902-93401d56ce5028f5",
+                  "TimeStamp": "2026-06-09T20:45:20Z",
+                  "RedirectUrl": "https://nexus.smartermeasure.com/assessmentpublic.ssologin/requestid/c03a3436-4726-4902-93401d56ce5028f5"
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "RequestId": {
+                      "type": "string",
+                      "description": "Unique identifier for this sign-on request."
+                    },
+                    "TimeStamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "The date and time the sign-on request was created."
+                    },
+                    "RedirectUrl": {
+                      "type": "string",
+                      "description": "The URL to redirect the user to in order to sign them into the assessment."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{userid}/reportlink": {
+      "servers": [
+        {
+          "url": "https://api.smartermeasure.com/v3",
+          "description": "SmarterMeasure User Service"
+        }
+      ],
+      "get": {
+        "summary": "Provides a URL that can be used to view the report for the user.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "userid",
+            "required": true,
+            "schema": { "type": "number" },
+            "description": "User that should be returned."
           },
-          "responses": {
-            "200": {
-              "description": "User metadata updated."
-            }
-          }
-        }
-      },
-      "/users/{userid}/results": {
-        "servers": [
           {
-            "url": "https://api.smartermeasure.com/v3",
-            "description": "SmarterMeasure User Service"
+            "in": "query",
+            "name": "ttl",
+            "schema": { "type": "number", "default": 2 },
+            "description": "The number of minutes the link should be valid for. Default is 2 minutes, max is 90 days."
           }
         ],
-        "get": {
-          "summary": "Returns results for a specific user.",
-          "parameters": [
-            {
-              "in": "path",
-              "name": "userid",
-              "required": true,
-              "schema": { "type": "number" },
-              "description": "User that should be returned."
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "User results."
+        "responses": {
+          "200": {
+            "description": "Report link URL for the user.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "EntryLink": "https://api.smartermeasure.com/quickview.ViewReport/key/1F9AA19FD4D41811B0D8128EFD457FC",
+                  "ExpiresAt": "2026-06-09T20:43:26Z",
+                  "LinkId": "38a746104b91456a9c454b4b051ab524"
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "EntryLink": {
+                      "type": "string",
+                      "description": "The URL to access the user's report. Valid until ExpiresAt."
+                    },
+                    "ExpiresAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "The date and time the link expires."
+                    },
+                    "LinkId": {
+                      "type": "string",
+                      "description": "Unique identifier for this report link."
+                    }
+                  }
+                }
+              }
             }
           }
         }
-      },
-      "/users/{userid}/signon": {
-        "servers": [
+      }
+    },
+    "/users/{userid}/report": {
+      "servers": [
+        {
+          "url": "https://api.smartermeasure.com/v3",
+          "description": "SmarterMeasure User Service"
+        }
+      ],
+      "get": {
+        "summary": "Returns the report for a specific user.",
+        "parameters": [
           {
-            "url": "https://api.smartermeasure.com/v3",
-            "description": "SmarterMeasure User Service"
+            "in": "path",
+            "name": "userid",
+            "required": true,
+            "schema": { "type": "number" },
+            "description": "User that should be returned."
+          },
+          {
+            "in": "query",
+            "name": "Type",
+            "schema": { "type": "string" },
+            "description": "The type of report to be returned."
+          },
+          {
+            "in": "query",
+            "name": "Format",
+            "schema": { "type": "string", "default": "pdf" },
+            "description": "The format the report should be returned in."
           }
         ],
-        "get": {
-          "summary": "Provides a URL that can be used to sign the user into the system.",
-          "parameters": [
-            {
-              "in": "path",
-              "name": "userid",
-              "required": true,
-              "schema": { "type": "number" },
-              "description": "User that should be returned."
-            },
-            {
-              "in": "query",
-              "name": "UseSSL",
-              "schema": { "type": "boolean", "default": true },
-              "description": "If this is set to true, the redirect URL will be provided with https."
-            },
-            {
-              "in": "query",
-              "name": "IncludeSettings",
-              "schema": { "type": "boolean", "default": false },
-              "description": "If set to true, the custom settings supplied with the integration you are using will be applied."
-            },
-            {
-              "in": "query",
-              "name": "RedirectToSection",
-              "schema": { "type": "number" },
-              "description": "This only applies to disaggregate mode. If supplied the user will be directed to this section of the assessment upon logging in."
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Sign-on URL for the user."
-            }
+        "responses": {
+          "200": {
+            "description": "User report."
           }
         }
-      },
-      "/users/{userid}/reportlink": {
-        "servers": [
+      }
+    },
+    "/orders": {
+      "get": {
+        "summary": "Returns all orders.",
+        "responses": {
+          "200": {
+            "description": "A list of orders."
+          }
+        }
+      }
+    },
+    "/results": {
+      "servers": [
+        {
+          "url": "https://api.smartermeasure.com/v3",
+          "description": "SmarterMeasure User Service"
+        }
+      ],
+      "get": {
+        "summary": "Returns result information for one or more users based on filters provided.",
+        "parameters": [
           {
-            "url": "https://api.smartermeasure.com/v3",
-            "description": "SmarterMeasure User Service"
+            "in": "query",
+            "name": "UserID",
+            "schema": { "type": "string" },
+            "description": "This can be a comma sep. list of SmarterMeasure user IDs."
+          },
+          {
+            "in": "query",
+            "name": "InternalID",
+            "schema": { "type": "string" },
+            "description": "InternalID"
+          },
+          {
+            "in": "query",
+            "name": "FirstName",
+            "schema": { "type": "string" },
+            "description": "FirstName"
+          },
+          {
+            "in": "query",
+            "name": "LastName",
+            "schema": { "type": "string" },
+            "description": "LastName"
+          },
+          {
+            "in": "query",
+            "name": "EmailAddress",
+            "schema": { "type": "string" },
+            "description": "EmailAddress"
+          },
+          {
+            "in": "query",
+            "name": "Gender",
+            "schema": { "type": "string" },
+            "description": "Gender"
+          },
+          {
+            "in": "query",
+            "name": "AdminGroupUserName",
+            "schema": { "type": "string" },
+            "description": "AdminGroupUserName"
+          },
+          {
+            "in": "query",
+            "name": "TestingGroupUserName",
+            "schema": { "type": "string" },
+            "description": "TestingGroupUserName"
+          },
+          {
+            "in": "query",
+            "name": "ExtendedData",
+            "schema": { "type": "string" },
+            "description": "ExtendedData - If passed in, the results will include the detailed scores for the sections passed in here. This is a comma delimited list. Valid data points are LifeFactors, LearnStyles, PersonalAttributes, TechComp, TechKnowledge, Demographic."
+          },
+          {
+            "in": "query",
+            "name": "IncludeAccountRequestedData",
+            "schema": { "type": "boolean", "default": false },
+            "description": "IncludeAccountRequestedData"
+          },
+          {
+            "in": "query",
+            "name": "StartDate",
+            "schema": { "type": "string" },
+            "description": "StartDate - When wanting to filter by date started, this is the start date of the date range."
+          },
+          {
+            "in": "query",
+            "name": "EndDate",
+            "schema": { "type": "string" },
+            "description": "EndDate - When wanting to filter by date started, this is the end date of the date range."
+          },
+          {
+            "in": "query",
+            "name": "UpdateStartDate",
+            "schema": { "type": "string" },
+            "description": "UpdateStartDate - When wanting to filter by date updated, this is the start date of the date range."
+          },
+          {
+            "in": "query",
+            "name": "UpdateEndDate",
+            "schema": { "type": "string" },
+            "description": "UpdateEndDate - When wanting to filter by date updated, this is the end date of the date range."
+          },
+          {
+            "in": "query",
+            "name": "CompletionStartDate",
+            "schema": { "type": "string" },
+            "description": "CompletionStartDate - When wanting to filter by date completed, this is the start date of the date range."
+          },
+          {
+            "in": "query",
+            "name": "CompletionEndDate",
+            "schema": { "type": "string" },
+            "description": "CompletionEndDate - When wanting to filter by date completed, this is the end date of the date range."
+          },
+          {
+            "in": "query",
+            "name": "StartRecord",
+            "schema": { "type": "integer", "default": 1 },
+            "description": "StartRecord"
+          },
+          {
+            "in": "query",
+            "name": "EndRecord",
+            "schema": { "type": "integer", "default": 50 },
+            "description": "EndRecord"
           }
         ],
-        "get": {
-          "summary": "Provides a URL that can be used to view the report for the user.",
-          "parameters": [
-            {
-              "in": "path",
-              "name": "userid",
-              "required": true,
-              "schema": { "type": "number" },
-              "description": "User that should be returned."
-            },
-            {
-              "in": "query",
-              "name": "ttl",
-              "schema": { "type": "number", "default": 2 },
-              "description": "The number of minutes the link should be valid for. Default is 2 minutes, max is 90 days."
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Report link URL for the user."
+        "responses": {
+          "200": {
+            "description": "A list of user results.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "NumPages": "7",
+                  "Page": "1",
+                  "PageSize": "50",
+                  "Total": "345",
+                  "Start": "1",
+                  "End": "50",
+                  "FirstPageUri": "/v3/results?PAGE=1",
+                  "LastPageUri": "/v3/results?PAGE=7",
+                  "PreviousPageUri": "",
+                  "NextPageUri": "/v3/results?PAGE=2",
+                  "User": [
+                    {
+                      "RowNumber": "1",
+                      "UserId": "10000001",
+                      "InternalId": "STU-001",
+                      "CompletionPercentage": "0",
+                      "DateTimeTaken": "2026-03-20T18:40:08Z",
+                      "Account": { "Id": "410", "Name": "DEMO - Integration School" },
+                      "FirstName": "Alice",
+                      "LastName": "Carter",
+                      "EmailAddress": "alice.carter@example.com",
+                      "AssessmentResults": [
+                        { "Title": "Life Factors", "Code": "LifeFactors", "IsComplete": "0" },
+                        { "Title": "Learning Styles", "Code": "LearnStyles", "IsComplete": "0" },
+                        {
+                          "Title": "Personal Attributes",
+                          "Code": "PersonalAttributes",
+                          "IsComplete": "0"
+                        },
+                        { "Title": "Technical Competency", "Code": "TechComp", "IsComplete": "0" },
+                        {
+                          "Title": "Technical Knowledge",
+                          "Code": "TechKnowledge",
+                          "IsComplete": "0"
+                        },
+                        { "Title": "Reading Rate & Recall", "Code": "Reading", "IsComplete": "0" },
+                        { "Title": "Typing Speed & Accuracy", "Code": "Typing", "IsComplete": "0" }
+                      ]
+                    },
+                    {
+                      "RowNumber": "2",
+                      "UserId": "10000002",
+                      "InternalId": "STU-002",
+                      "CompletionPercentage": "100",
+                      "DateTimeTaken": "2026-02-27T10:27:44Z",
+                      "DateTimeLastUpdated": "2026-02-27T10:33:38Z",
+                      "DateTimeCompleted": "2026-02-27T10:33:38Z",
+                      "Account": { "Id": "410", "Name": "DEMO - Integration School" },
+                      "FirstName": "Marcus",
+                      "LastName": "Webb",
+                      "EmailAddress": "marcus.webb@example.com",
+                      "AssessmentResults": [
+                        { "Title": "Life Factors", "Code": "LifeFactors", "IsComplete": "0" },
+                        {
+                          "Title": "Learning Styles",
+                          "Code": "LearnStyles",
+                          "IsComplete": "1",
+                          "AttemptNumber": "1",
+                          "Percent": "23.81",
+                          "Readiness": "fail",
+                          "Primary": "Aural, Logical, Social",
+                          "DateTimeCompleted": "2026-02-27T10:33:00Z"
+                        },
+                        {
+                          "Title": "Personal Attributes",
+                          "Code": "PersonalAttributes",
+                          "IsComplete": "0"
+                        },
+                        { "Title": "Technical Competency", "Code": "TechComp", "IsComplete": "0" },
+                        {
+                          "Title": "Technical Knowledge",
+                          "Code": "TechKnowledge",
+                          "IsComplete": "1",
+                          "AttemptNumber": "1",
+                          "Percent": "31.48",
+                          "Readiness": "fail",
+                          "DateTimeCompleted": "2026-02-27T10:34:00Z"
+                        },
+                        { "Title": "Reading Rate & Recall", "Code": "Reading", "IsComplete": "0" },
+                        { "Title": "Typing Speed & Accuracy", "Code": "Typing", "IsComplete": "0" }
+                      ]
+                    }
+                  ]
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "NumPages": { "type": "string", "description": "Total number of pages." },
+                    "Page": { "type": "string", "description": "Current page number." },
+                    "PageSize": { "type": "string", "description": "Number of records per page." },
+                    "Total": { "type": "string", "description": "Total number of records." },
+                    "Start": {
+                      "type": "string",
+                      "description": "Start record index for the current page."
+                    },
+                    "End": {
+                      "type": "string",
+                      "description": "End record index for the current page."
+                    },
+                    "FirstPageUri": { "type": "string" },
+                    "LastPageUri": { "type": "string" },
+                    "PreviousPageUri": {
+                      "type": "string",
+                      "description": "Empty string if on first page."
+                    },
+                    "NextPageUri": {
+                      "type": "string",
+                      "description": "Empty string if on last page."
+                    },
+                    "User": {
+                      "description": "One or more user result records. Returns an object when there is a single result, or an array when there are multiple results.",
+                      "oneOf": [
+                        { "$ref": "#/components/schemas/UserResultSummary" },
+                        {
+                          "type": "array",
+                          "items": { "$ref": "#/components/schemas/UserResultSummary" }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
             }
           }
         }
-      },
-      "/users/{userid}/report": {
-        "servers": [
+      }
+    },
+    "/results/new": {
+      "servers": [
+        {
+          "url": "https://api.smartermeasure.com/v3",
+          "description": "SmarterMeasure User Service"
+        }
+      ],
+      "get": {
+        "summary": "Returns result information for one or more users based on filters provided.",
+        "parameters": [
           {
-            "url": "https://api.smartermeasure.com/v3",
-            "description": "SmarterMeasure User Service"
+            "in": "query",
+            "name": "UserID",
+            "schema": { "type": "string" },
+            "description": "This can be a comma sep. list of SmarterMeasure user IDs."
+          },
+          {
+            "in": "query",
+            "name": "InternalID",
+            "schema": { "type": "string" },
+            "description": "InternalID"
+          },
+          {
+            "in": "query",
+            "name": "FirstName",
+            "schema": { "type": "string" },
+            "description": "FirstName"
+          },
+          {
+            "in": "query",
+            "name": "LastName",
+            "schema": { "type": "string" },
+            "description": "LastName"
+          },
+          {
+            "in": "query",
+            "name": "EmailAddress",
+            "schema": { "type": "string" },
+            "description": "EmailAddress"
+          },
+          {
+            "in": "query",
+            "name": "Gender",
+            "schema": { "type": "string" },
+            "description": "Gender"
+          },
+          {
+            "in": "query",
+            "name": "AdminGroupUserName",
+            "schema": { "type": "string" },
+            "description": "AdminGroupUserName"
+          },
+          {
+            "in": "query",
+            "name": "TestingGroupUserName",
+            "schema": { "type": "string" },
+            "description": "TestingGroupUserName"
+          },
+          {
+            "in": "query",
+            "name": "IncludeAccountRequestedData",
+            "schema": { "type": "boolean", "default": false },
+            "description": "IncludeAccountRequestedData"
+          },
+          {
+            "in": "query",
+            "name": "StartDate",
+            "schema": { "type": "string" },
+            "description": "StartDate - When wanting to filter by date started, this is the start date of the date range."
+          },
+          {
+            "in": "query",
+            "name": "EndDate",
+            "schema": { "type": "string" },
+            "description": "EndDate - When wanting to filter by date started, this is the end date of the date range."
+          },
+          {
+            "in": "query",
+            "name": "UpdateStartDate",
+            "schema": { "type": "string" },
+            "description": "UpdateStartDate - When wanting to filter by date updated, this is the start date of the date range."
+          },
+          {
+            "in": "query",
+            "name": "UpdateEndDate",
+            "schema": { "type": "string" },
+            "description": "UpdateEndDate - When wanting to filter by date updated, this is the end date of the date range."
+          },
+          {
+            "in": "query",
+            "name": "CompletionStartDate",
+            "schema": { "type": "string" },
+            "description": "CompletionStartDate - When wanting to filter by date completed, this is the start date of the date range."
+          },
+          {
+            "in": "query",
+            "name": "CompletionEndDate",
+            "schema": { "type": "string" },
+            "description": "CompletionEndDate - When wanting to filter by date completed, this is the end date of the date range."
+          },
+          {
+            "in": "query",
+            "name": "IncompleteOnly",
+            "schema": { "type": "boolean", "default": false },
+            "description": "IncompleteOnly"
+          },
+          {
+            "in": "query",
+            "name": "CompleteOnly",
+            "schema": { "type": "boolean", "default": false },
+            "description": "CompleteOnly"
+          },
+          {
+            "in": "query",
+            "name": "StartRecord",
+            "schema": { "type": "integer", "default": 1 },
+            "description": "StartRecord"
+          },
+          {
+            "in": "query",
+            "name": "EndRecord",
+            "schema": { "type": "integer", "default": 50 },
+            "description": "EndRecord"
           }
         ],
-        "get": {
-          "summary": "Returns the report for a specific user.",
-          "parameters": [
-            {
-              "in": "path",
-              "name": "userid",
-              "required": true,
-              "schema": { "type": "number" },
-              "description": "User that should be returned."
-            },
-            {
-              "in": "query",
-              "name": "Type",
-              "schema": { "type": "string" },
-              "description": "The type of report to be returned."
-            },
-            {
-              "in": "query",
-              "name": "Format",
-              "schema": { "type": "string", "default": "pdf" },
-              "description": "The format the report should be returned in."
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "User report."
-            }
-          }
-        }
-      },
-      "/orders": {
-        "get": {
-          "summary": "Returns all orders.",
-          "responses": {
-            "200": {
-              "description": "A list of orders."
-            }
-          }
-        }
-      },
-      "/results": {
-        "servers": [
-          {
-            "url": "https://api.smartermeasure.com/v3",
-            "description": "SmarterMeasure User Service"
-          }
-        ],
-        "get": {
-          "summary": "Returns result information for one or more users based on filters provided.",
-          "parameters": [
-            { "in": "query", "name": "UserID", "schema": { "type": "string" }, "description": "This can be a comma sep. list of SmarterMeasure user IDs." },
-            { "in": "query", "name": "InternalID", "schema": { "type": "string" }, "description": "InternalID" },
-            { "in": "query", "name": "FirstName", "schema": { "type": "string" }, "description": "FirstName" },
-            { "in": "query", "name": "LastName", "schema": { "type": "string" }, "description": "LastName" },
-            { "in": "query", "name": "EmailAddress", "schema": { "type": "string" }, "description": "EmailAddress" },
-            { "in": "query", "name": "Gender", "schema": { "type": "string" }, "description": "Gender" },
-            { "in": "query", "name": "AdminGroupUserName", "schema": { "type": "string" }, "description": "AdminGroupUserName" },
-            { "in": "query", "name": "TestingGroupUserName", "schema": { "type": "string" }, "description": "TestingGroupUserName" },
-            { "in": "query", "name": "ExtendedData", "schema": { "type": "string" }, "description": "ExtendedData - If passed in, the results will include the detailed scores for the sections passed in here. This is a comma delimited list. Valid data points are LifeFactors, LearnStyles, PersonalAttributes, TechComp, TechKnowledge, Demographic." },
-            { "in": "query", "name": "IncludeAccountRequestedData", "schema": { "type": "boolean", "default": false }, "description": "IncludeAccountRequestedData" },
-            { "in": "query", "name": "StartDate", "schema": { "type": "string" }, "description": "StartDate - When wanting to filter by date started, this is the start date of the date range." },
-            { "in": "query", "name": "EndDate", "schema": { "type": "string" }, "description": "EndDate - When wanting to filter by date started, this is the end date of the date range." },
-            { "in": "query", "name": "UpdateStartDate", "schema": { "type": "string" }, "description": "UpdateStartDate - When wanting to filter by date updated, this is the start date of the date range." },
-            { "in": "query", "name": "UpdateEndDate", "schema": { "type": "string" }, "description": "UpdateEndDate - When wanting to filter by date updated, this is the end date of the date range." },
-            { "in": "query", "name": "CompletionStartDate", "schema": { "type": "string" }, "description": "CompletionStartDate - When wanting to filter by date completed, this is the start date of the date range." },
-            { "in": "query", "name": "CompletionEndDate", "schema": { "type": "string" }, "description": "CompletionEndDate - When wanting to filter by date completed, this is the end date of the date range." },
-            { "in": "query", "name": "StartRecord", "schema": { "type": "integer", "default": 1 }, "description": "StartRecord" },
-            { "in": "query", "name": "EndRecord", "schema": { "type": "integer", "default": 50 }, "description": "EndRecord" }
-          ],
-          "responses": {
-            "200": {
-              "description": "A list of user results."
-            }
-          }
-        }
-      },
-      "/results/new": {
-        "servers": [
-          {
-            "url": "https://api.smartermeasure.com/v3",
-            "description": "SmarterMeasure User Service"
-          }
-        ],
-        "get": {
-          "summary": "Returns result information for one or more users based on filters provided.",
-          "parameters": [
-            { "in": "query", "name": "UserID", "schema": { "type": "string" }, "description": "This can be a comma sep. list of SmarterMeasure user IDs." },
-            { "in": "query", "name": "InternalID", "schema": { "type": "string" }, "description": "InternalID" },
-            { "in": "query", "name": "FirstName", "schema": { "type": "string" }, "description": "FirstName" },
-            { "in": "query", "name": "LastName", "schema": { "type": "string" }, "description": "LastName" },
-            { "in": "query", "name": "EmailAddress", "schema": { "type": "string" }, "description": "EmailAddress" },
-            { "in": "query", "name": "Gender", "schema": { "type": "string" }, "description": "Gender" },
-            { "in": "query", "name": "AdminGroupUserName", "schema": { "type": "string" }, "description": "AdminGroupUserName" },
-            { "in": "query", "name": "TestingGroupUserName", "schema": { "type": "string" }, "description": "TestingGroupUserName" },
-            { "in": "query", "name": "IncludeAccountRequestedData", "schema": { "type": "boolean", "default": false }, "description": "IncludeAccountRequestedData" },
-            { "in": "query", "name": "StartDate", "schema": { "type": "string" }, "description": "StartDate - When wanting to filter by date started, this is the start date of the date range." },
-            { "in": "query", "name": "EndDate", "schema": { "type": "string" }, "description": "EndDate - When wanting to filter by date started, this is the end date of the date range." },
-            { "in": "query", "name": "UpdateStartDate", "schema": { "type": "string" }, "description": "UpdateStartDate - When wanting to filter by date updated, this is the start date of the date range." },
-            { "in": "query", "name": "UpdateEndDate", "schema": { "type": "string" }, "description": "UpdateEndDate - When wanting to filter by date updated, this is the end date of the date range." },
-            { "in": "query", "name": "CompletionStartDate", "schema": { "type": "string" }, "description": "CompletionStartDate - When wanting to filter by date completed, this is the start date of the date range." },
-            { "in": "query", "name": "CompletionEndDate", "schema": { "type": "string" }, "description": "CompletionEndDate - When wanting to filter by date completed, this is the end date of the date range." },
-            { "in": "query", "name": "IncompleteOnly", "schema": { "type": "boolean", "default": false }, "description": "IncompleteOnly" },
-            { "in": "query", "name": "CompleteOnly", "schema": { "type": "boolean", "default": false }, "description": "CompleteOnly" },
-            { "in": "query", "name": "StartRecord", "schema": { "type": "integer", "default": 1 }, "description": "StartRecord" },
-            { "in": "query", "name": "EndRecord", "schema": { "type": "integer", "default": 50 }, "description": "EndRecord" }
-          ],
-          "responses": {
-            "200": {
-              "description": "A list of user results."
+        "responses": {
+          "200": {
+            "description": "A list of user results.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "NumPages": "1",
+                  "Page": "1",
+                  "PageSize": "50",
+                  "Total": "1",
+                  "Start": "1",
+                  "End": "1",
+                  "FirstPageUri": "/v3/results/new?UserId=10000001&PAGE=1",
+                  "LastPageUri": "/v3/results/new?UserId=10000001&PAGE=1",
+                  "PreviousPageUri": "",
+                  "NextPageUri": "",
+                  "User": {
+                    "RowNumber": "1",
+                    "UserId": "10000001",
+                    "InternalId": "STU-001",
+                    "CompletionPercentage": "100",
+                    "DateTimeTaken": "2022-03-02T17:59:40Z",
+                    "DateTimeLastUpdated": "2022-03-02T18:02:50Z",
+                    "DateTimeCompleted": "2022-03-02T18:02:50Z",
+                    "Account": {
+                      "Id": "410",
+                      "Name": "DEMO - Integration School"
+                    },
+                    "Assessment": {
+                      "AdminGroupId": "4625",
+                      "AdminGroupName": "General Sample",
+                      "TestTakerGroupID": "54106",
+                      "TestTakerGroupName": "Proctored"
+                    },
+                    "FirstName": "Alice",
+                    "LastName": "Carter",
+                    "EmailAddress": "alice.carter@example.com",
+                    "CompositeScore": "54.86",
+                    "DemographicData": {
+                      "Gender": [],
+                      "AgeRange": [],
+                      "Ethnicity": [],
+                      "HowManyCourses": [],
+                      "RightSchoolForMe": [],
+                      "FirstGeneration": []
+                    },
+                    "AssessmentResults": [
+                      {
+                        "Title": "Learning Styles",
+                        "Code": "LearnStyles",
+                        "IsComplete": "1",
+                        "AttemptNumber": "1",
+                        "Percent": "34.92",
+                        "PointsPossible": "63",
+                        "PointsAccumulated": "22",
+                        "SectionVersionID": "25",
+                        "Primary": "Verbal",
+                        "DateTimeCompleted": "2022-03-02T18:02:00Z",
+                        "ExtendedData": [
+                          [
+                            {
+                              "Code": "verbal",
+                              "Title": "Verbal",
+                              "PointsPossible": "9",
+                              "PointsAccumulated": "5"
+                            },
+                            {
+                              "Code": "visual",
+                              "Title": "Visual",
+                              "PointsPossible": "9",
+                              "PointsAccumulated": "3"
+                            },
+                            {
+                              "Code": "aural",
+                              "Title": "Aural",
+                              "PointsPossible": "9",
+                              "PointsAccumulated": "3"
+                            },
+                            {
+                              "Code": "logical",
+                              "Title": "Logical",
+                              "PointsPossible": "9",
+                              "PointsAccumulated": "3"
+                            },
+                            {
+                              "Code": "physical",
+                              "Title": "Physical",
+                              "PointsPossible": "9",
+                              "PointsAccumulated": "3"
+                            },
+                            {
+                              "Code": "social",
+                              "Title": "Social",
+                              "PointsPossible": "9",
+                              "PointsAccumulated": "2"
+                            },
+                            {
+                              "Code": "solitary",
+                              "Title": "Solitary",
+                              "PointsPossible": "9",
+                              "PointsAccumulated": "3"
+                            }
+                          ]
+                        ]
+                      },
+                      {
+                        "Title": "Life Factors",
+                        "Code": "LifeFactors",
+                        "IsComplete": "1",
+                        "AttemptNumber": "1",
+                        "Percent": "51",
+                        "PointsPossible": "100",
+                        "PointsAccumulated": "51",
+                        "SectionVersionID": "24",
+                        "Readiness": "fail",
+                        "DateTimeCompleted": "2022-03-02T18:01:00Z",
+                        "ExtendedData": [
+                          [
+                            {
+                              "Code": "place",
+                              "Title": "Place",
+                              "PointsPossible": "20",
+                              "PointsAccumulated": "11"
+                            },
+                            {
+                              "Code": "reason",
+                              "Title": "Reason",
+                              "PointsPossible": "20",
+                              "PointsAccumulated": "4"
+                            },
+                            {
+                              "Code": "resources",
+                              "Title": "Resources",
+                              "PointsPossible": "20",
+                              "PointsAccumulated": "10"
+                            },
+                            {
+                              "Code": "skills",
+                              "Title": "Skills",
+                              "PointsPossible": "20",
+                              "PointsAccumulated": "10"
+                            },
+                            {
+                              "Code": "time",
+                              "Title": "Time",
+                              "PointsPossible": "20",
+                              "PointsAccumulated": "16"
+                            }
+                          ]
+                        ]
+                      },
+                      {
+                        "Title": "Reading Rate & Recall",
+                        "Code": "Reading",
+                        "IsComplete": "1",
+                        "AttemptNumber": "1",
+                        "Percent": "10",
+                        "PointsPossible": "10",
+                        "PointsAccumulated": "1",
+                        "SectionVersionID": "14",
+                        "Wpm": "6210",
+                        "Readiness": "fail",
+                        "DateTimeCompleted": "2022-03-02T18:02:00Z"
+                      },
+                      {
+                        "Title": "Typing Speed & Accuracy",
+                        "Code": "Typing",
+                        "IsComplete": "1",
+                        "AttemptNumber": "1",
+                        "Wpm": "0",
+                        "Accuracy": "0",
+                        "Readiness": "fail",
+                        "DateTimeCompleted": "2022-03-02T18:03:00Z"
+                      }
+                    ]
+                  }
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "NumPages": { "type": "string", "description": "Total number of pages." },
+                    "Page": { "type": "string", "description": "Current page number." },
+                    "PageSize": { "type": "string", "description": "Number of records per page." },
+                    "Total": { "type": "string", "description": "Total number of records." },
+                    "Start": {
+                      "type": "string",
+                      "description": "Start record index for the current page."
+                    },
+                    "End": {
+                      "type": "string",
+                      "description": "End record index for the current page."
+                    },
+                    "FirstPageUri": {
+                      "type": "string",
+                      "description": "URI for the first page of results."
+                    },
+                    "LastPageUri": {
+                      "type": "string",
+                      "description": "URI for the last page of results."
+                    },
+                    "PreviousPageUri": {
+                      "type": "string",
+                      "description": "URI for the previous page of results. Empty string if on first page."
+                    },
+                    "NextPageUri": {
+                      "type": "string",
+                      "description": "URI for the next page of results. Empty string if on last page."
+                    },
+                    "User": {
+                      "description": "One or more user result records. Returns an object when there is a single result, or an array when there are multiple results.",
+                      "oneOf": [
+                        { "$ref": "#/components/schemas/UserResult" },
+                        { "type": "array", "items": { "$ref": "#/components/schemas/UserResult" } }
+                      ]
+                    }
+                  }
+                }
+              }
             }
           }
         }
       }
     }
   }
-  
+}
