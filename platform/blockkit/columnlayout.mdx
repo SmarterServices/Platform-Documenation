@@ -1,0 +1,220 @@
+---
+title: "Column Layout"
+description: "A block that arranges content in configurable column layouts with predefined and custom width options"
+---
+
+## Basic Example
+
+```json
+{
+  "type": "column_layout",
+  "variant": "2",
+  "columns": [
+    { "type": "column", "elements": [] },
+    { "type": "column", "elements": [] }
+  ]
+}
+```
+
+## Complete Example
+
+```json Example Code expandable
+[
+  {
+    "type": "column_layout",
+    "variant": "2-1",
+    "gap": "medium",
+    "columns": [
+      {
+        "type": "column",
+        "elements": [
+          {
+            "type": "heading",
+            "level": 3,
+            "text": "Main Content"
+          },
+          {
+            "type": "text",
+            "text": "This column takes up 2/3 of the available width."
+          }
+        ]
+      },
+      {
+        "type": "column",
+        "elements": [
+          {
+            "type": "alert",
+            "severity": "info",
+            "text": "Sidebar content in the narrower column."
+          }
+        ]
+      }
+    ]
+  }
+]
+```
+
+## Properties
+
+<ParamField path="type" type="string" required="true">
+  Identifies this as a column layout block
+
+  Must be `column_layout`
+</ParamField>
+
+<ParamField path="variant" type="string" required="false" default="2">
+  The predefined column width distribution
+
+  **Allowed values:**
+
+  | Variant | Description | Column Widths |
+  |---------|-------------|---------------|
+  | `1` | Single column | 100% |
+  | `2` | Two equal columns | 50% / 50% |
+  | `3` | Three equal columns | 33% / 33% / 33% |
+  | `4` | Four equal columns | 25% / 25% / 25% / 25% |
+  | `2-1` | Wide left, narrow right | 66% / 33% |
+  | `1-2` | Narrow left, wide right | 33% / 66% |
+  | `3-1` | Wide left, sidebar right | 75% / 25% |
+  | `1-3` | Sidebar left, wide right | 25% / 75% |
+  | `1-1-2` | Two narrow, one wide | 25% / 25% / 50% |
+  | `2-1-1` | One wide, two narrow | 50% / 25% / 25% |
+</ParamField>
+
+<ParamField path="columns" type="array" required="true">
+  Array of column objects. Each column contains an `elements` array with the content blocks for that column.
+</ParamField>
+
+<ParamField path="gap" type="string" required="false" default="medium">
+  Spacing between columns
+
+  **Allowed values:** `none`, `x-small` (4px), `small` (8px), `medium` (16px), `large` (24px), `x-large` (32px)
+</ParamField>
+
+<ParamField path="margin" type="string" required="false">
+  Outer margin around the column layout
+</ParamField>
+
+<ParamField path="padding" type="string" required="false">
+  Inner padding of the column layout container
+</ParamField>
+
+<ParamField path="alignItems" type="string" required="false" default="stretch">
+  Vertical alignment of columns
+
+  **Allowed values:** `stretch`, `flex-start`, `center`, `flex-end`
+</ParamField>
+
+<ParamField path="minHeight" type="string" required="false">
+  Minimum height of the column layout (e.g., `200px`)
+</ParamField>
+
+## Column Properties
+
+Each column in the `columns` array supports:
+
+<ParamField path="type" type="string" required="true">
+  Must be `column`
+</ParamField>
+
+<ParamField path="elements" type="array" required="true">
+  Array of block elements contained within this column
+</ParamField>
+
+<ParamField path="width" type="string" required="false">
+  Custom width override (e.g., `300px`, `40%`)
+</ParamField>
+
+<ParamField path="minWidth" type="string" required="false">
+  Minimum column width
+</ParamField>
+
+<ParamField path="maxWidth" type="string" required="false">
+  Maximum column width
+</ParamField>
+
+<ParamField path="padding" type="string" required="false">
+  Inner padding for this column
+</ParamField>
+
+<ParamField path="verticalAlign" type="string" required="false">
+  Vertical alignment of content within this column
+
+  **Allowed values:** `top`, `center`, `bottom`
+</ParamField>
+
+## Layout Patterns
+
+### Sidebar Layout (75/25)
+
+```json
+{
+  "type": "column_layout",
+  "variant": "3-1",
+  "columns": [
+    {
+      "type": "column",
+      "elements": [
+        { "type": "heading", "level": 2, "text": "Main Content Area" },
+        { "type": "text", "text": "Primary content goes here." }
+      ]
+    },
+    {
+      "type": "column",
+      "elements": [
+        { "type": "alert", "severity": "info", "text": "Sidebar widget" }
+      ]
+    }
+  ]
+}
+```
+
+### Three-Column Dashboard
+
+```json
+{
+  "type": "column_layout",
+  "variant": "3",
+  "gap": "large",
+  "columns": [
+    {
+      "type": "column",
+      "elements": [
+        { "type": "heading", "level": 4, "text": "Panel 1" }
+      ]
+    },
+    {
+      "type": "column",
+      "elements": [
+        { "type": "heading", "level": 4, "text": "Panel 2" }
+      ]
+    },
+    {
+      "type": "column",
+      "elements": [
+        { "type": "heading", "level": 4, "text": "Panel 3" }
+      ]
+    }
+  ]
+}
+```
+
+## Nesting Rules
+
+Column layouts can be placed inside:
+- Root level
+- [Section](/platform/blockkit/section)
+- [Wizard Step](/platform/blockkit/wizardstep)
+
+Each column can contain any block elements including:
+- [Heading](/platform/blockkit/heading), [Text](/platform/blockkit/text), [Alert](/platform/blockkit/alert)
+- [Bullet List](/platform/blockkit/bulletlist), [Ordered List](/platform/blockkit/orderedlist)
+- [Actions](/platform/blockkit/actions), [Form](/platform/blockkit/form)
+- Nested [Column Layout](/platform/blockkit/columnlayout) blocks
+
+## Usage Notes
+
+- Changing the `variant` automatically adjusts the number of columns while preserving existing content
+- Columns are responsive and will stack vertically on small screens
+- Use the `gap` property to control spacing between columns
+- Individual columns can override their width using the `width` property

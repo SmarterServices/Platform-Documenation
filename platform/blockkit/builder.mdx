@@ -1,0 +1,259 @@
+---
+title: "WYSIWYG Builder"
+description: "A visual drag-and-drop editor for building BlockKit layouts without writing JSON"
+---
+
+The BlockKit Builder is a full-featured WYSIWYG editor that lets you visually construct BlockKit layouts. Access it at `/elements/blockkit/builder` in your application.
+
+## Interface Overview
+
+The builder uses a three-panel layout:
+
+| Panel | Position | Purpose |
+|-------|----------|---------|
+| **Block Library** | Left | Browse and add blocks by category |
+| **Canvas** | Center | Visual preview of your layout with drag-and-drop |
+| **Properties** | Right | Edit the selected block's properties |
+
+## Toolbar
+
+The toolbar at the top provides:
+
+- **Undo / Redo** — Ctrl+Z / Ctrl+Y with 50-step history
+- **Show Outlines** — Toggle dashed borders to see block structure and nesting
+- **Preview** — Switch to live preview mode (interactive components become functional)
+- **Replacements** — Open the replacement variables editor
+- **View JSON** — Export the current layout as JSON
+- **Clear Editor** — Remove all blocks and start fresh
+
+## Block Library
+
+Blocks are organized into categories. Click a block to add it to the canvas, or drag it to a specific position.
+
+### Layout
+- **Section** — Container for grouping content elements
+- **Repeater** — Repeat template content for each item in an array (see [Repeater docs](/platform/blockkit/repeater))
+- **Remote Block** — Load BlockKit content from a URL with auto-refresh, loader, and fallback (see [Remote Block docs](/platform/blockkit/remoteblock))
+
+### Column Layouts
+10 predefined column configurations:
+- 1 Column (100%)
+- 2 Columns: 50/50, 66/33, 33/66, 75/25, 25/75
+- 3 Columns: 33/33/33, 25/25/50, 50/25/25
+- 4 Columns: 25/25/25/25
+
+### Content
+- **Heading** — Title text (H1–H4)
+- **Text** — Paragraph or body text
+- **Alert** — Info, success, warning, or error notice
+- **Dynamic Block** — Placeholder for dynamic content replacements
+
+### Lists
+- **Bullet List** — Unordered list with bullet points
+- **Ordered List** — Numbered list
+- **Step List** — Sequential instructional steps
+- **List Item** — Item within a list
+
+### Navigation
+- **Wizard** — Multi-step guided workflow
+- **Wizard Step** — A step within a wizard
+
+### Interactive
+- **[Button](/platform/blockkit/button)** — Interactive button that triggers an action
+- **[Actions Row](/platform/blockkit/actions)** — Horizontal row of action buttons
+- **[Form](/platform/blockkit/form)** — Interactive form with fields and submit
+
+## Properties Panel
+
+When a block is selected on the canvas, its properties appear in the right panel for editing. Changes apply immediately to the canvas.
+
+### Common Properties
+
+Most blocks expose:
+- **Block-specific fields** (text, level, severity, etc.)
+- **Block ID** — Optional unique identifier
+
+### Interactive Block Properties
+
+**Button properties:**
+- Label, Action ID, Value, Style (Primary/Danger/Default)
+- Action URL, Link URL
+- Confirm dialog settings
+
+**Actions Row properties:**
+- Action URL (shared default for all buttons)
+- Block ID
+- Button management (add, remove, reorder)
+
+**Form properties:**
+- Action URL, HTTP Method (POST/PUT/PATCH)
+- Submit Button Text, Cancel Button Text
+- Layout (Stacked/Columns/Inline)
+- Visual Form Field Designer (see below)
+
+### Column Layout Properties
+
+- **Variant** — Switch between column configurations
+- **Gap** — Spacing between columns
+- **Margin / Padding** — Outer and inner spacing
+- **Vertical Alignment** — Stretch, top, center, or bottom
+- **Min Height** — Minimum container height
+- Per-column: Width, Min/Max Width, Padding, Vertical Align
+
+### Wizard Properties
+
+- **Step list** — All steps with numbered titles
+- **Reorder** — Move steps up/down with arrow buttons
+- **Add Step** — Create new steps with default content
+- **Remove Step** — Delete steps (minimum 1)
+- **Step selector** — Dropdown to show one step at a time in the editor
+- Per-step: Title, Button Text, Acknowledgement checkbox text
+
+## Visual Form Field Designer
+
+When a [Form](/platform/blockkit/form) block is selected, the properties panel shows a visual field designer instead of a raw JSON Schema editor.
+
+### Managing Fields
+
+- **Add Field** — Click "+ Add Field" to add a new form field
+- **Remove Field** — Click the ✖ button next to any field
+- **Reorder Fields** — Use ▲/▼ arrows to move fields up or down
+- **Edit Field** — Click a field name to expand its configuration
+
+### Field Configuration
+
+Each field has:
+
+| Property | Description |
+|----------|-------------|
+| **Label** | The visible field label |
+| **Field ID** | Unique identifier (auto-generated) |
+| **Type** | Field type (see below) |
+| **Placeholder** | Hint text shown when empty |
+| **Help Text** | Additional guidance below the field |
+| **Required** | Whether the field must be filled |
+
+### Supported Field Types
+
+| Type | Description |
+|------|-------------|
+| Text | Single-line text input |
+| Textarea | Multi-line text input |
+| Number | Numeric input with min/max validation |
+| Email | Email address input |
+| URL | Web address input |
+| Password | Masked text input |
+| Date | Date picker |
+| Dropdown | Select from predefined options |
+| Radio Buttons | Single-select radio group |
+| Checkbox | Boolean toggle |
+
+### Type-Specific Settings
+
+**Text / Textarea / Email / URL / Password:**
+- Min Length, Max Length
+
+**Number:**
+- Min Value, Max Value
+
+**Dropdown / Radio Buttons:**
+- Options editor with Label and Value pairs
+- Add/remove options dynamically
+
+**All types:**
+- Default Value
+
+### Options Editor
+
+For Dropdown and Radio Button fields, an options editor appears:
+- Each option has a **Label** (what the user sees) and a **Value** (what gets submitted)
+- Click **"+ Add Option"** to add new options
+- Click **✖** to remove an option
+
+## Preview Mode
+
+Click **"Preview"** in the toolbar to switch to live preview mode:
+
+- The editor panels hide and the full BlockKit layout is rendered
+- Interactive components become functional (buttons are clickable, forms are fillable)
+- Wizard navigation works with step buttons
+- Click **"Edit"** to return to the editor
+
+### Debug Panel
+
+In preview mode, click **"Debug"** to open the action debug panel:
+
+- Shows a terminal-themed log at the bottom of the page
+- Displays action payloads when buttons are clicked or forms are submitted
+- Each entry shows: timestamp, HTTP method, URL, and payload JSON
+- Use **"Clear"** to reset the log
+
+## Replacements Editor
+
+Click **"{x} Replacements"** to open the replacements panel:
+
+### Form Mode
+- Auto-detects all `{variable_name}` patterns in text blocks and `block_replacement` refs
+- Two-column scrollable grid with variable name and value input
+- Handles 30+ replacement variables cleanly
+
+### JSON Mode
+- Toggle to a JSON textarea to bulk-paste replacement values:
+
+```json
+{
+  "user_name": "Jason",
+  "company_name": "Acme Corp",
+  "role": "Admin",
+  "account_id": "12345"
+}
+```
+
+- Click **"Apply JSON"** to load all values at once
+- Invalid JSON shows an error message
+- Switching back to Form mode preserves applied values
+
+## Tree View
+
+Click **"Structure"** in the left panel to see the document tree:
+
+- Shows the full block hierarchy with proper nesting
+- Displays block type icons and names
+- Click a tree node to select that block on the canvas
+- Selection syncs between tree view and canvas
+
+## Keyboard Shortcuts
+
+| Shortcut | Action |
+|----------|--------|
+| `Delete` | Remove the selected block |
+| `Ctrl+D` | Duplicate the selected block |
+| `Ctrl+Z` | Undo |
+| `Ctrl+Y` / `Ctrl+Shift+Z` | Redo |
+| `Escape` | Deselect the current block |
+
+## Nesting Rules
+
+The builder enforces nesting rules to ensure valid BlockKit structures:
+
+| Container | Allowed Children |
+|-----------|-----------------|
+| Root | Section, Wizard, Column Layout, Actions, Form, Repeater, Remote Block, content blocks |
+| Section | Heading, Text, Alert, Lists, Actions, Form, Column Layout, Repeater, Remote Block |
+| Wizard | Wizard Step |
+| Wizard Step | All content blocks, Actions, Form, Repeater, Remote Block |
+| Column Layout | Column |
+| Column | All content blocks, Actions, Form, Repeater, Remote Block |
+| Actions | Button |
+| Repeater | All content blocks, Column Layout, Section, Actions, Form, nested Repeater, Remote Block |
+| Remote Block (fallback) | All content blocks, Column Layout, Section, Actions, Form, Repeater, nested Remote Block |
+| Bullet / Ordered List | List Item |
+
+Invalid drops show an error toast explaining why the block cannot be placed there.
+
+## JSON Export
+
+Click **"View JSON"** to see the generated BlockKit JSON. This JSON can be:
+- Stored in a database
+- Sent via API
+- Used directly with the [BlockRenderer](/platform/blockkit/overview) component

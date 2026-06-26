@@ -1,0 +1,116 @@
+---
+title: "QR Code"
+description: "A block that renders a QR code from a provided value such as a URL or text string"
+---
+
+## Basic Example
+
+```json
+{
+  "type": "qr_code",
+  "value": "https://example.com/join/ABC123",
+  "size": "medium",
+  "errorCorrection": "M",
+  "align": "center"
+}
+```
+
+## Full Example
+
+```json Example Code expandable
+[
+  {
+    "type": "section",
+    "elements": [
+      {
+        "type": "text",
+        "text": "Scan this QR code to connect your mobile device:"
+      },
+      {
+        "type": "qr_code",
+        "value": "https://example.com/pair/XYZ789",
+        "size": "large",
+        "errorCorrection": "H",
+        "label": "Scan with your phone camera",
+        "align": "center",
+        "margin": "small none"
+      }
+    ]
+  }
+]
+```
+
+## Properties
+
+<ParamField path="type" type="string" required="true">
+  Identifies this as a QR code block
+
+Must be <code>qr_code</code>
+</ParamField>
+
+<ParamField path="value" type="string" required="true">
+  The data to encode in the QR code (URL, text, etc.). Supports `{replacements}` for dynamic content.
+</ParamField>
+
+<ParamField path="size" type="string" required="false" default="medium">
+  Rendered size of the QR code
+
+**Allowed values:** `x-small` (64px), `small` (96px), `medium` (128px), `large` (192px), `x-large` (256px)
+</ParamField>
+
+<ParamField path="errorCorrection" type="string" required="false" default="M">
+  Error correction level — determines how much of the QR code can be damaged while still being scannable
+
+**Allowed values:**
+- `L` — Low (~7% recovery)
+- `M` — Medium (~15% recovery)
+- `Q` — Quartile (~25% recovery)
+- `H` — High (~30% recovery)
+</ParamField>
+
+<ParamField path="foregroundColor" type="string" required="false" default="#000000">
+  Color of the QR code modules (dots) in hex format
+</ParamField>
+
+<ParamField path="backgroundColor" type="string" required="false" default="#ffffff">
+  Background color of the QR code in hex format
+</ParamField>
+
+<ParamField path="label" type="string" required="false">
+  Caption text rendered below the QR code
+</ParamField>
+
+<ParamField path="align" type="string" required="false" default="center">
+  Horizontal alignment of the QR code
+
+**Allowed values:** `start`, `center`, `end`
+</ParamField>
+
+<ParamField path="margin" type="string" required="false">
+  Margin spacing around the block (InstructureUI spacing shorthand)
+</ParamField>
+
+<ParamField path="padding" type="string" required="false">
+  Padding spacing inside the block (InstructureUI spacing shorthand)
+</ParamField>
+
+## BlockBuilder Usage
+
+```typescript
+import { Elements } from '@blockkit/builder';
+
+Elements.QrCode({ value: 'https://example.com/join/ABC123' })
+  .size('large')
+  .errorCorrection('H')
+  .label('Scan to join session')
+  .align('center')
+```
+
+## Usage Notes
+
+- This element is part of the BlockKit system for building dynamic user interfaces
+- The `value` property supports `{replacements}` — for example, `"{sessionJoinUrl}"` will be replaced with the actual URL at render time
+- Use higher error correction levels (`Q` or `H`) when the QR code may be partially obscured (e.g., with a logo overlay) or displayed in challenging conditions
+- The QR code renders as an SVG for clean scaling and accessibility
+- For accessibility, a screen-reader label is automatically generated from the value, or you can provide custom alt text via the smarter-ui component directly
+- The underlying component is `QrCode` from `@smarterservices/smarter-ui`, which can also be used standalone outside of BlockKit

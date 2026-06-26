@@ -1,25 +1,96 @@
 ---
 title: Authentication
-description: "Authentication for SmarterProctoring API"
+description: "Authentication options for SmarterProctoring API"
 icon: "key"
 ---
 
-## API Security
-All requests to the SmarterProctoring API must be submitted using SSL.
+The SmarterProctoring API supports two OAuth 2.0 / OpenID Connect (OIDC) authentication flows, designed for different use cases:
 
-## JWT Token Authentication
-The SmarterProctoring API uses JWT (JSON Web Token) authentication. Authentication is performed by including a valid JWT token in the `token` header of your requests.
+## Authentication Options
 
-```http
-GET /v2/installs/{installSid}/provision HTTP/1.1
-Host: api.smarterproctoring.com
-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+<CardGroup cols={2}>
+  <Card title="Machine-to-Machine (M2M)" icon="server" href="/proctoring/api/authentication/machine-to-machine">
+    **Client Credentials Flow**
+
+    For server-to-server integrations where no user interaction is required. Your backend services authenticate directly using a Client ID and Client Secret.
+
+    **Best for:**
+    - Backend integrations
+    - Automated data sync
+    - Batch processing
+    - Cron jobs
+  </Card>
+
+  <Card title="User Authentication" icon="user" href="/proctoring/api/authentication/user-authentication">
+    **Authorization Code Flow**
+
+    For applications that need to authenticate end users. Users are redirected to SmarterServices to login, then your application receives tokens to access user data.
+
+    **Best for:**
+    - Web applications
+    - Single sign-on (SSO)
+    - User portals
+    - Third-party integrations
+  </Card>
+</CardGroup>
+
+## Quick Comparison
+
+| Feature | Machine-to-Machine | User Authentication |
+|---------|---------------------|---------------------|
+| **Flow** | Client Credentials | Authorization Code |
+| **User interaction** | None | Required |
+| **Token type** | Access token only | Access token + ID token |
+| **Refresh tokens** | Not used | Optional (configurable lifetime) |
+| **PKCE support** | N/A | Optional (recommended for public clients) |
+| **Scopes** | `smarter_iam` | `openid`, `profile`, `email`, `smarter_iam` |
+| **Token lifetime** | Configurable (default 1 hour) | Configurable (default 1 hour) |
+
+## OIDC Discovery
+
+SmarterServices implements [OpenID Connect Discovery 1.0](https://openid.net/specs/openid-connect-discovery-1_0.html). You can retrieve provider configuration metadata from:
+
+```
+GET https://api.smarterservices.com/oidc/.well-known/openid-configuration
 ```
 
-### Obtaining a Token
-To obtain a JWT token, you'll need to contact your SmarterProctoring account manager. The token will be provisioned based on your account's permissions and access levels.
+This returns all available endpoints, supported grant types, scopes, and signing algorithms. Most OIDC client libraries can use this URL to auto-configure themselves. For example:
 
-### Token Security
-- Keep your JWT token secure and do not share it in public repositories or client-side code
-- Tokens have an expiration time, after which they will no longer be valid
-- If your token is compromised, contact your SmarterProctoring account manager immediately to have it revoked
+```json
+{
+  "issuer": "https://api.smarterservices.com/oidc",
+  "authorization_endpoint": "https://api.smarterservices.com/oidc/auth",
+  "token_endpoint": "https://api.smarterservices.com/oidc/token",
+  "jwks_uri": "https://api.smarterservices.com/oidc/jwks",
+  "userinfo_endpoint": "https://api.smarterservices.com/oidc/me"
+}
+```
+
+## Common Endpoints
+
+| Endpoint | Purpose |
+|----------|---------|
+| `GET /oidc/.well-known/openid-configuration` | Discovery document |
+| `GET /oidc/jwks` | JSON Web Key Set (for token verification) |
+| `GET /oidc/auth` | Authorization endpoint (user flow only) |
+| `POST /oidc/token` | Token endpoint (both flows) |
+| `GET /oidc/me` | UserInfo endpoint (user flow only) |
+| `POST /oidc/logout` | Token revocation / logout |
+
+## Common Security Practices
+
+- **Store credentials securely** - Never expose Client ID/Secret in client-side code
+- **Use HTTPS** - All redirect URIs must use HTTPS
+- **Validate tokens** - Check expiration before using tokens
+- **Verify token signatures** - Use the JWKS endpoint to verify JWT signatures
+- **Handle 401/403 errors** - Implement proper error handling for authentication failures
+- **Use PKCE** - Required for public clients (SPAs, mobile apps), recommended for all
+
+## Next Steps
+
+Choose the authentication flow that fits your use case:
+
+- **[Machine-to-Machine →](/proctoring/api/authentication/machine-to-machine)** - If you're building a backend integration
+- **[User Authentication →](/proctoring/api/authentication/user-authentication)** - If you need users to login to your application
+
+Need help deciding? Contact your SmarterProctoring account manager.

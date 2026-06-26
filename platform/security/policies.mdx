@@ -394,10 +394,10 @@ graph TD
       "Resource": ["ssrn:ss:sp::578:session/*"],
       "Condition": {
         "DateGreaterThan": {
-          "aws:CurrentTime": "2023-01-01T00:00:00Z"
+          "context:currentTime": "2023-01-01T00:00:00Z"
         },
         "DateLessThan": {
-          "aws:CurrentTime": "2023-12-31T23:59:59Z"
+          "context:currentTime": "2023-12-31T23:59:59Z"
         }
       }
     }
@@ -417,7 +417,7 @@ graph TD
       "Resource": ["ssrn:ss:sm::578:*"],
       "Condition": {
         "IpAddress": {
-          "aws:SourceIp": ["192.168.1.0/24", "10.0.0.0/16"]
+          "network:sourceIp": ["192.168.1.0/24", "10.0.0.0/16"]
         }
       }
     }
@@ -437,7 +437,7 @@ graph TD
       "Resource": ["*"],
       "Condition": {
         "Bool": {
-          "aws:MultiFactorAuthPresent": "true"
+          "context:multiFactorAuthPresent": "true"
         }
       }
     }
@@ -495,7 +495,7 @@ graph TD
   "Resource": ["ssrn:ss:sm::578:user/*"],
   "Condition": {
     "Bool": {
-      "aws:MultiFactorAuthPresent": "true"
+      "context:multiFactorAuthPresent": "true"
     }
   }
 }

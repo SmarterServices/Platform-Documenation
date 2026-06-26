@@ -130,7 +130,7 @@ Exact date/time match.
 {
   "Condition": {
     "DateEquals": {
-      "aws:CurrentTime": "2023-12-25T00:00:00Z"
+      "context:currentTime": "2023-12-25T00:00:00Z"
     }
   }
 }
@@ -143,7 +143,7 @@ Current time is after specified date.
 {
   "Condition": {
     "DateGreaterThan": {
-      "aws:CurrentTime": "2023-01-01T00:00:00Z"
+      "context:currentTime": "2023-01-01T00:00:00Z"
     }
   }
 }
@@ -156,7 +156,7 @@ Current time is before specified date.
 {
   "Condition": {
     "DateLessThan": {
-      "aws:CurrentTime": "2023-12-31T23:59:59Z"
+      "context:currentTime": "2023-12-31T23:59:59Z"
     }
   }
 }
@@ -171,7 +171,7 @@ Boolean value match.
 {
   "Condition": {
     "Bool": {
-      "aws:MultiFactorAuthPresent": "true"
+      "context:multiFactorAuthPresent": "true"
     }
   }
 }
@@ -179,27 +179,38 @@ Boolean value match.
 
 ### IP Address Conditions
 
+IP address conditions use the `network:` namespace and evaluate the request's source IP address in-memory (no database query). They can be combined with other condition types using AND logic.
+
+**Supported value formats:**
+- **Exact IP**: `"192.168.1.50"` — matches a single address (treated as `/32`).
+- **CIDR range**: `"10.0.0.0/8"` — matches any address in the subnet.
+- **Array**: `["192.168.1.0/24", "10.0.0.0/16"]` — matches if the source IP falls within any entry (OR logic).
+
+<Note>
+Only IPv4 addresses are supported. IPv6-mapped IPv4 addresses (e.g., `::ffff:192.168.1.50`) are automatically normalized to their IPv4 equivalent.
+</Note>
+
 #### IpAddress
-Request originates from specified IP range.
+Allow-list — the request must originate from one of the specified IPs or ranges. If the source IP does not match any entry, the request is denied.
 
 ```json
 {
   "Condition": {
     "IpAddress": {
-      "aws:SourceIp": ["192.168.1.0/24", "10.0.0.0/16"]
+      "network:sourceIp": ["192.168.1.0/24", "10.0.0.0/16"]
     }
   }
 }
 ```
 
 #### NotIpAddress
-Request does not originate from specified IP range.
+Deny-list — the request must **not** originate from any of the specified IPs or ranges. If the source IP matches any entry, the request is denied.
 
 ```json
 {
   "Condition": {
     "NotIpAddress": {
-      "aws:SourceIp": "192.168.1.100/32"
+      "network:sourceIp": "192.168.1.100/32"
     }
   }
 }
@@ -207,57 +218,61 @@ Request does not originate from specified IP range.
 
 ## Condition Keys
 
-### Global Condition Keys
+### Network Namespace (network:)
 
-These keys are available in all contexts:
+Keys for network-level request attributes. The `network:` namespace is used with IP address condition operators.
 
-#### aws:CurrentTime
+#### network:sourceIp
+IP address of the request source. Supports exact IPs, CIDR ranges, and arrays. Used with `IpAddress` and `NotIpAddress` operators only.
+
+```json
+{
+  "Condition": {
+    "IpAddress": {
+      "network:sourceIp": "192.168.1.0/24"
+    }
+  }
+}
+```
+
+### Context Namespace (context:)
+
+Keys for request-level context attributes.
+
+#### context:currentTime
 Current date and time of the request.
 
 ```json
 {
   "Condition": {
     "DateGreaterThan": {
-      "aws:CurrentTime": "2023-01-01T09:00:00Z"
+      "context:currentTime": "2023-01-01T09:00:00Z"
     }
   }
 }
 ```
 
-#### aws:SourceIp
-IP address of the request source.
-
-```json
-{
-  "Condition": {
-    "IpAddress": {
-      "aws:SourceIp": "192.168.1.0/24"
-    }
-  }
-}
-```
-
-#### aws:UserAgent
+#### context:userAgent
 User agent string of the request.
 
 ```json
 {
   "Condition": {
     "StringLike": {
-      "aws:UserAgent": "SmarterServices-*"
+      "context:userAgent": "SmarterServices-*"
     }
   }
 }
 ```
 
-#### aws:MultiFactorAuthPresent
+#### context:multiFactorAuthPresent
 Whether multi-factor authentication was used.
 
 ```json
 {
   "Condition": {
     "Bool": {
-      "aws:MultiFactorAuthPresent": "true"
+      "context:multiFactorAuthPresent": "true"
     }
   }
 }
@@ -400,10 +415,10 @@ All conditions must be true.
       "session:proctorAccountSid": "PA123456"
     },
     "DateGreaterThan": {
-      "aws:CurrentTime": "2023-01-01T00:00:00Z"
+      "context:currentTime": "2023-01-01T00:00:00Z"
     },
     "IpAddress": {
-      "aws:SourceIp": "192.168.1.0/24"
+      "network:sourceIp": "192.168.1.0/24"
     }
   }
 }
@@ -435,7 +450,7 @@ Combining AND and OR logic.
       "user:department": ["math-*", "science-*"]
     },
     "DateGreaterThan": {
-      "aws:CurrentTime": "2023-01-01T00:00:00Z"
+      "context:currentTime": "2023-01-01T00:00:00Z"
     }
   }
 }
@@ -456,10 +471,10 @@ Combining AND and OR logic.
       "Resource": ["ssrn:ss:sm::578:*"],
       "Condition": {
         "DateGreaterThan": {
-          "aws:CurrentTime": "09:00:00Z"
+          "context:currentTime": "09:00:00Z"
         },
         "DateLessThan": {
-          "aws:CurrentTime": "17:00:00Z"
+          "context:currentTime": "17:00:00Z"
         }
       }
     }
@@ -472,10 +487,10 @@ Combining AND and OR logic.
 {
   "Condition": {
     "DateGreaterThan": {
-      "aws:CurrentTime": "2023-05-01T00:00:00Z"
+      "context:currentTime": "2023-05-01T00:00:00Z"
     },
     "DateLessThan": {
-      "aws:CurrentTime": "2023-05-15T23:59:59Z"
+      "context:currentTime": "2023-05-15T23:59:59Z"
     }
   }
 }
@@ -484,11 +499,13 @@ Combining AND and OR logic.
 ### Location-Based Access
 
 #### Campus Network Only
+Only allow access from campus IP ranges.
+
 ```json
 {
   "Condition": {
     "IpAddress": {
-      "aws:SourceIp": [
+      "network:sourceIp": [
         "192.168.0.0/16",
         "10.0.0.0/8",
         "172.16.0.0/12"
@@ -498,7 +515,9 @@ Combining AND and OR logic.
 }
 ```
 
-#### Block Specific Locations
+#### Block Specific IPs
+Deny access from specific IP addresses or ranges.
+
 ```json
 {
   "Effect": "Deny",
@@ -506,7 +525,39 @@ Combining AND and OR logic.
   "Resource": ["*"],
   "Condition": {
     "IpAddress": {
-      "aws:SourceIp": ["192.168.100.0/24"]
+      "network:sourceIp": ["192.168.100.0/24"]
+    }
+  }
+}
+```
+
+#### Subnet Carve-Out
+Allow a broad range but deny a specific subnet within it. Both conditions must be true (AND logic).
+
+```json
+{
+  "Condition": {
+    "IpAddress": {
+      "network:sourceIp": "10.0.0.0/8"
+    },
+    "NotIpAddress": {
+      "network:sourceIp": "10.99.0.0/16"
+    }
+  }
+}
+```
+
+#### Deny All Except Trusted Networks
+Use a Deny statement with `NotIpAddress` to block everything outside the allowed ranges.
+
+```json
+{
+  "Effect": "Deny",
+  "Action": ["*"],
+  "Resource": ["*"],
+  "Condition": {
+    "NotIpAddress": {
+      "network:sourceIp": ["192.168.0.0/16", "10.0.0.0/8"]
     }
   }
 }
@@ -576,7 +627,7 @@ Combining AND and OR logic.
   "Resource": ["*"],
   "Condition": {
     "Bool": {
-      "aws:MultiFactorAuthPresent": "true"
+      "context:multiFactorAuthPresent": "true"
     }
   }
 }
@@ -587,7 +638,7 @@ Combining AND and OR logic.
 {
   "Condition": {
     "StringLike": {
-      "aws:UserAgent": [
+      "context:userAgent": [
         "SmarterServices-Web/*",
         "SmarterServices-Mobile/*"
       ]
@@ -621,10 +672,10 @@ Allow access only during specific time windows.
 {
   "Condition": {
     "DateGreaterThan": {
-      "aws:CurrentTime": "${exam.startTime}"
+      "context:currentTime": "${exam.startTime}"
     },
     "DateLessThan": {
-      "aws:CurrentTime": "${exam.endTime}"
+      "context:currentTime": "${exam.endTime}"
     }
   }
 }
@@ -677,7 +728,7 @@ Access based on resource attributes.
       "user:verified": "true"
     },
     "IpAddress": {
-      "aws:SourceIp": "192.168.1.0/24"
+      "network:sourceIp": "192.168.1.0/24"
     }
   }
 }
@@ -691,7 +742,7 @@ Access based on resource attributes.
   "Resource": ["*"],
   "Condition": {
     "NotIpAddress": {
-      "aws:SourceIp": ["192.168.0.0/16"]
+      "network:sourceIp": ["192.168.0.0/16"]
     }
   }
 }
@@ -706,9 +757,18 @@ Always test conditions in a development environment before deploying to producti
 
 1. **Case Sensitivity**: String conditions are case-sensitive
 2. **Date Formats**: Use ISO 8601 format for dates
-3. **IP Ranges**: Use CIDR notation for IP addresses
+3. **IP Ranges**: Use CIDR notation for IP addresses (e.g., `192.168.1.0/24`)
 4. **Multiple Values**: Use arrays for OR logic
 5. **Variable Substitution**: Ensure variables are properly formatted
+6. **IP Operator Namespace**: `IpAddress` and `NotIpAddress` operators only work with the `network:` namespace — they cannot be used with `session:` or other namespaces
+7. **Missing Source IP**: If the source IP cannot be determined from the request, the condition will fail closed (access denied)
+
+### IP Address Troubleshooting
+
+1. **Invalid CIDR notation**: Ensure IP ranges use valid CIDR format (e.g., `10.0.0.0/8`, not `10.0.0.0/33`). Invalid CIDR values will cause the condition to fail closed.
+2. **IPv4 only**: Only IPv4 addresses are supported. IPv6-mapped IPv4 addresses (`::ffff:x.x.x.x`) are automatically normalized, but pure IPv6 addresses are not supported.
+3. **Proxy headers**: When behind a load balancer or proxy, the source IP is extracted from the `X-Forwarded-For` header (leftmost entry). Ensure your proxy is correctly setting this header.
+4. **Unexpected denials**: If requests are unexpectedly denied, verify the client's actual IP address matches the CIDR range in the policy. Remember that a single IP like `192.168.1.50` is treated as `192.168.1.50/32`.
 
 ### Debugging Tips
 

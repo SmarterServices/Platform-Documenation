@@ -1,0 +1,176 @@
+---
+title: Remote Block
+description: Load and render BlockKit content from a remote URL
+---
+
+# Remote Block
+
+The `remote_block` fetches BlockKit JSON from a URL and renders it inline. This enables dynamic, server-driven content within a BlockKit layout — dashboards, live status panels, personalized widgets, or any content that needs to come from an API.
+
+## JSON Structure
+
+```json
+{
+  "type": "remote_block",
+  "url": "https://api.example.com/blockkit/dashboard",
+  "method": "GET",
+  "data": {
+    "user_id": "{user_id}",
+    "org": "{org_name}"
+  },
+  "headers": {
+    "X-API-Key": "{api_key}"
+  },
+  "refresh_interval": 30,
+  "loader": {
+    "enabled": true,
+    "text": "Loading dashboard...",
+    "spinner_size": "medium",
+    "overlay": false
+  },
+  "error_behavior": "show_fallback",
+  "fallback": [
+    { "type": "alert", "severity": "warning", "text": "Dashboard is temporarily unavailable." }
+  ]
+}
+```
+
+## Properties
+
+| Property | Type | Required | Default | Description |
+|----------|------|----------|---------|-------------|
+| `type` | `"remote_block"` | Yes | — | Block type identifier |
+| `url` | `string` | Yes | — | URL to fetch BlockKit content from. Supports `{variable}` substitution. |
+| `method` | `"GET" \| "POST"` | No | `"GET"` | HTTP method. GET appends `data` as query params; POST sends as JSON body. |
+| `data` | `Record<string, string>` | No | `{}` | Key-value pairs. Sent as query params (GET) or JSON body (POST). Values support `{variable}` syntax. |
+| `headers` | `Record<string, string>` | No | `{}` | Custom HTTP headers. Values support `{variable}` syntax. |
+| `refresh_interval` | `number` | No | — | Auto-refresh interval in seconds. Minimum 5 seconds. Omit or set to 0 for fetch-once. |
+| `cache_key` | `string` | No | — | Deduplication key. Two remote blocks with the same `cache_key` share a single request. |
+| `loader` | `object` | No | See below | Loading state configuration. |
+| `error_behavior` | `"show_error" \| "show_fallback" \| "hide"` | No | `"show_error"` | What to render when the fetch fails. |
+| `fallback` | `BlockElement[]` | No | `[]` | Blocks to render when `error_behavior` is `"show_fallback"`. |
+
+### Loader Properties
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `enabled` | `boolean` | `true` | Show a loading spinner. Set `false` to load silently. |
+| `text` | `string` | `"Loading..."` | Text displayed next to the spinner. |
+| `spinner_size` | `"small" \| "medium" \| "large"` | `"medium"` | Spinner size. |
+| `overlay` | `boolean` | `false` | When `true` and auto-refreshing, shows a translucent overlay spinner over existing content instead of replacing it. Prevents content flash on refresh. |
+
+## Server Response Format
+
+The endpoint must return JSON. Three formats are accepted:
+
+### Array of blocks
+
+```json
+[
+  { "type": "heading", "level": 2, "text": "Dashboard" },
+  { "type": "text", "text": "Last updated: 2 minutes ago" }
+]
+```
+
+### Wrapped with scoped replacements
+
+```json
+{
+  "blocks": [
+    { "type": "text", "text": "Welcome, {remote_user}!" }
+  ],
+  "replacements": {
+    "remote_user": "Jason"
+  }
+}
+```
+
+Scoped replacements are merged with the parent context and only apply within the remote block's rendered content.
+
+### Single block
+
+```json
+{ "type": "alert", "severity": "info", "text": "System operational" }
+```
+
+## Variable Substitution
+
+The `url`, `data` values, and `headers` values all support `{variable}` substitution from the parent replacements context:
+
+```json
+{
+  "type": "remote_block",
+  "url": "https://api.example.com/users/{user_id}/widgets",
+  "data": {
+    "locale": "{user_locale}",
+    "theme": "{app_theme}"
+  }
+}
+```
+
+## Error Handling
+
+| `error_behavior` | Behavior |
+|-------------------|----------|
+| `"show_error"` | Displays an error alert with the failure message and URL |
+| `"show_fallback"` | Renders the `fallback` blocks array |
+| `"hide"` | Renders nothing |
+
+## Auto-Refresh
+
+Set `refresh_interval` to automatically re-fetch content on a timer:
+
+```json
+{
+  "type": "remote_block",
+  "url": "https://api.example.com/live-stats",
+  "refresh_interval": 10,
+  "loader": {
+    "overlay": true,
+    "text": "Refreshing..."
+  }
+}
+```
+
+With `overlay: true`, the existing content stays visible with a translucent spinner overlay during refresh — no content flash.
+
+Minimum interval is 5 seconds to prevent accidental high-frequency polling.
+
+## Builder
+
+In the WYSIWYG builder:
+
+- **Library**: Drag "Remote Block" from the Layout category
+- **Properties panel**: Configure URL, method, data parameters (key-value editor), headers (key-value editor), refresh interval, loader settings, error behavior, cache key
+- **Canvas**: Shows a placeholder card (no fetch in edit mode) displaying the configured URL and method
+- **Fallback editor**: Toggle between "Preview Card" and "Fallback" views. The Fallback view is a full drag-and-drop editor for the fallback content blocks.
+- **Preview mode**: Performs the live fetch and renders the remote content
+
+## Example: Live Dashboard Widget
+
+```json
+{
+  "type": "remote_block",
+  "url": "https://api.example.com/blockkit/dashboard",
+  "method": "GET",
+  "data": {
+    "org_id": "{org_id}"
+  },
+  "refresh_interval": 30,
+  "loader": {
+    "enabled": true,
+    "text": "Loading dashboard...",
+    "spinner_size": "medium",
+    "overlay": true
+  },
+  "error_behavior": "show_fallback",
+  "fallback": [
+    {
+      "type": "section",
+      "elements": [
+        { "type": "alert", "severity": "warning", "text": "Dashboard temporarily unavailable. Please try again later." }
+      ]
+    }
+  ]
+}
+```

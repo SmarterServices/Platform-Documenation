@@ -1,0 +1,147 @@
+---
+title: "Button"
+description: "An interactive button that triggers an action when clicked"
+---
+
+## Basic Example
+
+```json
+{
+  "type": "button",
+  "text": "Submit",
+  "action_id": "submit_btn",
+  "style": "primary"
+}
+```
+
+## Complete Example
+
+```json Example Code expandable
+[
+  {
+    "type": "actions",
+    "action_url": "https://api.example.com/actions",
+    "elements": [
+      {
+        "type": "button",
+        "text": "Approve",
+        "action_id": "approve_btn",
+        "value": "approved",
+        "style": "primary"
+      },
+      {
+        "type": "button",
+        "text": "Reject",
+        "action_id": "reject_btn",
+        "value": "rejected",
+        "style": "danger",
+        "confirm": {
+          "title": "Are you sure?",
+          "text": "This action cannot be undone.",
+          "confirm_text": "Yes, reject",
+          "deny_text": "Cancel"
+        }
+      },
+      {
+        "type": "button",
+        "text": "View Details",
+        "action_id": "view_btn",
+        "url": "https://example.com/details"
+      }
+    ]
+  }
+]
+```
+
+## Properties
+
+<ParamField path="type" type="string" required="true">
+  Identifies this as a button block
+
+  Must be `button`
+</ParamField>
+
+<ParamField path="text" type="string" required="true">
+  The visible label text displayed on the button
+</ParamField>
+
+<ParamField path="action_id" type="string" required="true">
+  A unique identifier for the button action. Included in the action payload when the button is clicked.
+</ParamField>
+
+<ParamField path="value" type="string" required="false">
+  An optional value sent with the action payload when clicked. Useful for passing data to the action handler.
+</ParamField>
+
+<ParamField path="style" type="string" required="false" default="default">
+  The visual style of the button
+
+  **Allowed values:** `primary`, `danger`, `default`
+</ParamField>
+
+<ParamField path="url" type="string" required="false">
+  A URL to open when the button is clicked. When set, the button acts as a link instead of triggering an action POST.
+</ParamField>
+
+<ParamField path="action_url" type="string" required="false">
+  The endpoint URL to POST the action payload to when clicked. If not set, the parent `actions` block's `action_url` is used.
+</ParamField>
+
+<ParamField path="confirm" type="object" required="false">
+  An optional confirmation dialog shown before the action is executed.
+
+  | Property | Type | Description |
+  |----------|------|-------------|
+  | `title` | string | Dialog title |
+  | `text` | string | Confirmation message |
+  | `confirm_text` | string | Text for the confirm button |
+  | `deny_text` | string | Text for the cancel button |
+</ParamField>
+
+<ParamField path="disabled" type="boolean" required="false" default="false">
+  When `true`, the button is rendered in a disabled state and cannot be clicked.
+</ParamField>
+
+## Action Payload
+
+When a button is clicked, the following payload is POSTed to the `action_url`:
+
+```json
+{
+  "type": "button_click",
+  "action_id": "approve_btn",
+  "value": "approved",
+  "block_id": "actions_123"
+}
+```
+
+## Server Response
+
+The server can respond with one of these action types:
+
+| Response Type | Description |
+|--------------|-------------|
+| `replace` | Replace the entire block with new BlockKit content |
+| `update` | Update specific properties of the block |
+| `append` | Append new blocks after the current block |
+| `errors` | Display validation errors |
+
+```json
+{
+  "action": "replace",
+  "blocks": [
+    {
+      "type": "alert",
+      "severity": "success",
+      "text": "Request approved successfully!"
+    }
+  ]
+}
+```
+
+## Usage Notes
+
+- Buttons are typically placed inside an [Actions](/platform/blockkit/actions) block
+- Buttons can also be placed inside [Section](/platform/blockkit/section) and [Column Layout](/platform/blockkit/columnlayout) blocks
+- When `url` is set, the button opens the URL instead of sending an action POST
+- The `confirm` dialog provides a safety net for destructive or irreversible actions

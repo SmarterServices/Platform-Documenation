@@ -1,0 +1,262 @@
+---
+title: "Form"
+description: "An interactive form block with configurable fields that submits data to an endpoint"
+---
+
+The Form block supports two configuration formats: a **fields array** (used by the visual builder) and a **JSON Schema** (for advanced use cases). Both are fully supported at runtime.
+
+## Basic Example (Fields Array)
+
+The `fields` array is the primary format produced by the WYSIWYG Builder's visual form designer.
+
+```json
+{
+  "type": "form",
+  "action_url": "https://api.example.com/submit",
+  "submit_text": "Submit",
+  "fields": [
+    {
+      "id": "name",
+      "field_type": "text",
+      "label": "Name",
+      "placeholder": "Enter your name",
+      "required": true
+    }
+  ]
+}
+```
+
+## Complete Example (Fields Array)
+
+```json Example Code expandable
+[
+  {
+    "type": "form",
+    "action_url": "https://api.example.com/submit-ticket",
+    "method": "POST",
+    "submit_text": "Submit Ticket",
+    "cancel_text": "Cancel",
+    "block_id": "support_ticket_form",
+    "layout": "stacked",
+    "fields": [
+      {
+        "id": "name",
+        "field_type": "text",
+        "label": "Full Name",
+        "placeholder": "Enter your name",
+        "required": true,
+        "min_length": 2,
+        "max_length": 100
+      },
+      {
+        "id": "email",
+        "field_type": "email",
+        "label": "Email Address",
+        "placeholder": "you@example.com",
+        "required": true
+      },
+      {
+        "id": "priority",
+        "field_type": "select",
+        "label": "Priority",
+        "required": true,
+        "options": [
+          { "label": "Low", "value": "low" },
+          { "label": "Medium", "value": "medium" },
+          { "label": "High", "value": "high" },
+          { "label": "Critical", "value": "critical" }
+        ]
+      },
+      {
+        "id": "description",
+        "field_type": "textarea",
+        "label": "Description",
+        "placeholder": "Describe your issue...",
+        "required": true
+      },
+      {
+        "id": "agree_to_terms",
+        "field_type": "checkbox",
+        "label": "I agree to the terms and conditions",
+        "required": true
+      }
+    ]
+  }
+]
+```
+
+## JSON Schema Format (Advanced)
+
+For advanced use cases, you can provide a standard JSON Schema instead of a fields array. The form renderer will use [SchemaAutoForm](https://uniforms.tools/) to auto-generate the UI.
+
+```json
+{
+  "type": "form",
+  "action_url": "https://api.example.com/submit",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "name": { "type": "string", "title": "Name" },
+      "priority": { "type": "string", "title": "Priority", "enum": ["Low", "Medium", "High"] },
+      "notes": { "type": "string", "title": "Notes", "uniforms": { "multiline": true } }
+    },
+    "required": ["name", "priority"]
+  }
+}
+```
+
+## Properties
+
+<ParamField path="type" type="string" required="true">
+  Identifies this as a form block
+
+  Must be `form`
+</ParamField>
+
+<ParamField path="action_url" type="string" required="false">
+  The endpoint URL to POST form data to when submitted
+</ParamField>
+
+<ParamField path="method" type="string" required="false" default="POST">
+  The HTTP method for the form submission
+
+  **Allowed values:** `POST`, `PUT`, `PATCH`
+</ParamField>
+
+<ParamField path="submit_text" type="string" required="false" default="Submit">
+  The label text for the submit button
+</ParamField>
+
+<ParamField path="cancel_text" type="string" required="false">
+  The label text for an optional cancel button. Leave empty to hide the cancel button.
+</ParamField>
+
+<ParamField path="block_id" type="string" required="false">
+  A unique identifier for this form block. Included in the submission payload.
+</ParamField>
+
+<ParamField path="layout" type="string" required="false" default="stacked">
+  Controls how form fields are arranged
+
+  **Allowed values:** `stacked` (vertical), `columns` (side-by-side), `inline` (horizontal)
+</ParamField>
+
+<ParamField path="fields" type="array" required="false">
+  An array of field objects that define the form fields. This is the format produced by the visual builder. Each field has properties like `id`, `field_type`, `label`, `placeholder`, `required`, `options`, etc. See [Field Types](#field-types-fields-array) below.
+</ParamField>
+
+<ParamField path="schema" type="object" required="false">
+  A [JSON Schema](https://json-schema.org/) object that defines the form fields. Alternative to `fields` for advanced use cases. See [JSON Schema Field Types](#field-types-json-schema) below.
+</ParamField>
+
+<ParamField path="model" type="object" required="false">
+  Default values for the form fields. Keys should match field IDs (for `fields` array) or property names (for `schema`).
+
+  ```json
+  {
+    "name": "John Doe",
+    "priority": "Medium"
+  }
+  ```
+</ParamField>
+
+## Field Types (Fields Array)
+
+When using the `fields` array format, each field object supports the following `field_type` values:
+
+| Field Type | Rendered As | Notes |
+|-----------|-------------|-------|
+| `text` | Text input | Single-line text, supports `min_length`, `max_length`, `pattern` |
+| `textarea` | Textarea | Multi-line text input |
+| `number` | Number input | Numeric input, supports `min`, `max` |
+| `email` | Email input | Validates email format |
+| `url` | URL input | Validates URL format |
+| `password` | Password input | Masked text input |
+| `date` | Date picker | Calendar selector |
+| `select` | Select dropdown | Requires `options` array with `{ label, value }` pairs |
+| `radio` | Radio buttons | Requires `options` array with `{ label, value }` pairs |
+| `checkbox` | Checkbox | Boolean toggle |
+
+### Field Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `id` | string | Unique field identifier (used as key in submission payload) |
+| `field_type` | string | One of the field types above |
+| `label` | string | Display label for the field |
+| `placeholder` | string | Placeholder text |
+| `required` | boolean | Whether the field is required |
+| `default_value` | any | Default value |
+| `help_text` | string | Helper text shown below the field |
+| `min_length` | number | Minimum string length (text/textarea/password) |
+| `max_length` | number | Maximum string length (text/textarea/password) |
+| `min` | number | Minimum value (number) |
+| `max` | number | Maximum value (number) |
+| `pattern` | string | Regex pattern for validation (text) |
+| `options` | array | Options for select/radio: `[{ "label": "...", "value": "..." }]` |
+
+## Field Types (JSON Schema)
+
+When using the `schema` format, field types are determined by the JSON Schema type and format:
+
+| JSON Schema Type | Rendered As | Notes |
+|-----------------|-------------|-------|
+| `string` | Text input | Default for string types |
+| `string` + `format: "email"` | Email input | Validates email format |
+| `string` + `format: "uri"` | URL input | Validates URL format |
+| `string` + `format: "date"` | Date picker | Calendar selector |
+| `string` + `uniforms.multiline: true` | Textarea | Multi-line text input |
+| `string` + `enum: [...]` | Select dropdown | Options from enum values |
+| `number` / `integer` | Number input | Numeric input with validation |
+| `boolean` | Checkbox | Toggle on/off |
+
+## Submission Payload
+
+When the form is submitted, the following payload is POSTed to the `action_url`:
+
+```json
+{
+  "type": "form_submit",
+  "block_id": "support_ticket_form",
+  "values": {
+    "name": "Jason",
+    "email": "jason@example.com",
+    "priority": "high",
+    "description": "Need help with integration",
+    "agree_to_terms": true
+  }
+}
+```
+
+## Server Response
+
+The server can respond with the same action types as [Button](/platform/blockkit/button) responses:
+
+```json
+{
+  "action": "replace",
+  "blocks": [
+    {
+      "type": "alert",
+      "severity": "success",
+      "text": "Ticket #1234 created successfully!"
+    }
+  ]
+}
+```
+
+## Nesting Rules
+
+The `form` block can be placed inside:
+- Root level
+- [Section](/platform/blockkit/section)
+- [Wizard Step](/platform/blockkit/wizardstep)
+- [Column Layout](/platform/blockkit/columnlayout) columns
+
+## Usage Notes
+
+- The WYSIWYG Builder uses the `fields` array format with its visual form designer — no JSON editing required
+- When using `fields`, a JSON Schema is generated internally for rendering via [SchemaAutoForm](https://uniforms.tools/)
+- Both `fields` and `schema` formats produce identical rendered forms
+- Forms support client-side validation before submission
+- Server-side validation errors can be returned and displayed inline

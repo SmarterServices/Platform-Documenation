@@ -1,0 +1,437 @@
+---
+title: User Authentication
+description: "OAuth 2.0 Authorization Code flow for SP-initiated user authentication"
+icon: "user"
+---
+
+The User Authentication flow uses **OAuth 2.0 Authorization Code** with **OpenID Connect (OIDC)** for applications that need to authenticate end users. This is an SP-initiated flow where users are redirected to SmarterServices to login.
+
+## Overview
+
+```mermaid
+sequenceDiagram
+    participant User as End User
+    participant SP as Service Provider<br/>(Your Application)
+    participant SmarterServices as SmarterServices Platform
+
+    Note over User,SP: User clicks "Login with SmarterServices"
+    SP->>SmarterServices: Redirect to /oidc/auth<br/>?client_id=xxx&redirect_uri=yyy<br/>&response_type=code&scope=openid
+
+    Note over SmarterServices: User authenticates
+    User->>SmarterServices: Enter credentials + MFA (if enabled)
+    SmarterServices-->>User: Authentication successful
+
+    SmarterServices-->>SP: Redirect to redirect_uri<br/>?code=authorization_code&state=xxx
+
+    SP->>SmarterServices: POST /oidc/token<br/>grant_type=authorization_code<br/>&code=xxx&client_id=xxx&client_secret=xxx
+    SmarterServices-->>SP: access_token + id_token<br/>+ refresh_token (if enabled)
+
+    Note over SP,SmarterServices: Access token valid
+    SP->>SmarterServices: API requests with<br/>Authorization: Bearer {access_token}
+    SmarterServices-->>SP: User data responses
+```
+
+## Obtaining Client Credentials
+
+Contact your SmarterProctoring account manager to:
+1. Register your application as an OIDC client
+2. Receive your **Client ID** (Integration SID)
+3. Receive your **Client Secret**
+4. Register your **Redirect URI(s)** - Must be HTTPS
+5. Configure additional options:
+   - **PKCE requirement** - Recommended for public clients
+   - **Consent display policy** - `never`, `once`, or `always`
+   - **Token lifetimes** - Custom access/refresh token TTLs
+   - **Back-channel logout URI** - For session synchronization
+
+## Step 1: Redirect User to Authorization Endpoint
+
+When a user wants to authenticate, redirect them to:
+
+```
+GET https://api.smarterservices.com/oidc/auth
+```
+
+**Query Parameters:**
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `client_id` | Yes | Your integration SID (e.g., `II9d19b343a93244b9df14104509a0b9b3`) |
+| `redirect_uri` | Yes | Must match a pre-registered URI (HTTPS only) |
+| `response_type` | Yes | Must be `code` |
+| `scope` | Yes | Space-separated scopes: `openid profile email` |
+| `state` | Recommended | Random value to prevent CSRF attacks (returned in callback) |
+| `nonce` | Recommended | Random value to prevent replay attacks (included in ID token) |
+| `code_challenge` | Conditional | PKCE challenge (required when PKCE is enabled for your integration) |
+| `code_challenge_method` | Conditional | Must be `S256` when using PKCE |
+| `prompt` | Optional | Set to `consent` to force the consent screen, `login` to force re-authentication |
+
+**Example redirect URL:**
+```
+https://api.smarterservices.com/oidc/auth
+  ?client_id=II9d19b343a93244b9df14104509a0b9b3
+  &redirect_uri=https%3A%2F%2Fyourapp.com%2Fcallback
+  &response_type=code
+  &scope=openid%20profile%20email
+  &state=random_state_value_123
+  &nonce=random_nonce_value_456
+```
+
+### PKCE (Proof Key for Code Exchange)
+
+PKCE is **strongly recommended for all clients** and **required for public clients** (SPAs, mobile apps) where the client secret cannot be securely stored.
+
+**Generating the code challenge:**
+
+```javascript
+// 1. Generate a random code_verifier (43-128 characters)
+const codeVerifier = base64UrlEncode(crypto.randomBytes(32));
+
+// 2. Create code_challenge = BASE64URL(SHA256(code_verifier))
+const codeChallenge = base64UrlEncode(
+  crypto.createHash('sha256').update(codeVerifier).digest()
+);
+
+// 3. Include in authorization request
+// &code_challenge={codeChallenge}&code_challenge_method=S256
+
+// 4. Send code_verifier when exchanging the code at the token endpoint
+```
+
+When PKCE is enabled for your integration, you must include `code_challenge` and `code_challenge_method=S256` in the authorization request, then provide the original `code_verifier` when exchanging the code for tokens.
+
+### Security Recommendations
+
+- **Always include `state`** - Generate a cryptographically random value, store it in session, and validate it matches in the callback
+- **Include `nonce`** - Required for ID token validation to prevent replay attacks
+- **Use PKCE** - Required for public clients, recommended for all
+- **Validate `redirect_uri`** - Must exactly match a registered URI (no wildcards)
+
+## Step 2: User Authenticates
+
+The user will be presented with a SmarterServices login page where they:
+1. Enter their credentials (email/password)
+2. Complete Multi-Factor Authentication (if enabled for their account)
+3. Grant consent (based on your integration's consent policy)
+
+### Consent Display Policy
+
+The consent screen behavior is configured per integration:
+
+| Policy | Behavior |
+|--------|----------|
+| `never` | Consent screen is never shown - access is auto-granted on first login |
+| `once` | Consent screen is shown only the first time a user authorizes your application |
+| `always` | Consent screen is shown every time the user authorizes your application |
+
+The consent screen displays:
+- Your application name
+- The list of requested scopes (in human-readable form)
+- The redirect destination
+- **Allow** and **Deny** buttons
+
+If the user denies, they are redirected to your `redirect_uri` with `error=access_denied`.
+
+Contact your account manager to configure your integration's consent policy.
+
+## Step 3: Handle the Authorization Callback
+
+After successful authentication, the user is redirected back to your `redirect_uri`:
+
+```
+GET https://yourapp.com/callback
+  ?code=authorization_code_xyz
+  &state=random_state_value_123
+```
+
+**Important:** Verify the `state` parameter matches what you sent to prevent CSRF attacks.
+
+**Error handling:** If authentication fails, you'll receive:
+```
+GET https://yourapp.com/callback
+  ?error=access_denied
+  &error_description=user+denied+access
+  &state=random_state_value_123
+```
+
+## Step 4: Exchange Code for Tokens
+
+Send a POST request to the token endpoint to exchange the authorization code for tokens:
+
+```http
+POST /oidc/token HTTP/1.1
+Host: api.smarterservices.com
+Content-Type: application/x-www-form-urlencoded
+Authorization: Basic {base64(client_id:client_secret)}
+
+grant_type=authorization_code
+&code=authorization_code_xyz
+&redirect_uri=https://yourapp.com/callback
+```
+
+**Parameters:**
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `grant_type` | Yes | Must be `authorization_code` |
+| `code` | Yes | The authorization code from the callback |
+| `redirect_uri` | Yes | Must match the `redirect_uri` used in Step 1 |
+| `code_verifier` | Conditional | Required when PKCE was used in the authorization request |
+
+**Authorization codes are single-use** and expire after 10 minutes.
+
+## Token Response
+
+```json
+{
+  "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "token_type": "Bearer",
+  "expires_in": 3600,
+  "expires_at": "2026-05-15T18:00:00.000Z",
+  "id_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "refresh_token": "def50200..."
+}
+```
+
+**Response Fields:**
+- `access_token` - JWT for accessing API resources on behalf of the user
+- `id_token` - JWT containing user identity claims (name, email, etc.)
+- `refresh_token` - Token to obtain new access tokens (when enabled)
+- `expires_in` / `expires_at` - Access token expiration (1 hour)
+
+### ID Token Claims
+
+The ID token contains user identity information:
+
+```json
+{
+  "sub": "US123abc...",
+  "name": "John Doe",
+  "email": "john@example.com",
+  "iss": "https://api.smarterservices.com/oidc",
+  "aud": "II9d19b343a93244b9df14104509a0b9b3",
+  "iat": 1715769600,
+  "exp": 1715773200,
+  "nonce": "random_nonce_value"
+}
+```
+
+## Scopes for User Authentication
+
+| Scope | Description |
+|-------|-------------|
+| `openid` | Required for OIDC. Returns ID token with user claims. |
+| `profile` | Access to user's profile information (name, etc.) |
+| `email` | Access to user's email address |
+| `smarter_iam` | Includes IAM token for resource authorization |
+
+**Example scope request:**
+```
+scope=openid%20profile%20email%20smarter_iam
+```
+
+## Using the Access Token
+
+Include the access token in the Authorization header when calling API endpoints:
+
+```http
+GET /v1/user/profile HTTP/1.1
+Host: api.smarterservices.com
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+## Refresh Tokens
+
+When refresh tokens are enabled for your integration, you can obtain a new access token without requiring the user to re-authenticate:
+
+```http
+POST /oidc/token HTTP/1.1
+Host: api.smarterservices.com
+Content-Type: application/x-www-form-urlencoded
+Authorization: Basic {base64(client_id:client_secret)}
+
+grant_type=refresh_token
+&refresh_token=def50200...
+```
+
+**Refresh Token Details:**
+- **Lifetime:** Configurable per integration (default 7 days, can be set up to indefinite)
+- **Revocation:** All tokens in a grant family are revoked together when the user logs out
+- **Single-grant scope:** Each refresh token belongs to a specific user + integration combination
+
+**Security Note:** Store refresh tokens securely (encrypted at rest). Contact your account manager to enable refresh tokens or adjust their lifetime for your integration.
+
+## UserInfo Endpoint
+
+Retrieve the authenticated user's profile information using the access token:
+
+```http
+GET /oidc/me HTTP/1.1
+Host: api.smarterservices.com
+Authorization: Bearer {access_token}
+```
+
+**Response:**
+```json
+{
+  "sub": "US123abc...",
+  "name": "John Doe",
+  "email": "john@example.com",
+  "email_verified": true
+}
+```
+
+The returned claims depend on the scopes granted during authorization.
+
+## Logout
+
+### Front-Channel Logout
+
+To log out a user, revoke their tokens:
+
+```http
+POST /oidc/logout HTTP/1.1
+Host: api.smarterservices.com
+Authorization: Bearer {access_token}
+```
+
+This revokes the access token, refresh token, and all related tokens in the same grant family.
+
+### Back-Channel Logout
+
+If you've registered a `backchannel_logout_uri` for your integration, SmarterServices will notify your application when a user's session is terminated (for example, when they log out of another connected application or when their account is suspended).
+
+**Notification format:**
+```http
+POST {your_backchannel_logout_uri} HTTP/1.1
+Content-Type: application/x-www-form-urlencoded
+
+logout_token=eyJhbGciOiJSUzI1NiIs...
+```
+
+The `logout_token` is a signed JWT containing:
+```json
+{
+  "iss": "https://api.smarterservices.com/oidc",
+  "sub": "US123abc...",
+  "aud": "II9d19b343a93244b9df14104509a0b9b3",
+  "iat": 1715769600,
+  "jti": "unique-id",
+  "events": {
+    "http://schemas.openid.net/event/backchannel-logout": {}
+  }
+}
+```
+
+**Your endpoint should:**
+1. Verify the `logout_token` signature using the JWKS endpoint
+2. Validate `iss`, `aud`, and `events` claims
+3. Terminate the user's local session(s) for the `sub` (user ID)
+4. Respond with `200 OK`
+
+Back-channel logout follows the [OpenID Connect Back-Channel Logout 1.0](https://openid.net/specs/openid-connect-backchannel-1_0.html) specification.
+
+## Error Responses
+
+### Authorization Endpoint Errors
+
+When errors occur during the authorization request, the user is redirected back to your `redirect_uri` with error parameters:
+
+| Error | Description |
+|-------|-------------|
+| `access_denied` | User denied the consent request |
+| `invalid_request` | Missing or invalid parameters |
+| `invalid_scope` | Requested scope is not allowed for this client |
+| `unauthorized_client` | Client is not authorized to use this flow |
+| `server_error` | Internal error - try again later |
+
+**Example error redirect:**
+```
+https://yourapp.com/callback
+  ?error=access_denied
+  &error_description=user+denied+access
+  &state=random_state_value_123
+```
+
+### Token Endpoint Errors
+
+Returned as JSON with HTTP status 400:
+
+| Error | Description |
+|-------|-------------|
+| `invalid_grant` | Authorization code expired, already used, or invalid |
+| `invalid_client` | Client authentication failed |
+| `invalid_request` | Missing required parameters |
+| `unsupported_grant_type` | Grant type not supported |
+
+### 401 Unauthorized
+
+Returned when the request lacks valid authentication credentials or the token has expired.
+
+**Response includes:**
+```http
+WWW-Authenticate: Bearer realm="smarterservices", error="invalid_token", error_description="The access token is invalid or has expired"
+```
+
+### 403 Forbidden
+
+Returned when the token is valid but the user does not have permission for the requested action.
+
+```json
+{
+  "code": "5006",
+  "message": "Forbidden: Insufficient permissions for action 'core:listCourses' on resource 'ssrn:ss:sp::install123:courses'",
+  "status": 403
+}
+```
+
+## SDKs and Libraries
+
+**Node.js**
+- [`openid-client`](https://www.npmjs.com/package/openid-client) - OpenID Connect client for Node.js
+- [`passport-openidconnect`](https://www.npmjs.com/package/passport-openidconnect) - Passport strategy for OIDC
+
+**Python**
+- [`authlib`](https://docs.authlib.org/) - OAuth 1.0, OAuth 2.0, and OpenID Connect library
+- [`oauthlib`](https://oauthlib.readthedocs.io/) - Generic OAuth library
+
+**Java**
+- [`spring-security-oauth2-client`](https://spring.io/projects/spring-security) - Spring Security OAuth 2.0 Client
+- [`pac4j`](https://www.pac4j.org/) - Security engine for Java
+
+**PHP**
+- [`league/oauth2-client`](https://oauth2-client.thephpleague.com/) - OAuth 2.0 client for PHP
+
+## Token Verification
+
+ID tokens and access tokens are JWTs signed with RSA keys. Use the JWKS endpoint to retrieve public keys for verification:
+
+```
+GET https://api.smarterservices.com/oidc/jwks
+```
+
+**ID Token validation steps:**
+1. Verify the JWT signature using the matching key from JWKS
+2. Validate `iss` matches `https://api.smarterservices.com/oidc`
+3. Validate `aud` matches your `client_id`
+4. Validate `exp` is in the future
+5. Validate `nonce` matches the value you sent in the authorization request
+6. Validate `iat` is reasonably recent
+
+Most OIDC libraries handle these checks automatically when configured with your client information.
+
+## Token Security
+
+- **Store tokens securely** - Encrypt at rest, use secure storage (Keychain, KeyStore, etc.)
+- **Use HTTPS** - All redirect URIs must use HTTPS
+- **Validate `state`** - Always verify the state parameter matches
+- **Validate ID token** - Verify signature, issuer, audience, expiration, and nonce
+- **Short-lived access tokens** - Default 1 hour lifetime
+- **Secure refresh tokens** - Store separately from access tokens, encrypt at rest
+- **Implement logout** - Revoke tokens when user logs out
+- **Use PKCE** - Especially for public clients
+- **Monitor for abuse** - Log and alert on suspicious token usage
+
+---
+
+[← Back to Authentication Overview](/proctoring/api/authentication)

@@ -1,0 +1,251 @@
+---
+title: Machine-to-Machine Authentication
+description: "OAuth 2.0 Client Credentials flow for server-to-server integrations"
+icon: "server"
+---
+
+The Machine-to-Machine (M2M) authentication flow uses **OAuth 2.0 Client Credentials** for server-to-server integrations where no user interaction is required.
+
+## Overview
+
+```mermaid
+sequenceDiagram
+    participant Client as Your Application
+    participant SmarterServices as SmarterServices Platform
+
+    Note over Client: Token Expired or Missing
+    Client->>SmarterServices: POST /oidc/token<br/>grant_type=client_credentials<br/>client_id + client_secret
+    SmarterServices-->>Client: access_token<br/>expires_in: 3600<br/>expires_at: 2026-05-15T18:00:00Z
+
+    loop API Endpoint Calls (Valid Token)
+        Client->>SmarterServices: GET /v1/courses, /v1/exams, etc.<br/>Authorization: Bearer {token}
+        SmarterServices-->>Client: 200 OK + Data
+    end
+
+    Note over Client: Token Expired
+    Client->>SmarterServices: GET /v1/resource<br/>Authorization: Bearer {expired_token}
+    SmarterServices-->>Client: 401 Unauthorized
+
+    Client->>SmarterServices: POST /oidc/token<br/>(Request new token)
+    SmarterServices-->>Client: New access_token
+
+    Client->>SmarterServices: GET /v1/resource<br/>Authorization: Bearer {new_token}
+    SmarterServices-->>Client: 200 OK + Data
+```
+
+## Obtaining Client Credentials
+
+To authenticate using Client Credentials, you will need:
+- **Client ID**: Your integration SID (e.g., `II9d19b343a93244b9df14104509a0b9b3`)
+- **Client Secret**: Your integration secret
+
+Contact your SmarterProctoring account manager to provision an integration and receive your credentials.
+
+## Token Endpoint
+
+```
+POST /oidc/token
+```
+
+## Request
+
+Authenticate using HTTP Basic Auth with your Client ID as the username and Client Secret as the password.
+
+```http
+POST /oidc/token HTTP/1.1
+Host: api.smarterservices.com
+Content-Type: application/x-www-form-urlencoded
+Authorization: Basic {base64(client_id:client_secret)}
+
+grant_type=client_credentials
+```
+
+**Parameters:**
+- `grant_type` (required): Must be `client_credentials`
+- `scope` (optional): Use `smarter_iam` to include IAM token in the response.
+
+## cURL Examples
+
+**Using HTTP Basic Auth (recommended):**
+
+```bash
+curl -X POST https://api.smarterservices.com/oidc/token \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -u "II9d19b343a93244b9df14104509a0b9b3:your_client_secret_here" \
+  -d "grant_type=client_credentials"
+```
+
+**Using form body parameters:**
+
+```bash
+curl --location 'https://api.smarterservices.com/oidc/token' \
+  --header 'Content-Type: application/x-www-form-urlencoded' \
+  --data-urlencode 'grant_type=client_credentials' \
+  --data-urlencode 'client_id=II9d19b343a93244b9df14104509a0b9b3' \
+  --data-urlencode 'client_secret=your_client_secret_here' \
+  --data-urlencode 'scope=smarter_iam'
+```
+
+## Scopes
+
+For machine-to-machine authentication using Client Credentials, the following scope is available:
+
+| Scope | Description |
+|-------|-------------|
+| `smarter_iam` | Includes an embedded IAM token granting permissions configured for your integration |
+
+**Note:** The `smarter_iam` scope is optional. When omitted, the access token still authenticates your client but may have reduced authorization context. The actual permissions are determined by the IAM policy attached to your integration.
+
+## Response
+
+```json
+{
+  "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "token_type": "Bearer",
+  "expires_in": 3600,
+  "expires_at": "2026-05-15T15:10:00.000Z"
+}
+```
+
+**Response Fields:**
+- `access_token` - The JWT access token to use in API requests
+- `token_type` - Always "Bearer"
+- `expires_in` - Number of seconds until the token expires (3600 = 1 hour)
+- `expires_at` - ISO 8601 UTC timestamp indicating when the token expires
+
+## Using the Access Token
+
+Include the access token in the `Authorization` header of your API requests:
+
+```http
+GET /v2/installs/{installSid}/provision HTTP/1.1
+Host: api.smarterservices.com
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+## Error Responses
+
+The API returns specific HTTP status codes and error messages to help you handle authentication and authorization issues:
+
+### 401 Unauthorized
+
+Returned when the request lacks valid authentication credentials or the token has expired.
+
+**Response includes:**
+```http
+WWW-Authenticate: Bearer realm="smarterservices", error="invalid_token", error_description="The access token is invalid or has expired"
+```
+
+**Action:** Request a new access token using your Client Credentials.
+
+### 403 Forbidden
+
+Returned when the token is valid but the client does not have permission to perform the requested action on the specified resource.
+
+**Example response:**
+```json
+{
+  "code": "5003",
+  "message": "Forbidden: Insufficient permissions for action 'core:listCourses' on resource 'ssrn:ss:sp::install123:courses'",
+  "status": 403
+}
+```
+
+**Action:** Verify your integration has the correct IAM policy permissions for the requested action and resource. Contact your account manager if you need additional permissions.
+
+**Summary:**
+- **401** = Authentication problem (invalid/missing/expired token)
+- **403** = Authorization problem (valid token, but wrong permissions)
+
+## Token Expiration
+
+Access tokens have a **default lifetime of 1 hour (3600 seconds)** from the time of issuance. The exact expiration time is provided in the `expires_at` field as an ISO 8601 UTC timestamp.
+
+**Token Expiration Behavior:**
+- Tokens expire at the exact time specified in `expires_at`
+- Expiration is **not** based on inactivity (sliding window)
+- You must request a new token before the expiration time
+- Refresh tokens are **not** issued for machine-to-machine authentication
+- Token lifetime can be customized per integration - contact your account manager if you need a different TTL
+
+**Example expiration handling:**
+```javascript
+// Check if token is expired
+const isExpired = new Date() >= new Date(token.expires_at);
+
+// Or calculate remaining time in seconds
+const expiresAt = new Date(token.expires_at);
+const remainingSeconds = Math.floor((expiresAt - Date.now()) / 1000);
+```
+
+## SDKs and Libraries
+
+You can use standard OAuth 2.0 libraries to handle token generation and management:
+
+**Node.js**
+- [`simple-oauth2`](https://www.npmjs.com/package/simple-oauth2) - Simple OAuth2 client for Node.js
+- [`client-oauth2`](https://www.npmjs.com/package/client-oauth2) - OAuth2 client for browsers and Node.js
+
+**Python**
+- [`requests-oauthlib`](https://requests-oauthlib.readthedocs.io/) - OAuth library built on top of Requests
+- [`oauthlib`](https://oauthlib.readthedocs.io/) - Generic OAuth library
+
+**PHP**
+- [`league/oauth2-client`](https://oauth2-client.thephpleague.com/) - OAuth 2.0 client for PHP
+
+**Java**
+- [`spring-security-oauth2`](https://spring.io/projects/spring-security-oauth2) - Spring Security OAuth
+- [`scribejava`](https://github.com/scribejava/scribejava) - OAuth library for Java
+
+**C#**
+- [`IdentityModel`](https://github.com/IdentityModel/IdentityModel) - OAuth 2.0 client library for .NET
+
+**Example using simple-oauth2 (Node.js):**
+
+```javascript
+const { ClientCredentials } = require('simple-oauth2');
+
+const config = {
+  client: {
+    id: 'II9d19b343a93244b9df14104509a0b9b3',
+    secret: 'your_client_secret_here'
+  },
+  auth: {
+    tokenHost: 'https://api.smarterservices.com',
+    tokenPath: '/oidc/token'
+  }
+};
+
+const client = new ClientCredentials(config);
+
+async function getToken() {
+  try {
+    const accessToken = await client.getToken();
+    console.log('Access Token:', accessToken.token.access_token);
+    return accessToken.token.access_token;
+  } catch (error) {
+    console.error('Access Token Error', error.message);
+  }
+}
+```
+
+## Token Verification
+
+Access tokens are signed JWTs that can be verified using SmarterServices' published JSON Web Key Set:
+
+```
+GET https://api.smarterservices.com/oidc/jwks
+```
+
+Use this endpoint with any JWT verification library to validate token signatures, issuer (`iss`), audience (`aud`), and expiration (`exp`) claims locally without round-tripping to SmarterServices.
+
+## Token Security
+
+- Store your Client ID and Client Secret securely
+- Never expose credentials in client-side code or public repositories
+- Rotate secrets periodically
+- If your credentials are compromised, contact your SmarterProctoring account manager immediately to have them revoked and reissued
+
+---
+
+[← Back to Authentication Overview](/proctoring/api/authentication)

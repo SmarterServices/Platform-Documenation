@@ -1,0 +1,158 @@
+---
+title: Repeater
+category: BlockKit
+order: 23
+---
+
+# Repeater
+
+The Repeater block iterates over an array from the replacements context and renders its template elements once per item. It supports scoped variable injection, separators, empty states, and horizontal/vertical layouts.
+
+## Properties
+
+| Property | Type | Required | Default | Description |
+|----------|------|----------|---------|-------------|
+| `type` | `"repeater"` | yes | — | Block type identifier |
+| `data_source` | `string` | yes | — | Key in replacements that resolves to an array |
+| `item_variable` | `string` | no | `"item"` | Variable name for the current item in templates |
+| `index_variable` | `string` | no | `"index"` | Variable name for the current iteration index (0-based) |
+| `elements` | `BlockElement[]` | yes | — | Template blocks repeated for each item |
+| `separator` | `"divider" \| "space" \| "none"` | no | `"none"` | Visual separator between iterations |
+| `empty_state` | `BlockElement \| BlockElement[]` | no | — | Block(s) to render when the array is empty or missing |
+| `max_items` | `number` | no | — | Maximum number of items to render |
+| `direction` | `"vertical" \| "horizontal"` | no | `"vertical"` | Stack direction for repeated items |
+
+## Basic Usage
+
+```json
+{
+  "type": "repeater",
+  "data_source": "users",
+  "item_variable": "user",
+  "elements": [
+    { "type": "heading", "level": 3, "text": "{user.name}" },
+    { "type": "text", "text": "{user.email} — {user.role}" }
+  ]
+}
+```
+
+With replacements:
+```json
+{
+  "users": [
+    { "name": "Jason", "email": "jason@example.com", "role": "Admin" },
+    { "name": "Sarah", "email": "sarah@example.com", "role": "Editor" }
+  ]
+}
+```
+
+Renders:
+- **Jason** / jason@example.com — Admin
+- **Sarah** / sarah@example.com — Editor
+
+## Scoped Variables
+
+Each iteration creates a scoped replacements context:
+
+- **`{item.property}`** — Access properties of the current array item (or use a custom variable name via `item_variable`)
+- **`{index}`** — The 0-based iteration index (or use a custom name via `index_variable`)
+- **Parent replacements** — All parent-level replacements remain accessible (e.g., `{company_name}`)
+
+For primitive arrays (strings, numbers), `{item}` resolves to the value directly.
+
+## With Separator and Empty State
+
+```json
+{
+  "type": "repeater",
+  "data_source": "line_items",
+  "item_variable": "item",
+  "separator": "divider",
+  "empty_state": {
+    "type": "alert",
+    "severity": "info",
+    "text": "No items to display."
+  },
+  "elements": [
+    {
+      "type": "column_layout",
+      "variant": "3-1",
+      "columns": [
+        {
+          "type": "column",
+          "elements": [
+            { "type": "text", "text": "{item.product_name}" },
+            { "type": "text", "text": "Qty: {item.quantity}" }
+          ]
+        },
+        {
+          "type": "column",
+          "elements": [
+            { "type": "text", "text": "${item.price}" }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+## Horizontal Layout
+
+```json
+{
+  "type": "repeater",
+  "data_source": "tags",
+  "item_variable": "tag",
+  "direction": "horizontal",
+  "elements": [
+    { "type": "text", "text": "{tag}" }
+  ]
+}
+```
+
+## Nested Repeaters
+
+Repeaters can be nested for multi-level data:
+
+```json
+{
+  "type": "repeater",
+  "data_source": "departments",
+  "item_variable": "dept",
+  "separator": "divider",
+  "elements": [
+    { "type": "heading", "level": 2, "text": "{dept.name}" },
+    {
+      "type": "repeater",
+      "data_source": "dept.members",
+      "item_variable": "member",
+      "elements": [
+        { "type": "text", "text": "• {member.name} ({member.title})" }
+      ]
+    }
+  ]
+}
+```
+
+## Builder Integration
+
+In the WYSIWYG builder:
+
+1. Drag **Repeater** from the Layout category in the block library
+2. Configure the **Data Source** key in the properties panel
+3. Toggle between **Template** and **Empty State** views using the header buttons
+4. Add blocks to the template — they will be repeated for each array item
+5. Use the Replacements panel to provide preview data, then switch to Preview mode
+
+## Nesting Rules
+
+A repeater can appear in:
+- Root level
+- Section
+- Wizard Step
+- Column
+- Another Repeater
+
+Inside a repeater's template, all content blocks are allowed:
+- Heading, Text, Alert, Lists, Column Layout, Section, Actions, Form, Button, Block Replacement, nested Repeater

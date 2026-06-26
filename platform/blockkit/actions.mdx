@@ -1,0 +1,105 @@
+---
+title: "Actions"
+description: "A container block that displays a horizontal row of interactive buttons"
+---
+
+## Basic Example
+
+```json
+{
+  "type": "actions",
+  "elements": [
+    {
+      "type": "button",
+      "text": "Action 1",
+      "action_id": "action_1"
+    }
+  ]
+}
+```
+
+## Complete Example
+
+```json Example Code expandable
+[
+  {
+    "type": "actions",
+    "action_url": "https://api.example.com/handle-action",
+    "block_id": "ticket_actions",
+    "elements": [
+      {
+        "type": "button",
+        "text": "Approve",
+        "action_id": "approve",
+        "value": "approved",
+        "style": "primary"
+      },
+      {
+        "type": "button",
+        "text": "Request Changes",
+        "action_id": "request_changes",
+        "value": "changes_requested",
+        "style": "default"
+      },
+      {
+        "type": "button",
+        "text": "Reject",
+        "action_id": "reject",
+        "value": "rejected",
+        "style": "danger",
+        "confirm": {
+          "title": "Confirm Rejection",
+          "text": "Are you sure you want to reject this request?",
+          "confirm_text": "Reject",
+          "deny_text": "Cancel"
+        }
+      }
+    ]
+  }
+]
+```
+
+## Properties
+
+<ParamField path="type" type="string" required="true">
+  Identifies this as an actions block
+
+  Must be `actions`
+</ParamField>
+
+<ParamField path="elements" type="array" required="true">
+  Array of [Button](/platform/blockkit/button) blocks displayed horizontally in a row
+</ParamField>
+
+<ParamField path="action_url" type="string" required="false">
+  The default endpoint URL for all buttons in this actions block. Individual buttons can override this with their own `action_url`.
+</ParamField>
+
+<ParamField path="block_id" type="string" required="false">
+  A unique identifier for this actions block. Included in action payloads for server-side identification.
+</ParamField>
+
+## How It Works
+
+1. The `actions` block renders its child buttons in a horizontal row
+2. When a user clicks a button, the action payload is POSTed to the button's `action_url` (or the parent actions block's `action_url`)
+3. The server processes the action and responds with new BlockKit content
+4. The response can replace, update, or append blocks in the UI
+
+## Nesting Rules
+
+The `actions` block can be placed inside:
+- Root level
+- [Section](/platform/blockkit/section)
+- [Wizard Step](/platform/blockkit/wizardstep)
+- [Column Layout](/platform/blockkit/columnlayout) columns
+
+The `actions` block can only contain:
+- [Button](/platform/blockkit/button) elements
+
+## Usage Notes
+
+- Use the `actions` block to group related action buttons together
+- Buttons inside an `actions` block are displayed side-by-side horizontally
+- Set the `action_url` on the actions block to apply a default endpoint to all child buttons
+- Each button can override the parent `action_url` if it needs to POST to a different endpoint

@@ -1,0 +1,196 @@
+---
+title: Conditional
+category: BlockKit
+order: 24
+---
+
+# Conditional
+
+The Conditional block shows or hides its child content based on a [JsonLogic](https://jsonlogic.com/) condition evaluated against the replacements context at render time. It supports a primary `elements` branch (rendered when the condition is truthy) and an optional `else_elements` branch (rendered when falsy).
+
+## Properties
+
+| Property | Type | Required | Default | Description |
+|----------|------|----------|---------|-------------|
+| `type` | `"conditional"` | yes | — | Block type identifier |
+| `condition` | `JsonLogicRule` | yes | — | A [JsonLogic](https://jsonlogic.com/) rule object evaluated against the replacements context |
+| `elements` | `BlockElement[]` | yes | — | Blocks rendered when the condition evaluates to truthy |
+| `else_elements` | `BlockElement[]` | no | — | Blocks rendered when the condition evaluates to falsy. If omitted, nothing renders for the false case |
+
+## Basic Usage
+
+```json
+{
+  "type": "conditional",
+  "condition": { "var": "isProctored" },
+  "elements": [
+    { "type": "alert", "severity": "warning", "text": "This exam is proctored. Your webcam must remain on." }
+  ]
+}
+```
+
+With replacements:
+```json
+{
+  "isProctored": true
+}
+```
+
+Renders an alert when `isProctored` is truthy. Renders nothing when falsy (no `else_elements` provided).
+
+## With Else Branch
+
+```json
+{
+  "type": "conditional",
+  "condition": { "var": "hasWebcam" },
+  "elements": [
+    { "type": "text", "text": "Webcam detected: {webcamName}" }
+  ],
+  "else_elements": [
+    { "type": "alert", "severity": "error", "text": "No webcam detected. Please connect a webcam to continue." }
+  ]
+}
+```
+
+## Condition Expressions
+
+Conditions use [JsonLogic](https://jsonlogic.com/) — a portable, JSON-based rule format. The replacements context is passed as the data argument.
+
+### Variable Access
+
+Read a value from replacements. Supports dot-notation for nested data.
+
+```json
+{ "condition": { "var": "isProctored" } }
+{ "condition": { "var": "session.status" } }
+{ "condition": { "var": "user.permissions.canViewReports" } }
+```
+
+### Comparisons
+
+```json
+{ "condition": { ">=": [{ "var": "attemptCount" }, 3] } }
+{ "condition": { "==": [{ "var": "examStatus" }, "completed"] } }
+{ "condition": { "!=": [{ "var": "role" }, "student"] } }
+```
+
+### Logical Operators
+
+```json
+{ "condition": { "and": [{ "var": "isProctored" }, { "var": "hasWebcam" }] } }
+{ "condition": { "or": [{ "var": "isAdmin" }, { "var": "isSupervisor" }] } }
+{ "condition": { "!": { "var": "isExpired" } } }
+```
+
+Operators nest arbitrarily:
+
+```json
+{
+  "condition": {
+    "and": [
+      { "var": "isProctored" },
+      { "!": { "var": "hasWebcam" } }
+    ]
+  }
+}
+```
+
+### Array Membership
+
+```json
+{
+  "condition": { "in": [{ "var": "role" }, ["admin", "supervisor"]] }
+}
+```
+
+## Nested Conditionals
+
+```json
+{
+  "type": "conditional",
+  "condition": { "var": "isProctored" },
+  "elements": [
+    { "type": "heading", "level": 3, "text": "Proctoring Setup" },
+    {
+      "type": "conditional",
+      "condition": { "var": "requiresIdVerification" },
+      "elements": [
+        { "type": "text", "text": "Please have your photo ID ready." }
+      ]
+    }
+  ],
+  "else_elements": [
+    { "type": "text", "text": "This exam does not require proctoring." }
+  ]
+}
+```
+
+## Inside a Repeater
+
+Conditionals work inside repeaters with scoped item variables:
+
+```json
+{
+  "type": "repeater",
+  "data_source": "students",
+  "item_variable": "student",
+  "elements": [
+    { "type": "heading", "level": 4, "text": "{student.name}" },
+    {
+      "type": "conditional",
+      "condition": { "var": "student.hasSubmitted" },
+      "elements": [
+        { "type": "text", "text": "Submitted at {student.submittedAt}" }
+      ],
+      "else_elements": [
+        { "type": "alert", "severity": "info", "text": "Not yet submitted" }
+      ]
+    }
+  ]
+}
+```
+
+## Builder Integration
+
+In the WYSIWYG builder:
+
+1. Drag **Conditional** from the Layout category in the block library
+2. Configure the **Condition** as a JsonLogic expression in the properties panel
+3. Toggle between **If True** and **If False** views using the header buttons
+4. Add blocks to each branch — they render based on the condition result
+5. Use the Replacements panel to provide preview data, then switch to Preview mode
+
+## Nesting Rules
+
+A conditional can appear in:
+- Root level
+- Section
+- Wizard Step
+- Column
+- Repeater
+- Remote Block (fallback)
+- Another Conditional (both branches)
+
+Inside a conditional's branches, all content blocks are allowed:
+- Heading, Text, Alert, Lists, Column Layout, Section, Actions, Form, Button, Block Replacement, Repeater, Remote Block, nested Conditional
+
+## User Facing Documentation
+
+### Conditional Content Blocks
+
+Conditional blocks allow you to show different content to different users based on specific conditions. This is useful when you need to personalize the experience — for example, showing proctoring instructions only to students taking a proctored exam, or displaying different messages based on how many attempts a student has remaining.
+
+**How it works:**
+
+- A conditional block evaluates a condition against the data available on the page
+- If the condition is true, the "If True" content is displayed
+- If the condition is false, the "If False" content is displayed (if provided) — otherwise nothing is shown
+- Conditions can check simple yes/no flags, compare numbers (e.g., "more than 3 attempts"), or combine multiple checks together
+
+**Common use cases:**
+
+- Showing proctoring setup instructions only for proctored exams
+- Displaying a warning when a student has exceeded their attempt limit
+- Showing different messages based on a user's role (admin vs. student)
+- Hiding optional sections when data is not available

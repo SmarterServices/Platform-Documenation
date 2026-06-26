@@ -45,23 +45,48 @@
             "group": "BlockKit",
             "pages": [
               "platform/blockkit/overview",
+              "platform/blockkit/builder",
               {
-                "group": "Elements",
+                "group": "Layout",
                 "pages": [
-                  "platform/blockkit/alert",
-                  "platform/blockkit/blockreplacement",
-                  "platform/blockkit/bulletlist",
-                  "platform/blockkit/callout",
-                  "platform/blockkit/heading",
-                  "platform/blockkit/icon",
-                  "platform/blockkit/listitem",
-                  "platform/blockkit/orderedlist",
                   "platform/blockkit/section",
-                  "platform/blockkit/step",
-                  "platform/blockkit/steplist",
+                  "platform/blockkit/columnlayout",
+                  "platform/blockkit/repeater",
+                  "platform/blockkit/conditional",
+                  "platform/blockkit/remoteblock"
+                ]
+              },
+              {
+                "group": "Content",
+                "pages": [
+                  "platform/blockkit/heading",
                   "platform/blockkit/text",
-                  "platform/blockkit/wizard",
-                  "platform/blockkit/wizardstep"
+                  "platform/blockkit/alert",
+                  "platform/blockkit/callout",
+                  "platform/blockkit/icon",
+                  "platform/blockkit/blockreplacement"
+                ]
+              },
+              {
+                "group": "Lists",
+                "pages": [
+                  "platform/blockkit/bulletlist",
+                  "platform/blockkit/orderedlist",
+                  "platform/blockkit/steplist",
+                  "platform/blockkit/step",
+                  "platform/blockkit/listitem"
+                ]
+              },
+              {
+                "group": "Navigation",
+                "pages": ["platform/blockkit/wizard", "platform/blockkit/wizardstep"]
+              },
+              {
+                "group": "Interactive",
+                "pages": [
+                  "platform/blockkit/button",
+                  "platform/blockkit/actions",
+                  "platform/blockkit/form"
                 ]
               }
             ]
