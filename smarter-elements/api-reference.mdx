@@ -5,7 +5,7 @@ description: "Complete API documentation for SmarterElements"
 
 # API Reference
 
-Complete reference for SmarterElements JavaScript API with iframe isolation, modal system, and automatic resizing.
+Complete reference for SmarterElements JavaScript API with component isolation, modal system, and automatic resizing.
 
 ## CDN Version Management
 
@@ -85,10 +85,56 @@ Creates a new element instance.
 | `config` | `object` | Configuration data passed to element |
 | `constraints` | `object` | Size constraints (minWidth, maxWidth, minHeight, maxHeight) |
 | `autoResize` | `boolean` | Enable automatic resizing (default: true) |
+| `stsToken` | `string` | Opaque runtime credential used for API calls; returned on issuance and refresh |
+| `elementToken` | `string` | RS256-signed identity assertion for the element; element issuance only |
+| `tokenExpiresIn` | `number` | Seconds until the current token expires (drives silent-refresh timing) |
+| `tokenAbsoluteExpiresAt` | `number` | Hard cap (epoch ms) across refreshes; refresh stops at/after this |
+| `onTokenRefresh` | `function` | `async () => StsTokenSet` — called before expiry to fetch the next token set from your backend (see below) |
+| `refreshSkew` | `number` | Fraction of the TTL after which to refresh (default `0.8`) |
 | `onReady` | `function` | Callback when element is ready |
 | `onResize` | `function` | Callback when element resizes |
 | `onError` | `function` | Callback for errors |
 | `onEvent` | `function` | Callback for custom events |
+
+#### `onTokenRefresh`
+
+Long-lived embeds are backed by short-lived STS tokens; the SDK silently refreshes them before expiry. You opt in by supplying `onTokenRefresh` — the SDK owns the scheduling, forwards the rotated token to the element, and fires `tokenRefreshed` / `tokenExpired`, but the callback itself must fetch a fresh token set from **your backend** (the STS refresh endpoint requires your API credential, which never reaches the browser). If omitted, the token simply expires when its TTL runs out.
+
+```javascript
+const element = elements.create('proctoring/sessionviewer', {
+  config: { sessionSid: 'ES123456' },
+  elementToken: initial.elementToken,
+  stsToken: initial.stsToken,
+  tokenExpiresIn: initial.expiresIn,
+  tokenAbsoluteExpiresAt: new Date(initial.absoluteExpiresAt).getTime(),
+
+  // Called by the SDK shortly before expiry — return the NEXT token set.
+  onTokenRefresh: async () => {
+    const next = await fetch('/api/embeds/proctoring-token/refresh', {
+      method: 'POST',
+    }).then((r) => r.json());
+    return {
+      stsToken: next.stsToken, // required
+      elementToken: next.elementToken, // optional on element issuance
+      expiresIn: next.expiresIn, // required
+      absoluteExpiresAt: new Date(next.absoluteExpiresAt).getTime(), // optional
+    };
+  },
+});
+```
+
+##### `onTokenRefresh` return shape
+
+The callback must resolve with an `StsTokenSet` containing:
+
+| Field               | Type                | Required | Description                                                                                                                       |
+| ------------------- | ------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `stsToken`          | `string`            | Yes      | Opaque runtime credential from your backend's STS refresh response.                                                               |
+| `expiresIn`          | `number` (seconds)  | Yes      | TTL of the new token; the SDK uses it to schedule the next refresh.                                                               |
+| `elementToken`      | `string`            | No       | Signed identity assertion; only present on element issuance, not refresh, so it is typically omitted here.                      |
+| `absoluteExpiresAt` | `number` (epoch ms) | No       | Hard cap across refreshes; when reached, the SDK stops and fires `tokenExpired`. The API returns an ISO string; convert it with `new Date(next.absoluteExpiresAt).getTime()`. |
+
+Resolving with a valid set applies the new tokens and fires `tokenRefreshed`. Throwing or returning a rejected promise fires `tokenExpired` and ends the session. For the full flow, see [Authentication & Tokens](/smarter-elements/authentication#silent-refresh).
 
 #### Example
 
@@ -352,6 +398,8 @@ const element = elements.create('blockkit/renderer', {
 | `resize` | `{ width, height, elementId }` | Element dimensions changed |
 | `error` | `{ error, elementId }` | Element encountered error |
 | `destroyed` | `{ elementId }` | Element was destroyed |
+| `tokenRefreshed` | `{ elementId }` | STS token silently rotated (see `onTokenRefresh`) |
+| `tokenExpired` | `{ elementId, error }` | STS session ended — absolute lifetime reached or refresh failed |
 
 ## Utility Functions
 

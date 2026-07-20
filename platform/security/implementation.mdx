@@ -176,6 +176,39 @@ if (authorized) {
 }
 ```
 
+## Temporary Security Tokens (STS)
+
+The Security Token Service mints **short-lived, narrowly-scoped, revocable** credentials from a longer-lived one — the AWS STS analogue. Use it whenever a credential has to be handed to a less-trusted context (a browser embed, an on-behalf-of call) so the original broad credential never leaves your backend.
+
+A token is constrained by three boundaries at issue time:
+
+- **Permission ceiling** — the requested policy must be a subset of the calling credential's effective policy (`validatePolicySubset`); a token can never exceed its creator.
+- **TTL clamp** — short by default and capped per token type, further clamped by the deployment's `maxTokenTtlSeconds`.
+- **Absolute session lifetime** — silent refresh is bounded by a hard cap measured from the root token, so a token chain can't be renewed indefinitely.
+
+The runtime credential is **opaque and server-validated** (validity is checked server-side, not merely by verifying a signature), so it can be revoked instantly. For embeds, issuance also returns an **RS256/JWKS-signed assertion** (`elementToken`) that binds identity + resource and is verified server-side before the embed is trusted.
+
+### Issue a token
+
+```http
+POST /v1/installs/{installSid}/sts/tokens
+Authorization: Bearer <your-api-credential>
+```
+
+```json
+{
+  "tokenType": "element",
+  "elementType": "proctoring-session",
+  "resource": "ES123456",
+  "targetUserSid": "US0123…",
+  "expiresIn": 900
+}
+```
+
+`tokenType` selects the issuance template — `element` (SmarterElements embeds) is the first supported type, and new types are added as additional templates without new endpoints. Requires the `sp:CreateStsToken` action. Refresh a token via `POST /v1/installs/{installSid}/sts/tokens/{tokenSid}/refresh` (`sp:RefreshStsToken`), which mints a replacement, revokes the previous credential, and reuses the original scoped policy.
+
+For the SmarterElements browser flow (passing the token to the SDK and silent refresh), see [SmarterElements → Authentication & Tokens](/smarter-elements/authentication).
+
 ## Server-Side Implementation
 
 ### Express.js Middleware
@@ -474,21 +507,24 @@ const canRead = await iam.authorize('sp:ReadSession', 'ssrn:ss:sp::578:session/E
 
 ### Server-Side Caching
 
+Provide any key-value cache that implements `get(key)` and `set(key, value, ttl)`; the store is entirely your choice.
+
 ```javascript
-const Redis = require('redis');
 const { IamService } = require('@smarterservices/iam-node');
 
-const redis = Redis.createClient();
+// Bring your own cache store (any get/set-with-ttl implementation).
+const cacheStore = createCacheStore();
+
 const iam = new IamService({
   apiUrl: 'https://iam.smarterservices.com',
   serviceKey: 'your-service-key',
   cache: {
     get: async (key) => {
-      const value = await redis.get(key);
+      const value = await cacheStore.get(key);
       return value ? JSON.parse(value) : null;
     },
     set: async (key, value, ttl) => {
-      await redis.setex(key, ttl, JSON.stringify(value));
+      await cacheStore.set(key, JSON.stringify(value), ttl);
     }
   }
 });

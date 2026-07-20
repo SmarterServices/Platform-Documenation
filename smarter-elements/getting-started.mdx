@@ -92,11 +92,41 @@ element.openModal({
 });
 ```
 
+## Authentication
+
+Production embeds are authenticated with short-lived **STS tokens** minted by your backend — your long-lived API credential never reaches the browser. Your server exchanges its credential for a token scoped to a single element + end user, and hands the signed assertion to the SDK:
+
+```javascript
+// Your backend returns { elementToken, stsToken, expiresIn, absoluteExpiresAt }
+const auth = await fetch('/api/embeds/token').then((r) => r.json());
+
+const element = elements.create('proctoring/sessionviewer', {
+  config: { sessionSid: 'ES123456' },
+  elementToken: auth.elementToken,                // RS256-signed element assertion
+  stsToken: auth.stsToken,                        // opaque runtime credential
+  tokenExpiresIn: auth.expiresIn,
+  tokenAbsoluteExpiresAt: new Date(auth.absoluteExpiresAt).getTime(),
+  onTokenRefresh: async () => {                   // silent rotation before expiry
+    const next = await fetch('/api/embeds/token/refresh', { method: 'POST' }).then((r) => r.json());
+    return {
+      elementToken: next.elementToken,
+      stsToken: next.stsToken,
+      expiresIn: next.expiresIn,
+      absoluteExpiresAt: new Date(next.absoluteExpiresAt).getTime(),
+    };
+  },
+});
+
+element.mount('#proctoring');
+```
+
+See [Authentication & Tokens](/smarter-elements/authentication) for how to mint and refresh tokens and the full security model.
+
 ## Core Concepts
 
 ### Elements
 
-Elements are self-contained UI components that run in isolated iframes. Each element has:
+Elements are self-contained UI components that run in isolated contexts. Each element has:
 
 - **Type**: A unique identifier (e.g., `blockkit/renderer`)
 - **Configuration**: Parameters passed to the element

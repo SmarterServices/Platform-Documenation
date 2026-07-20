@@ -15,7 +15,7 @@ graph TD
     API --> Assess[Assessment API]
     API --> Schedule[Scheduling API]
 
-    Core --> DB[(PostgreSQL Database)]
+    Core --> DB[(Database)]
     Proctor --> DB
     Assess --> DB
     Schedule --> DB
@@ -43,9 +43,8 @@ graph TD
 
 ### Data Storage
 
-- **PostgreSQL**: Primary relational database for structured data
-- **Redis**: In-memory data store for caching and real-time features
-- **S3**: Object storage for files, recordings, and media
+- **Relational database**: Primary store for structured data
+- **Object storage**: Files, recordings, and media
 
 ### Media Services
 
@@ -58,8 +57,8 @@ The SmarterServices Platform is deployed on AWS with the following infrastructur
 
 - **Compute**: AWS ECS for containerized services
 - **Serverless**: AWS Lambda for event-driven processing
-- **Database**: AWS RDS for PostgreSQL
-- **Storage**: S3 for object storage
+- **Database**: Managed relational database
+- **Storage**: Managed object storage
 - **CDN**: CloudFront for content delivery
 - **Load Balancing**: Application Load Balancer for traffic distribution
 

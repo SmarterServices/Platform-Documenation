@@ -1,0 +1,211 @@
+---
+title: 'STS Tokens'
+description: 'Mint short-lived element and API credentials from your backend'
+---
+
+# STS Tokens
+
+The SmarterServices Security Token Service (STS) mints short-lived, opaque,
+revocable credentials without exposing your long-lived API credential to a
+browser. Both token types use the same backend endpoints:
+
+```text
+POST /v1/installs/{installSid}/sts/tokens
+POST /v1/installs/{installSid}/sts/tokens/{tokenSid}/refresh
+```
+
+Call these endpoints from your backend with your API credential. The caller
+needs `sp:CreateStsToken` to issue a token and `sp:RefreshStsToken` to refresh
+one. Never call the STS endpoints directly from browser code.
+
+## Shared security guardrails
+
+Both token types share these protections:
+
+| Guardrail          | Behavior                                                                                                                                                                                       |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Permission ceiling | The token policy must be a condition-aware subset of the caller's effective policy. Over-broad actions/resources and dropped or loosened conditions return `403 PERMISSION_CEILING_VIOLATION`. |
+| TTL                | 15-minute default, 1-hour maximum, and an additional deployment `maxTokenTtlSeconds` clamp.                                                                                                    |
+| Absolute lifetime  | Silent refresh cannot extend a token family beyond 8 hours from the root token.                                                                                                                |
+| Revocation         | Runtime credentials are opaque and can be revoked immediately.                                                                                                                                 |
+| Non-delegation     | STS credentials carry `tokenClass: "sts"` and receive a trailing delegation `Deny`; they cannot mint further authority.                                                                        |
+
+<Tabs>
+<Tab title="SmarterElements">
+
+## SmarterElements tokens
+
+Use an `element` token when embedding a SmarterElements component. The server
+expands the requested `elementType` into a fixed,
+deployment-scoped policy.
+
+### Issue an element token
+
+```http
+POST /v1/installs/{installSid}/sts/tokens
+Authorization: Bearer <your-api-credential>
+Content-Type: application/json
+```
+
+```json
+{
+  "tokenType": "element",
+  "elementType": "proctoring-session",
+  "resource": "ES123456",
+  "targetUserSid": "US0123456789012345678901234567890",
+  "expiresIn": 900
+}
+```
+
+| Field           | Required | Description                                                                                             |
+| --------------- | -------- | ------------------------------------------------------------------------------------------------------- |
+| `tokenType`     | Yes      | Must be `"element"`.                                                                                    |
+| `elementType`   | Yes      | The fixed scope template, such as `exam-session`, `proctoring-session`, or `assessment-viewer`.         |
+| `resource`      | No       | The resource SID targeted by the embed. If omitted, the template uses a wildcard within the deployment. |
+| `targetUserSid` | Yes      | The end user represented by the embed.                                                                  |
+| `expiresIn`     | No       | Requested lifetime in seconds. Defaults to 900 and is capped at 3600 before deployment clamping.        |
+
+The response includes:
+
+```json
+{
+  "sid": "TA0123456789012345678901234567890",
+  "stsToken": "tok_8f2c...",
+  "elementToken": "eyJhbGciOiJSUzI1Ni...",
+  "elementType": "proctoring-session",
+  "tokenType": "element",
+  "expiresAt": "2026-06-30T03:15:00.000Z",
+  "expiresIn": 900,
+  "absoluteExpiresAt": "2026-06-30T10:36:00.000Z"
+}
+```
+
+`elementToken` is an RS256/JWKS-signed embed assertion. Pass it to the
+SmarterElements SDK as `elementToken`; pass the opaque `stsToken` as the
+runtime element credential when the embed makes API calls.
+
+For the complete SDK setup, element integration, and browser-side refresh
+callback, see [SmarterElements Authentication](/smarter-elements/authentication).
+
+</Tab>
+
+<Tab title="API">
+
+## API tokens
+
+Use an `api` token when a backend or client needs a normal short-lived API
+bearer credential rather than an element-specific identity assertion. You supply
+the IAM policy, but it must remain within your caller's effective policy.
+
+### Issue an API token
+
+```bash
+curl -X POST "https://api.example.com/v1/installs/${INSTALL_SID}/sts/tokens" \
+  -H "Authorization: Bearer ${API_CREDENTIAL}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "tokenType": "api",
+    "policy": {
+      "Version": "2023-01-01",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Action": ["sp:DescribeExamSession"],
+          "Resource": ["ssrn:sp:core:us-1:AI123:exam-session/ES123456"],
+          "Condition": {
+            "StringEquals": {
+              "session:proctorAccountSid": "PA123"
+            }
+          }
+        }
+      ]
+    },
+    "targetUserSid": "US0123456789012345678901234567890",
+    "expiresIn": 900
+  }'
+```
+
+| Field               | Type                | Required | Description                                                                                                           |
+| ------------------- | ------------------- | -------- | --------------------------------------------------------------------------------------------------------------------- |
+| `tokenType`         | String              | Yes      | Must be `"api"`.                                                                                                      |
+| `policy`            | IAM policy document | Yes      | Caller-supplied `Version` and non-empty `Statement` array. The condition-aware ceiling check is authoritative.        |
+| `targetUserSid`     | String              | No       | Optional target user. Omit it for a bearer-style token that does not consume a concurrent user session slot.          |
+| `expiresIn`         | Integer             | No       | Requested lifetime in seconds. Defaults to 900 and is capped at 3600 before deployment clamping.                      |
+| `networkConditions` | Object              | No       | Optional `IpAddress` or `NotIpAddress` restriction. API conditions are merged additively onto each `Allow` statement. |
+
+The `201` response contains an opaque bearer `stsToken`, but no `elementToken` or
+`elementType`:
+
+```json
+{
+  "sid": "TA0123456789012345678901234567890",
+  "stsToken": "tok_8f2c...",
+  "tokenType": "api",
+  "expiresAt": "2026-06-30T03:15:00.000Z",
+  "expiresIn": 900,
+  "absoluteExpiresAt": "2026-06-30T10:36:00.000Z"
+}
+```
+
+Use the returned `stsToken` as a normal bearer credential:
+
+```bash
+curl "https://api.example.com/v1/..." \
+  -H "Authorization: Bearer ${STS_TOKEN}"
+```
+
+The API policy is frozen at issuance, receives the same non-delegation
+protection as an element policy, and cannot grant more than the caller already
+has. API tokens intentionally skip the element-only concrete-resource resolver
+check: the condition-aware ceiling is authoritative, and API policies can
+cover arbitrary or multiple resource types.
+
+</Tab>
+</Tabs>
+
+## Silent refresh
+
+Both token types refresh through the same endpoint:
+
+```http
+POST /v1/installs/{installSid}/sts/tokens/{tokenSid}/refresh
+Authorization: Bearer <your-api-credential>
+Content-Type: application/json
+```
+
+```json
+{ "expiresIn": 900 }
+```
+
+Refresh reuses the token family's frozen policy, revokes the previous
+credential after minting its replacement, and cannot pass the root token's
+8-hour absolute lifetime. An element refresh returns a new `elementToken` and
+opaque `stsToken`; an API refresh returns a new opaque bearer `stsToken`
+without `elementToken` or `elementType`.
+
+## Network conditions
+
+Only `IpAddress` and `NotIpAddress` operators are allowed in
+`networkConditions`. Any other operator returns
+`400 CONDITION_OPERATOR_NOT_ALLOWED`.
+
+The semantics depend on the token type:
+
+- **Element tokens:** supplied network conditions replace the creator's
+  network conditions. If omitted, the creator's network conditions are
+  inherited. If neither side supplies them, no network condition is applied.
+- **API tokens:** supplied network conditions are merged as an additional
+  restriction onto every `Allow` statement. They never replace or loosen the
+  caller's existing conditions.
+
+Network conditions restrict where a credential can be used; they do not grant
+additional resource access.
+
+## For end users
+
+Your application may use a temporary access pass instead of sharing its full
+account credential with a browser or embedded service. The pass only works for
+the limited actions it was created for, expires automatically, and can be
+stopped immediately. Embedded experiences use an element pass, while other
+short-lived API access uses an API pass; either way, your full account
+credentials stay protected.

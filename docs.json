@@ -37,7 +37,11 @@
               },
               {
                 "group": "Implementation",
-                "pages": ["platform/security/clients", "platform/security/implementation"]
+                "pages": [
+                  "platform/security/clients",
+                  "platform/security/implementation",
+                  "platform/security/sts-tokens"
+                ]
               }
             ]
           },
@@ -169,7 +173,11 @@
         "groups": [
           {
             "group": "Getting Started",
-            "pages": ["smarter-elements/overview", "smarter-elements/getting-started"]
+            "pages": [
+              "smarter-elements/overview",
+              "smarter-elements/getting-started",
+              "smarter-elements/authentication"
+            ]
           },
           {
             "group": "Guides",
