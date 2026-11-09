@@ -10,6 +10,8 @@ description: "A block that represents a single step in a wizard"
   "type": "wizard_step",
   "nextButtonText": "sample-nextButtonText",
   "acknowledgementText": "sample-acknowledgementText",
+  "showBackButton": true,
+  "backButtonText": "Back",
   "elements": []
 }
 ```
@@ -28,6 +30,14 @@ Must be <code>wizard_step</code>
 
 <ParamField path="acknowledgementText" type="string" required="false" >
   Optional text for an acknowledgement checkbox that must be checked before proceeding
+</ParamField>
+
+<ParamField path="showBackButton" type="boolean" required="false" >
+  When true, displays a back button on this step to return to the previous step. Ignored on the first step.
+</ParamField>
+
+<ParamField path="backButtonText" type="string" required="false" >
+  Optional custom text for the back button (defaults to <code>Back</code>)
 </ParamField>
 
 <ParamField path="elements" type="array" required="true" >

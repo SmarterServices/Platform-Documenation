@@ -94,6 +94,10 @@
                 ]
               }
             ]
+          },
+          {
+            "group": "Endpoints",
+            "openapi": "https://api.dev.smarterservices.com/documentation/latest/public/openapi.json"
           }
         ]
       },
